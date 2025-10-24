@@ -238,27 +238,31 @@
             const perSession = adjustedWater / 2;
             const perSession3 = adjustedWater / 3;
             
-            const output = `
-                <div class="result-item">
-                    <span class="result-label">Weekly Water Needed:</span>
-                    <span class="result-value">${adjustedWater.toFixed(1)} gallons</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Per Session (2x/week):</span>
-                    <span class="result-value">${perSession.toFixed(1)} gallons</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Per Session (3x/week):</span>
-                    <span class="result-value">${perSession3.toFixed(1)} gallons</span>
-                </div>
-                <div class="result-item">
-                    <span class="result-label">Garden Area:</span>
-                    <span class="result-value">${area.toFixed(1)} sq ft</span>
+        const output = `
+            <div class="result-item">
+                <span class="result-label">Weekly Water Needed:</span>
+                <span class="result-value">${adjustedWater.toFixed(1)} gallons</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Per Session (2x/week):</span>
+                <span class="result-value">${perSession.toFixed(1)} gallons</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Per Session (3x/week):</span>
+                <span class="result-value">${perSession3.toFixed(1)} gallons</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Garden Area:</span>
+                <span class="result-value">${area.toFixed(1)} sq ft</span>
+            </div>
+        `;
         
-  
-    <script>
-        // Tab Navigation
-        document.querySelectorAll('.tab-ibtn').forEach(btn => {
+    document.getElementById('water-output').innerHTML = output;
+    document.getElementById('water-result').classList.add('show');
+}
+
+    // COMPOST CALCULATOR
+    function calculateCompost() {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-ibtn').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
