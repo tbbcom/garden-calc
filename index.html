@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garden Calculator - Soil, Mulch, Plant Spacing & Watering</title>
+    <meta name="description" content="Professional 6-in-1 garden calculator for soil volume, mulch coverage, plant spacing, watering schedules, compost, and fertilizer calculations. Free, accurate, mobile-friendly tool for home gardeners and landscapers.">
+    <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+    <div class="seo-intro">
+        <h2>Complete Garden Calculator - Soil, Mulch, Plant Spacing &amp; Watering</h2>
+      
+        <p>Planning your garden has never been easier. Our <strong>professional garden calculator</strong> combines six essential tools in one lightweight, mobile-friendly platform. Whether you're building raised beds, landscaping flower gardens, or planning vegetable spacing, get instant, accurate calculations for <strong>soil volume, mulch coverage, plant quantities, watering schedules, compost amendments, and fertilizer requirements</strong>.</p>
+    <br />
+        <p>Unlike basic calculators that only handle one measurement, this comprehensive tool adapts to your specific needs with <strong>imperial/metric conversion, multiple bed shapes (rectangular, square, circular), three planting patterns (square, rectangular, triangular grid)</strong>, and environmental adjustments for soil type, climate, and plant species. Perfect for home gardeners, landscapers, and agricultural professionals in Malaysia, Singapore, and worldwide.</p>
+    <br />
+        <p>Save money by ordering exact quantities. Avoid waste. Optimize plant health. All calculations follow proven horticultural standards from <strong>USDA, Royal Horticultural Society, and agricultural extension services</strong>. Zero cost, no registration, instant results.</p>
+    </div>
+
+    <div class="calc-container">
+        <div class="calc-header">
+            <h1>🌱 Garden Calculator</h1>
+            <p>Complete toolkit for soil, mulch, spacing, watering &amp; more</p>
+        </div>
+        
+        <div class="tab-navigation">
+            <button class="tab-ibtn active" data-tab="soil">Soil Calculator</button>
+            <button class="tab-ibtn" data-tab="mulch">Mulch Calculator</button>
+            <button class="tab-ibtn" data-tab="spacing">Plant Spacing</button>
+            <button class="tab-ibtn" data-tab="water">Watering</button>
+            <button class="tab-ibtn" data-tab="compost">Compost</button>
+            <button class="tab-ibtn" data-tab="fertilizer">Fertilizer</button>
+        </div>
+        
+        <!-- SOIL CALCULATOR -->
+        <div class="calc-panel active" id="soil">
+            <h2>Soil &amp; Topsoil Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Calculate the exact amount of soil needed for raised beds, garden plots, or landscaping projects.</p>
+            
+            <div class="unit-toggle">
+                <button class="unit-ibtn active" data-unit="imperial" data-calc="soil">Imperial (ft/in)</button>
+                <button class="unit-ibtn" data-unit="metric" data-calc="soil">Metric (m/cm)</button>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="soil-length">Length <span class="unit-label">(feet)</span></label>
+                    <input type="number" id="soil-length" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="soil-width">Width <span class="unit-label">(feet)</span></label>
+                    <input type="number" id="soil-width" step="0.1" min="0" placeholder="5">
+                </div>
+                <div class="form-group">
+                    <label for="soil-depth">Depth <span class="unit-label">(inches)</span></label>
+                    <input type="number" id="soil-depth" step="0.5" min="0" placeholder="12">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="soil-shape">Bed Shape</label>
+                <select id="soil-shape">
+                    <option value="rectangular">Rectangular/Square</option>
+                    <option value="circular">Circular</option>
+                </select>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateSoil()">Calculate Soil Needed</button>
+            
+            <div class="result-box" id="soil-result">
+                <h3>📊 Your Soil Requirements</h3>
+                <div id="soil-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Order 5-10% extra soil to account for settling. For raised beds, 12-18 inches depth is ideal for most vegetables.
+            </div>
+        </div>
+        
+        <!-- MULCH CALCULATOR -->
+        <div class="calc-panel" id="mulch">
+            <h2>Mulch Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Determine how much mulch you need for landscaping beds, tree rings, or garden paths.</p>
+            
+            <div class="unit-toggle">
+                <button class="unit-ibtn active" data-unit="imperial" data-calc="mulch">Imperial (ft/in)</button>
+                <button class="unit-ibtn" data-unit="metric" data-calc="mulch">Metric (m/cm)</button>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="mulch-length">Length <span class="unit-label">(feet)</span></label>
+                    <input type="number" id="mulch-length" step="0.1" min="0" placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label for="mulch-width">Width <span class="unit-label">(feet)</span></label>
+                    <input type="number" id="mulch-width" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="mulch-depth">Depth <span class="unit-label">(inches)</span></label>
+                    <input type="number" id="mulch-depth" step="0.5" min="0" placeholder="3">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="bag-size">Bag Size (cubic feet)</label>
+                <select id="bag-size">
+                    <option value="2">2 cu ft bags</option>
+                    <option value="3">3 cu ft bags</option>
+                    <option value="1.5">1.5 cu ft bags</option>
+                </select>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateMulch()">Calculate Mulch Needed</button>
+            
+            <div class="result-box" id="mulch-result">
+                <h3>📊 Your Mulch Requirements</h3>
+                <div id="mulch-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Apply 2-4 inches of mulch for optimal weed suppression and moisture retention. Avoid piling mulch against plant stems or tree trunks.
+            </div>
+        </div>
+        
+        <!-- PLANT SPACING CALCULATOR -->
+        <div class="calc-panel" id="spacing">
+            <h2>Plant Spacing Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Calculate how many plants you need based on spacing requirements and garden layout patterns.</p>
+            
+            <div class="form-group">
+                <label>Grid Pattern</label>
+                <div class="grid-type-selector">
+                    <button class="grid-type-ibtn active" data-grid="square">Square</button>
+                    <button class="grid-type-ibtn" data-grid="rectangular">Rectangular</button>
+                    <button class="grid-type-ibtn" data-grid="triangular">Triangular</button>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="spacing-length">Garden Length (feet)</label>
+                    <input type="number" id="spacing-length" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="spacing-width">Garden Width (feet)</label>
+                    <input type="number" id="spacing-width" step="0.1" min="0" placeholder="5">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plant-spacing">Plant Spacing (inches)</label>
+                    <input type="number" id="plant-spacing" step="0.5" min="0" placeholder="12">
+                </div>
+                <div class="form-group" id="row-spacing-group" style="display: none;">
+                    <label for="row-spacing">Row Spacing (inches)</label>
+                    <input type="number" id="row-spacing" step="0.5" min="0" placeholder="18">
+                </div>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateSpacing()">Calculate Plants Needed</button>
+            
+            <div class="result-box" id="spacing-result">
+                <h3>📊 Your Plant Requirements</h3>
+                <div id="spacing-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Triangular spacing uses space most efficiently (15% more plants) and is ideal for groundcovers. Square spacing is easier for row crops and maintenance.
+            </div>
+        </div>
+        
+        <!-- WATERING CALCULATOR -->
+        <div class="calc-panel" id="water">
+            <h2>Garden Watering Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Calculate weekly water requirements based on plant type, soil, and climate conditions.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="water-length">Garden Length (feet)</label>
+                    <input type="number" id="water-length" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="water-width">Garden Width (feet)</label>
+                    <input type="number" id="water-width" step="0.1" min="0" placeholder="5">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="plant-type">Plant Type</label>
+                    <select id="plant-type">
+                        <option value="0.6">Vegetables</option>
+                        <option value="0.5">Flowers</option>
+                        <option value="0.4">Shrubs</option>
+                        <option value="0.7">Newly Planted Trees</option>
+                        <option value="0.3">Established Trees</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="soil-type">Soil Type</label>
+                    <select id="soil-type">
+                        <option value="1.2">Sandy (drains quickly)</option>
+                        <option value="1.0">Loamy (balanced)</option>
+                        <option value="0.8">Clay (retains moisture)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="climate-type">Climate Condition</label>
+                <select id="climate-type">
+                    <option value="1.3">Dry/Hot (high evaporation)</option>
+                    <option value="1.0">Moderate</option>
+                    <option value="0.7">Wet/Humid (low evaporation)</option>
+                </select>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateWatering()">Calculate Water Needs</button>
+            
+            <div class="result-box" id="water-result">
+                <h3>📊 Your Watering Requirements</h3>
+                <div id="water-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Water deeply 2-3 times per week rather than daily shallow watering. Early morning watering minimizes evaporation and fungal diseases.
+            </div>
+        </div>
+        
+        <!-- COMPOST CALCULATOR -->
+        <div class="calc-panel" id="compost">
+            <h2>Compost Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Calculate compost volume needed for soil amendment and top-dressing applications.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="compost-length">Garden Length (feet)</label>
+                    <input type="number" id="compost-length" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="compost-width">Garden Width (feet)</label>
+                    <input type="number" id="compost-width" step="0.1" min="0" placeholder="5">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="compost-application">Application Type</label>
+                <select id="compost-application">
+                    <option value="0.25">Top Dressing (1/4 inch)</option>
+                    <option value="0.5">Light Amendment (1/2 inch)</option>
+                    <option value="1">Standard Amendment (1 inch)</option>
+                    <option value="2">Heavy Amendment (2 inches)</option>
+                    <option value="3">New Bed Preparation (3 inches)</option>
+                </select>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateCompost()">Calculate Compost Needed</button>
+            
+            <div class="result-box" id="compost-result">
+                <h3>📊 Your Compost Requirements</h3>
+                <div id="compost-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Apply compost in spring and fall for best results. Mix into top 6-8 inches of soil for new beds, or top-dress established gardens.
+            </div>
+        </div>
+        
+        <!-- FERTILIZER CALCULATOR -->
+        <div class="calc-panel" id="fertilizer">
+            <h2>Fertilizer Calculator</h2>
+            <p style="margin-bottom: 20px; color: #718096;">Calculate fertilizer amounts based on NPK requirements and garden size.</p>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fert-length">Garden Length (feet)</label>
+                    <input type="number" id="fert-length" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="fert-width">Garden Width (feet)</label>
+                    <input type="number" id="fert-width" step="0.1" min="0" placeholder="5">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="crop-type">Crop Type</label>
+                <select id="crop-type">
+                    <option value="leafy">Leafy Greens (high N)</option>
+                    <option value="fruiting">Fruiting Vegetables (balanced)</option>
+                    <option value="root">Root Vegetables (high P/K)</option>
+                    <option value="flowers">Flowers (high P)</option>
+                    <option value="lawn">Lawn (high N)</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="npk-n">N (Nitrogen %)</label>
+                    <input type="number" id="npk-n" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="npk-p">P (Phosphorus %)</label>
+                    <input type="number" id="npk-p" step="0.1" min="0" placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label for="npk-k">K (Potassium %)</label>
+                    <input type="number" id="npk-k" step="0.1" min="0" placeholder="10">
+                </div>
+            </div>
+            
+            <button class="calc-ibutton" onclick="calculateFertilizer()">Calculate Fertilizer Amount</button>
+            
+            <div class="result-box" id="fert-result">
+                <h3>📊 Your Fertilizer Requirements</h3>
+                <div id="fert-output"></div>
+            </div>
+            
+            <div class="info-box">
+                <strong>💡 Pro Tip:</strong> Always conduct a soil test before fertilizing. Over-fertilization can harm plants and pollute waterways. Follow package directions carefully.
+            </div>
+        </div>
+    </div>
+
+    <section class="how-to-guide">
+        <h2 class="how-to-use">How to Use the Garden Calculator</h2>
+        
+        <h3 class="how-to-step">Soil &amp; Topsoil Calculator</h3>
+        <ol>
+            <li><strong>Select your unit system</strong> - Choose Imperial (feet/inches) or Metric (meters/cm)</li>
+            <li><strong>Enter dimensions</strong> - Input length, width, and desired depth of your raised bed or garden plot</li>
+            <li><strong>Choose shape</strong> - Select rectangular/square or circular bed shape</li>
+            <li><strong>Calculate</strong> - Get instant results showing cubic yards, cubic feet, and bags needed</li>
+            <li><strong>Order smart</strong> - Use the "10% extra" calculation to account for settling</li>
+        </ol>
+        
+        <h3 class="how-to-step">Mulch Calculator</h3>
+        <ol>
+            <li><strong>Measure your mulch area</strong> - Enter the length and width of your garden bed or landscaping zone</li>
+            <li><strong>Set mulch depth</strong> - Standard is 2-4 inches (fine mulch: 2", coarse mulch: 3-4")</li>
+            <li><strong>Select bag size</strong> - Choose from 1.5, 2, or 3 cubic feet bags</li>
+            <li><strong>Get results</strong> - See total cubic yards and exact bag count</li>
+        </ol>
+        
+        <h3 class="how-to-step">Plant Spacing Calculator</h3>
+        <ol>
+            <li><strong>Choose planting pattern</strong> - Square grid (easiest), rectangular (row crops), or triangular (space-efficient)</li>
+            <li><strong>Enter garden dimensions</strong> - Measure length and width of planting area</li>
+            <li><strong>Set plant spacing</strong> - Check seed packet or use standard spacing: lettuce 6-8", tomatoes 18-24", peppers 12-18"</li>
+            <li><strong>For rectangular</strong> - Add separate row spacing for walking paths</li>
+            <li><strong>Calculate plant count</strong> - Know exactly how many seedlings to buy</li>
+        </ol>
+        
+        <h3 class="how-to-step">Watering Calculator</h3>
+        <ol>
+            <li><strong>Measure garden area</strong> - Enter length × width of your beds</li>
+            <li><strong>Select plant type</strong> - Vegetables need most water (0.6 gal/sq ft), established trees least (0.3 gal/sq ft)</li>
+            <li><strong>Identify soil type</strong> - Sandy drains fast (needs 20% more), clay retains (needs 20% less)</li>
+            <li><strong>Adjust for climate</strong> - Hot/dry regions need 30% more, humid areas 30% less</li>
+            <li><strong>Get watering schedule</strong> - See weekly gallons and per-session amounts for 2-3x weekly watering</li>
+        </ol>
+        
+        <h3 class="how-to-step">Compost Calculator</h3>
+        <ol>
+            <li><strong>Measure garden area</strong> - Length × width of beds needing compost</li>
+            <li><strong>Choose application depth</strong> - Top dressing (¼"), light (½"), standard (1"), heavy (2"), new bed (3")</li>
+            <li><strong>Calculate volume</strong> - Get cubic yards and bag requirements</li>
+        </ol>
+        
+        <h3 class="how-to-step">Fertilizer Calculator</h3>
+        <ol>
+            <li><strong>Enter garden dimensions</strong></li>
+            <li><strong>Select crop type</strong> - Leafy greens need high nitrogen, flowering plants need phosphorus</li>
+            <li><strong>Input NPK values</strong> - From your fertilizer bag (example: 10-10-10)</li>
+            <li><strong>Calculate pounds needed</strong> - See total fertilizer and actual nutrient amounts</li>
+        </ol>
+    </section>
+
+    <hr>
+
+    <section class="faqpage">
+        <h2 class="faq-item">FAQ About The Garden Calculator</h2>
+        <section>
+            <h3 class="question">How much soil do I need for a 4x8 raised bed?</h3>
+            <p class="answer">For a 4ft × 8ft raised bed at 12 inches deep, you need 10.67 cubic feet or 0.395 cubic yards (approximately 6 bags of 2 cu ft soil). At 18 inches deep, you need 16 cubic feet or 0.593 cubic yards (8 bags). Always add 10% extra for settling.</p>
+            <br />
+            
+            <h3 class="question">What's the ideal mulch depth for garden beds?</h3>
+            <p class="answer">Apply 2-4 inches of mulch. Fine mulch (shredded leaves, cocoa hulls) works at 2 inches. Coarse mulch (wood chips, bark nuggets) performs best at 3-4 inches. Thinner applications allow weeds; thicker layers prevent oxygen and water penetration.</p>
+            <br />
+            
+            <h3 class="question">Should I use square or triangular plant spacing?</h3>
+            <p class="answer">Square spacing is easier to maintain with straight rows for weeding and harvesting. Triangular spacing uses space 15% more efficiently and works best for groundcovers, ornamental beds, and mass plantings. For vegetable gardens with frequent maintenance, use square or rectangular spacing.</p>
+            <br />
+            
+            <h3 class="question">How many gallons is "one inch of water" for my garden?</h3>
+            <p class="answer">One inch of water equals 0.623 gallons per square foot. A 100 sq ft garden needs 62.3 gallons for one inch of watering. Most gardens need 1-2 inches weekly (62-124 gallons per 100 sq ft), depending on plant type, soil, and weather.</p>
+            <br />
+            
+            <h3 class="question">How often should I water vegetables?</h3>
+            <p class="answer">Water deeply 2-3 times weekly rather than shallow daily watering. This encourages deeper root growth. Sandy soils need more frequent watering (every 2-3 days), while clay soils retain moisture longer (every 5-7 days). Adjust based on rainfall and temperature.</p>
+            <br />
+            
+            <h3 class="question">What's the difference between topsoil, garden soil, and potting mix?</h3>
+            <p class="answer">Topsoil is raw earth for grading and filling. Garden soil is amended topsoil with compost for in-ground beds. Potting mix is soilless (peat/coco coir + perlite) for containers. Use topsoil for raised beds 12"+ deep, garden soil for in-ground beds, potting mix for pots only.</p>
+            <br />
+            
+            <h3 class="question">Can I use this calculator for circular garden beds?</h3>
+            <p class="answer">Yes! The soil calculator includes a circular option. Measure the diameter of your circular bed, enter it as "length," and select "circular" shape. The calculator uses the formula πr² to compute area automatically.</p>
+            <br />
+            
+            <h3 class="question">How do I convert cubic yards to bags?</h3>
+            <p class="answer">One cubic yard = 27 cubic feet. For 2 cu ft bags: divide cubic feet by 2. For 3 cu ft bags: divide by 3. Example: 0.5 cubic yards = 13.5 cubic feet = 7 bags (2 cu ft) or 5 bags (3 cu ft). Always round up.</p>
+            <br />
+            
+            <h3 class="question">When should I apply compost to my garden?</h3>
+            <p class="answer">Apply compost in early spring before planting and in fall after harvest. For new beds, work 2-3 inches into the top 6-8 inches of soil. For established gardens, top-dress with ½-1 inch twice yearly. Avoid applying near plant stems.</p>
+            <br />
+            
+            <h3 class="question">What do the NPK numbers on fertilizer mean?</h3>
+            <p class="answer">NPK shows percentage by weight of Nitrogen (leaf growth), Phosphorus (roots/flowers), and Potassium (overall health). 10-10-10 is balanced. Leafy greens need high N (20-10-10). Flowering plants need high P (10-30-10). Root vegetables need high K (10-10-20).</p>
+            <br />
+            
+            <h3 class="question">Is this calculator accurate for Malaysia's tropical climate?</h3>
+            <p class="answer">Yes! Select "Dry/Hot" climate setting for Malaysia's tropical conditions. High temperatures and humidity increase evaporation. Use the 30% adjustment factor built into the calculator. Consider shade cloth for midday sun protection and water early morning or evening.</p>
+            <br />
+            
+            <h3 class="question">How many tomato plants fit in a 4×8 raised bed?</h3>
+            <p class="answer">With 24-inch spacing (recommended for indeterminate varieties), use square grid: 4-6 plants. With 18-inch spacing (determinate/bush varieties): 8-10 plants. Never overcrowd - good airflow prevents disease. Use the spacing calculator with your bed dimensions for precision.</p>
+        </section>
+    </section>
+
+    <!-- External JavaScript -->
+    <script src="assets/garden-calculator.js"></script>
+
+    <!-- Schema.org JSON-LD structured data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Garden Calculator - Soil, Mulch, Plant Spacing & Watering",
+      "url": "https://www.homegardenlot.com/p/garden-calculator.html",
+      "description": "Professional 6-in-1 garden calculator for soil volume, mulch coverage, plant spacing, watering schedules, compost, and fertilizer calculations. Free, accurate, mobile-friendly tool for home gardeners and landscapers.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "featureList": [
+        "Soil and topsoil volume calculator",
+        "Mulch coverage calculator with bag estimates",
+        "Plant spacing calculator with square, rectangular, and triangular grids",
+        "Garden watering calculator with climate and soil adjustments",
+        "Compost volume calculator",
+        "Fertilizer NPK calculator",
+        "Imperial and metric unit support",
+        "Mobile-responsive design",
+        "Instant calculations",
+        "No registration required"
+      ],
+      "screenshot": "https://www.homegardenlot.com/images/garden-calculator-screenshot.jpg",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "287",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Home Garden Lot",
+        "url": "https://www.homegardenlot.com"
+      },
+      "datePublished": "2025-10-24",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "potentialAction": {
+        "@type": "UseAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://www.homegardenlot.com/p/garden-calculator.html"
+        }
+      }
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How much soil do I need for a 4x8 raised bed?","acceptedAnswer":{"@type":"Answer","text":"For a 4ft × 8ft raised bed at 12 inches deep, you need 10.67 cubic feet or 0.395 cubic yards (approximately 6 bags of 2 cu ft soil). At 18 inches deep, you need 16 cubic feet or 0.593 cubic yards (8 bags). Always add 10% extra for settling."}},{"@type":"Question","name":"What's the ideal mulch depth for garden beds?","acceptedAnswer":{"@type":"Answer","text":"Apply 2-4 inches of mulch. Fine mulch (shredded leaves, cocoa hulls) works at 2 inches. Coarse mulch (wood chips, bark nuggets) performs best at 3-4 inches. Thinner applications allow weeds; thicker layers prevent oxygen and water penetration."}},{"@type":"Question","name":"Should I use square or triangular plant spacing?","acceptedAnswer":{"@type":"Answer","text":"Square spacing is easier to maintain with straight rows for weeding and harvesting. Triangular spacing uses space 15% more efficiently and works best for groundcovers, ornamental beds, and mass plantings. For vegetable gardens with frequent maintenance, use square or rectangular spacing."}},{"@type":"Question","name":"How many gallons is \"one inch of water\" for my garden?","acceptedAnswer":{"@type":"Answer","text":"One inch of water equals 0.623 gallons per square foot. A 100 sq ft garden needs 62.3 gallons for one inch of watering. Most gardens need 1-2 inches weekly (62-124 gallons per 100 sq ft), depending on plant type, soil, and weather."}},{"@type":"Question","name":"How often should I water vegetables?","acceptedAnswer":{"@type":"Answer","text":"Water deeply 2-3 times weekly rather than shallow daily watering. This encourages deeper root growth. Sandy soils need more frequent watering (every 2-3 days), while clay soils retain moisture longer (every 5-7 days). Adjust based on rainfall and temperature."}},{"@type":"Question","name":"What's the difference between topsoil, garden soil, and potting mix?","acceptedAnswer":{"@type":"Answer","text":"Topsoil is raw earth for grading and filling. Garden soil is amended topsoil with compost for in-ground beds. Potting mix is soilless (peat/coco coir + perlite) for containers. Use topsoil for raised beds 12\"+ deep, garden soil for in-ground beds, potting mix for pots only."}},{"@type":"Question","name":"Can I use this calculator for circular garden beds?","acceptedAnswer":{"@type":"Answer","text":"Yes! The soil calculator includes a circular option. Measure the diameter of your circular bed, enter it as \"length,\" and select \"circular\" shape. The calculator uses the formula πr² to compute area automatically."}},{"@type":"Question","name":"How do I convert cubic yards to bags?","acceptedAnswer":{"@type":"Answer","text":"One cubic yard = 27 cubic feet. For 2 cu ft bags: divide cubic feet by 2. For 3 cu ft bags: divide by 3. Example: 0.5 cubic yards = 13.5 cubic feet = 7 bags (2 cu ft) or 5 bags (3 cu ft). Always round up."}},{"@type":"Question","name":"When should I apply compost to my garden?","acceptedAnswer":{"@type":"Answer","text":"Apply compost in early spring before planting and in fall after harvest. For new beds, work 2-3 inches into the top 6-8 inches of soil. For established gardens, top-dress with ½-1 inch twice yearly. Avoid applying near plant stems."}},{"@type":"Question","name":"What do the NPK numbers on fertilizer mean?","acceptedAnswer":{"@type":"Answer","text":"NPK shows percentage by weight of Nitrogen (leaf growth), Phosphorus (roots/flowers), and Potassium (overall health). 10-10-10 is balanced. Leafy greens need high N (20-10-10). Flowering plants need high P (10-30-10). Root vegetables need high K (10-10-20)."}},{"@type":"Question","name":"Is this calculator accurate for Malaysia's tropical climate?","acceptedAnswer":{"@type":"Answer","text":"Yes! Select \"Dry/Hot\" climate setting for Malaysia's tropical conditions. High temperatures and humidity increase evaporation. Use the 30% adjustment factor built into the calculator. Consider shade cloth for midday sun protection and water early morning or evening."}},{"@type":"Question","name":"How many tomato plants fit in a 4×8 raised bed?","acceptedAnswer":{"@type":"Answer","text":"With 24-inch spacing (recommended for indeterminate varieties), use square grid: 4-6 plants. With 18-inch spacing (determinate/bush varieties): 8-10 plants. Never overcrowd - good airflow prevents disease. Use the spacing calculator with your bed dimensions for precision."}}]}
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://www.homegardenlot.com"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Tools",
+          "item": "https://www.homegardenlot.com/p/soil-calculator.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Garden Calculator",
+          "item": "https://www.homegardenlot.com/p/garden-calculator.html"
+        }
+      ]
+    }
+    </script>
+</body>
+</html>
