@@ -263,13 +263,42 @@
 
     // COMPOST CALCULATOR
     function calculateCompost() {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-ibtn').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
-                this.classList.add('active');
-                document.getElementById(this.dataset.tab).classList.add('active');
-            });
-        });
+        const length = parseFloat(document.getElementById('compost-length').value);
+        const width = parseFloat(document.getElementById('compost-width').value);
+        const application = parseFloat(document.getElementById('compost-application').value);
+        
+        if (!length || !width) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        const area = length * width;
+        const volume = area * (application / 12);
+        const cubicYards = volume / 27;
+        const bags = Math.ceil((volume / 27) * 27 / 2);
+        
+        const output = `
+            <div class="result-item">
+                <span class="result-label">Volume Needed:</span>
+                <span class="result-value">${cubicYards.toFixed(2)} cubic yards</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Cubic Feet:</span>
+                <span class="result-value">${volume.toFixed(2)} cu ft</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Bags Needed (2 cu ft):</span>
+                <span class="result-value">${bags} bags</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Coverage Area:</span>
+                <span class="result-value">${area.toFixed(1)} sq ft</span>
+            </div>
+        `;
+        
+        document.getElementById('compost-output').innerHTML = output;
+        document.getElementById('compost-result').classList.add('show');
+    }
         
         // Unit Toggle
         document.querySelectorAll('.unit-ibtn').forEach(btn => {
