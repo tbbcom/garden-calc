@@ -318,7 +318,7 @@
 }
 
 @media (max-width: 768px) {
-    .calc-header h1 {
+    .calc-header h2 {
         font-size: 1.6rem;
     }
     
