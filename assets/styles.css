@@ -14,7 +14,7 @@ body {
 .calc-container {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0 auto;
 }
 
 .calc-header {
@@ -27,7 +27,7 @@ body {
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
-.calc-header h1 {
+.calc-header h2 {
     font-size: 2.2rem;
     margin-bottom: 10px;
     font-weight: 700;
