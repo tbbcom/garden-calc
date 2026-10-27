@@ -1,0 +1,614 @@
+<!--
+  Home Garden Lot — Advanced Mulch Calculator v2.0
+  Paste into Blogger → Pages → "Mulch Calculator" → HTML view (replace everything).
+  Self-contained: scoped CSS (.hglmc), vanilla JS IIFE, JSON-LD. No external requests.
+  Page title in Blogger: Mulch Calculator: How Much Mulch Do I Need? (Bags, Yards & Cost)
+  Search description: Free mulch calculator for any bed shape. Get cubic yards, bags, bulk vs bag cost and weight for wood mulch, pine straw, rubber or rock in seconds.
+-->
+<style>
+.hglmc{--mc-green:var(--hgl-green,#247b49);--mc-green-dark:var(--hgl-green-dark,#1b5e37);--mc-soft:var(--hgl-green-soft,#d4ecdb);--mc-bg:var(--hgl-gray,#fafafa);--mc-surface:var(--hgl-surface,#fff);--mc-text:var(--hgl-text,#09090b);--mc-muted:var(--hgl-muted,#71717a);--mc-line:var(--hgl-line,#e4e4e7);--mc-radius:var(--hgl-radius,.5rem);--mc-shadow:var(--hgl-shadow,0 1px 2px rgba(9,9,11,.05),0 10px 20px -8px rgba(9,9,11,.08));font-size:1rem;line-height:1.5;color:var(--mc-text);margin:0 0 2em}
+.hglmc *,.hglmc *::before,.hglmc *::after{box-sizing:border-box}
+.hglmc__grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:820px){.hglmc__grid{grid-template-columns:minmax(0,1fr)}}
+.hglmc__card{background:var(--mc-surface);border-radius:var(--mc-radius);box-shadow:var(--mc-shadow);padding:20px}
+.hglmc__card+.hglmc__card{margin-top:16px}
+.hglmc__h{margin:0 0 14px!important;font-size:1.05rem!important;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.hglmc__step{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:var(--mc-green);color:#fff;font-size:.8rem;flex:none}
+.hglmc__seg{display:inline-flex;background:var(--mc-bg);border:1px solid var(--mc-line);border-radius:var(--mc-radius);padding:3px;gap:3px;margin-bottom:14px}
+.hglmc__seg button{border:0;background:transparent;padding:7px 14px;border-radius:6px;font:600 .9rem inherit;font-family:inherit;color:var(--mc-muted);cursor:pointer}
+.hglmc__seg button[aria-pressed="true"]{background:var(--mc-surface);color:var(--mc-green);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.hglmc__area{border:1px solid var(--mc-line);border-radius:var(--mc-radius);padding:12px;margin-bottom:10px;background:var(--mc-bg)}
+.hglmc__area-top{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.hglmc__area-name{font-weight:700;font-size:.9rem;flex:1}
+.hglmc__fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.hglmc label{display:block;font-size:.8rem;font-weight:600;color:var(--mc-muted);margin-bottom:4px}
+.hglmc input,.hglmc select{width:100%;padding:10px 12px;border:1px solid var(--mc-line);border-radius:var(--mc-radius);background:var(--mc-surface);font:inherit;font-size:1rem;color:var(--mc-text);min-height:44px}
+.hglmc input:focus,.hglmc select:focus{outline:2px solid var(--mc-green);outline-offset:0;border-color:transparent}
+.hglmc__shape{width:auto!important;min-width:150px;font-size:.9rem!important;padding:6px 10px!important;min-height:36px!important}
+.hglmc__x{border:0;background:none;color:var(--mc-muted);font-size:1.3rem;line-height:1;width:36px;height:36px;border-radius:6px;cursor:pointer}
+.hglmc__x:hover{background:#fee2e2;color:#b91c1c}
+.hglmc__add{width:100%;border:2px dashed var(--mc-line);background:transparent;border-radius:var(--mc-radius);padding:10px;font:700 .95rem inherit;font-family:inherit;color:var(--mc-green);cursor:pointer}
+.hglmc__add:hover{border-color:var(--mc-green);background:var(--mc-soft)}
+.hglmc__row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hglmc__hint{font-size:.82rem;color:var(--mc-muted);margin:6px 0 0}
+.hglmc__res{position:sticky;top:88px}
+@media (max-width:820px){.hglmc__res{position:static}}
+.hglmc__big{background:linear-gradient(135deg,var(--mc-green),var(--mc-green-dark));color:#fff;border-radius:var(--mc-radius);padding:18px;margin-bottom:14px}
+.hglmc__big-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;opacity:.85;font-weight:700}
+.hglmc__big-val{font-size:2.1rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;margin:4px 0}
+.hglmc__big-sub{font-size:.92rem;opacity:.9}
+.hglmc__list{list-style:none;margin:0;padding:0}
+.hglmc__list li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--mc-line);font-size:.95rem}
+.hglmc__list li:last-child{border-bottom:0}
+.hglmc__list b{text-align:right;font-variant-numeric:tabular-nums}
+.hglmc__verdict{margin:14px 0 0;padding:12px 14px;border-radius:var(--mc-radius);background:var(--mc-soft);color:var(--mc-green-dark);font-weight:600;font-size:.93rem}
+.hglmc__actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.hglmc__btn{flex:1;border:0;border-radius:var(--mc-radius);padding:11px 14px;font:700 .9rem inherit;font-family:inherit;cursor:pointer;background:var(--mc-bg);color:var(--mc-text);box-shadow:inset 0 0 0 1px var(--mc-line)}
+.hglmc__btn--main{background:var(--mc-green);color:#fff;box-shadow:none}
+.hglmc__btn:hover{filter:brightness(.95)}
+.hglmc__warn{display:none;margin:10px 0 0;padding:10px 12px;border-radius:var(--mc-radius);background:#fffbeb;color:#78350f;font-size:.88rem}
+.hglmc__warn.is-on{display:block}
+.hglmc details{margin-top:4px}
+.hglmc summary{cursor:pointer;font-weight:700;color:var(--mc-green);font-size:.92rem;padding:4px 0}
+.hglmc__bar{display:none}
+@media (max-width:820px){.hglmc__bar{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:40;align-items:center;justify-content:space-between;gap:10px;border:0;border-radius:var(--mc-radius);background:var(--mc-green);color:#fff;padding:12px 16px;font:700 1rem inherit;font-family:inherit;box-shadow:0 10px 25px -5px rgba(9,9,11,.35);cursor:pointer;transition:transform .2s,opacity .2s}
+.hglmc__bar.is-hidden{transform:translateY(140%);opacity:0;pointer-events:none}}
+@media print{.hglmc__actions,.hglmc__add,.hglmc__x{display:none!important}.hglmc__res{position:static}}
+</style>
+
+<div class="hglmc" id="hglmc">
+  <div class="hglmc__grid">
+    <div>
+      <div class="hglmc__card">
+        <h2 class="hglmc__h"><span class="hglmc__step">1</span>Measure your beds</h2>
+        <div aria-label="Units" class="hglmc__seg" role="group">
+          <button aria-pressed="true" data-unit="us" type="button">Feet &amp; inches</button>
+          <button aria-pressed="false" data-unit="metric" type="button">Meters &amp; cm</button>
+        </div>
+        <div id="hglmc-areas"></div>
+        <button class="hglmc__add" id="hglmc-add" type="button">+ Add another bed or tree ring</button>
+      </div>
+
+      <div class="hglmc__card">
+        <h2 class="hglmc__h"><span class="hglmc__step">2</span>Choose mulch &amp; depth</h2>
+        <label for="hglmc-type">Mulch type</label>
+        <select id="hglmc-type"></select>
+        <p class="hglmc__hint" id="hglmc-type-hint"></p>
+        <div class="hglmc__row2" style="margin-top:12px">
+          <div>
+            <label for="hglmc-depth">Target depth (<span class="hglmc-u-depth">in</span>)</label>
+            <input id="hglmc-depth" inputmode="decimal" min="0" step="0.5" type="number" value="3"/>
+          </div>
+          <div>
+            <label for="hglmc-existing">Mulch already there (<span class="hglmc-u-depth">in</span>)</label>
+            <input id="hglmc-existing" inputmode="decimal" min="0" step="0.5" type="number" value="0"/>
+          </div>
+        </div>
+        <p class="hglmc__warn" id="hglmc-warn" role="note"></p>
+        <div style="margin-top:12px">
+          <label for="hglmc-extra">Extra for settling &amp; spillage</label>
+          <select id="hglmc-extra">
+            <option value="0">None (exact)</option>
+            <option value="5">5%</option>
+            <option selected="selected" value="10">10% (recommended)</option>
+            <option value="15">15% (fluffy mulch, uneven ground)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="hglmc__card">
+        <h2 class="hglmc__h"><span class="hglmc__step">3</span>Bags, bulk &amp; prices</h2>
+        <div class="hglmc__row2">
+          <div>
+            <label for="hglmc-bag">Bag size</label>
+            <select id="hglmc-bag"></select>
+          </div>
+          <div>
+            <label for="hglmc-bagprice">Price per bag ($)</label>
+            <input id="hglmc-bagprice" inputmode="decimal" min="0" step="0.01" type="number" value="4.50"/>
+          </div>
+        </div>
+        <div hidden="hidden" id="hglmc-bagcustom-wrap" style="margin-top:10px">
+          <label for="hglmc-bagcustom">Custom bag size (<span class="hglmc-u-bag">cu ft</span>)</label>
+          <input id="hglmc-bagcustom" inputmode="decimal" min="0" step="any" type="number"/>
+        </div>
+        <div class="hglmc__row2" style="margin-top:10px">
+          <div>
+            <label for="hglmc-bulkprice">Bulk price per <span class="hglmc-u-bulk">cu yd</span> ($)</label>
+            <input id="hglmc-bulkprice" inputmode="decimal" min="0" step="1" type="number" value="40"/>
+          </div>
+          <div>
+            <label for="hglmc-delivery">Delivery fee ($)</label>
+            <input id="hglmc-delivery" inputmode="decimal" min="0" step="1" type="number" value="50"/>
+          </div>
+        </div>
+        <p class="hglmc__hint">Prices are examples. Enter what your garden center charges for the most accurate bags-vs-bulk answer.</p>
+      </div>
+    </div>
+
+    <div class="hglmc__res">
+      <div aria-live="polite" class="hglmc__card" id="hglmc-out">
+        <div class="hglmc__big">
+          <div class="hglmc__big-label">You need</div>
+          <div class="hglmc__big-val" id="hglmc-main">0 cu yd</div>
+          <div class="hglmc__big-sub" id="hglmc-mainsub">Enter your bed size to start</div>
+        </div>
+        <ul class="hglmc__list">
+          <li><span>Total area</span><b id="hglmc-area">–</b></li>
+          <li><span>Mulch to add</span><b id="hglmc-depthnet">–</b></li>
+          <li><span>Volume</span><b id="hglmc-vol">–</b></li>
+          <li><span id="hglmc-bags-label">Bags</span><b id="hglmc-bags">–</b></li>
+          <li><span>Bulk order</span><b id="hglmc-bulk">–</b></li>
+          <li><span>Approx. weight</span><b id="hglmc-weight">–</b></li>
+          <li><span>Cost with bags</span><b id="hglmc-cost-bags">–</b></li>
+          <li><span>Cost in bulk (delivered)</span><b id="hglmc-cost-bulk">–</b></li>
+          <li><span>1 <span class="hglmc-u-bulk">cu yd</span> covers</span><b id="hglmc-cover">–</b></li>
+        </ul>
+        <p class="hglmc__verdict" id="hglmc-verdict" hidden="hidden"></p>
+        <div class="hglmc__actions">
+          <button class="hglmc__btn hglmc__btn--main" id="hglmc-share" type="button">Copy results link</button>
+          <button class="hglmc__btn" id="hglmc-print" type="button">Print</button>
+          <button class="hglmc__btn" id="hglmc-reset" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button aria-controls="hglmc-out" class="hglmc__bar is-hidden" id="hglmc-bar" type="button"><span id="hglmc-bar-text">0 cu yd</span><span>See details ↓</span></button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hglmc');
+  if (!root) return;
+
+  var FT_PER_M = 3.28084, CUFT_PER_M3 = 35.3147, CUFT_PER_YD3 = 27, CUFT_PER_L = 0.0353147, KG_PER_LB = 0.453592;
+  var STORE = 'hglmc:v2';
+
+  // density in lb per cubic yard (dry-ish, approximate); depth in inches
+  var TYPES = {
+    hardwood: { name: 'Shredded hardwood', min: 2, max: 3, def: 3, lb: 600, hint: 'The all-rounder for beds and borders: thick enough to block weeds without smothering roots.' },
+    chips: { name: 'Wood chips (arborist)', min: 3, max: 4, def: 3, lb: 500, hint: 'Coarse chips can go 3–4 in deep. Often free from tree services — keep away from young seedlings.' },
+    bark: { name: 'Pine bark nuggets', min: 2, max: 4, def: 3, lb: 450, hint: 'Large nuggets need 3–4 in to cover soil; mini nuggets 2–3 in. Floats in heavy rain on slopes.' },
+    cedar: { name: 'Cedar / cypress', min: 2, max: 3, def: 3, lb: 400, hint: 'Light and slow to break down. 2–3 in is plenty.' },
+    dyed: { name: 'Dyed / colored mulch', min: 2, max: 3, def: 3, lb: 600, hint: 'Same depth as hardwood. Color fades in 6–12 months; top up 1 in a year.' },
+    straw: { name: 'Pine straw', min: 3, max: 4, def: 3, lb: 0, bale: 45, hint: 'Sold in bales. Spread 3–4 in loose; it settles to about 2 in. One bale covers roughly 40–50 sq ft at 3 in.' },
+    rubber: { name: 'Rubber mulch', min: 1.5, max: 2, def: 2, lb: 0, hint: 'Doesn’t decompose, so 1.5–2 in is enough. Not recommended for vegetable beds.' },
+    rock: { name: 'Pea gravel / river rock', min: 2, max: 3, def: 2, lb: 2800, hint: 'About 1.4 tons per cubic yard. Use landscape fabric underneath; 2 in for pea gravel, 3 in for larger rock.' },
+    compost: { name: 'Compost / leaf mold', min: 1, max: 2, def: 2, lb: 1200, hint: 'Feeds soil as it mulches. 1–2 in each spring; deeper layers can stay soggy.' }
+  };
+  var BAGS = {
+    us: [['1.5', '1.5 cu ft'], ['2', '2 cu ft (most common)'], ['3', '3 cu ft'], ['custom', 'Custom…']],
+    metric: [['40', '40 L'], ['50', '50 L'], ['60', '60 L'], ['70', '70 L'], ['custom', 'Custom…']]
+  };
+  var SHAPES = {
+    rect: { name: 'Rectangle / square', f: [['l', 'Length'], ['w', 'Width']] },
+    circle: { name: 'Circle', f: [['d', 'Diameter']] },
+    tri: { name: 'Triangle', f: [['b', 'Base'], ['h', 'Height']] },
+    ring: { name: 'Ring around a tree', f: [['d', 'Outer diameter'], ['i', 'Bare circle at trunk']] },
+    area: { name: 'I know the area', f: [['a', 'Area']] }
+  };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var num = function (v) { var n = parseFloat(v); return isFinite(n) && n > 0 ? n : 0; };
+  var fmt = function (n, d) { return n.toLocaleString('en-US', { maximumFractionDigits: d === undefined ? 2 : d }); };
+  var money = function (n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+
+  var state = defaults();
+
+  function defaults() {
+    return { unit: 'us', type: 'hardwood', depth: 3, existing: 0, extra: 10, bag: '2', bagCustom: '', bagPrice: 4.5, bulkPrice: 40, delivery: 50,
+      areas: [{ shape: 'rect', qty: 1, v: { l: '10', w: '5' } }] };
+  }
+
+  function load() {
+    try {
+      var h = location.hash.match(/mc=([^&]+)/);
+      var raw = h ? decodeURIComponent(escape(atob(decodeURIComponent(h[1])))) : localStorage.getItem(STORE);
+      if (raw) {
+        var s = JSON.parse(raw);
+        if (s && s.areas && s.areas.length) state = Object.assign(defaults(), s);
+      }
+    } catch (e) { /* storage blocked or bad link: keep defaults */ }
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
+  }
+
+  var lenU = function () { return state.unit === 'us' ? 'ft' : 'm'; };
+  var areaU = function () { return state.unit === 'us' ? 'sq ft' : 'm²'; };
+
+  function renderAreas() {
+    var box = $('hglmc-areas');
+    box.innerHTML = '';
+    state.areas.forEach(function (a, idx) {
+      var wrap = document.createElement('div');
+      wrap.className = 'hglmc__area';
+      var opts = Object.keys(SHAPES).map(function (k) {
+        return '<option value="' + k + '"' + (k === a.shape ? ' selected' : '') + '>' + SHAPES[k].name + '</option>';
+      }).join('');
+      var fields = SHAPES[a.shape].f.map(function (f) {
+        var unit = f[0] === 'a' ? areaU() : lenU();
+        var id = 'hglmc-a' + idx + f[0];
+        return '<div><label for="' + id + '">' + f[1] + ' (' + unit + ')</label><input id="' + id + '" data-k="' + f[0] + '" inputmode="decimal" min="0" step="any" type="number" value="' + (a.v[f[0]] || '') + '"></div>';
+      }).join('');
+      var qid = 'hglmc-a' + idx + 'q';
+      wrap.innerHTML =
+        '<div class="hglmc__area-top"><span class="hglmc__area-name">Bed ' + (idx + 1) + '</span>' +
+        '<select aria-label="Shape of bed ' + (idx + 1) + '" class="hglmc__shape">' + opts + '</select>' +
+        (state.areas.length > 1 ? '<button aria-label="Remove bed ' + (idx + 1) + '" class="hglmc__x" type="button">×</button>' : '') + '</div>' +
+        '<div class="hglmc__fields">' + fields +
+        '<div><label for="' + qid + '">How many</label><input id="' + qid + '" data-k="qty" inputmode="numeric" min="1" step="1" type="number" value="' + (a.qty || 1) + '"></div></div>' +
+        (a.shape === 'ring' ? '<p class="hglmc__hint">Leave 3–6 in of bare soil around the trunk — mulch piled against bark invites rot and pests.</p>' : '');
+      wrap.querySelector('select').addEventListener('change', function () { a.shape = this.value; a.v = {}; renderAreas(); calc(); });
+      var x = wrap.querySelector('.hglmc__x');
+      if (x) x.addEventListener('click', function () { state.areas.splice(idx, 1); renderAreas(); calc(); });
+      wrap.querySelectorAll('input').forEach(function (inp) {
+        inp.addEventListener('input', function () {
+          var k = inp.getAttribute('data-k');
+          if (k === 'qty') a.qty = Math.max(1, Math.round(num(inp.value)) || 1); else a.v[k] = inp.value;
+          calc();
+        });
+      });
+      box.appendChild(wrap);
+    });
+  }
+
+  function areaOf(a) {
+    var v = a.v, n = function (k) { return num(v[k]); }, ar = 0;
+    switch (a.shape) {
+      case 'rect': ar = n('l') * n('w'); break;
+      case 'circle': ar = Math.PI * Math.pow(n('d') / 2, 2); break;
+      case 'tri': ar = 0.5 * n('b') * n('h'); break;
+      case 'ring': ar = Math.max(0, Math.PI / 4 * (Math.pow(n('d'), 2) - Math.pow(Math.min(n('i'), n('d')), 2))); break;
+      case 'area': ar = n('a'); break;
+    }
+    return ar * (a.qty || 1);
+  }
+
+  function fillSelects() {
+    $('hglmc-type').innerHTML = Object.keys(TYPES).map(function (k) {
+      return '<option value="' + k + '"' + (k === state.type ? ' selected' : '') + '>' + TYPES[k].name + '</option>';
+    }).join('');
+    var bags = BAGS[state.unit];
+    if (!bags.some(function (b) { return b[0] === state.bag; })) state.bag = state.unit === 'us' ? '2' : '50';
+    $('hglmc-bag').innerHTML = bags.map(function (b) {
+      return '<option value="' + b[0] + '"' + (b[0] === state.bag ? ' selected' : '') + '>' + b[1] + '</option>';
+    }).join('');
+    root.querySelectorAll('.hglmc-u-depth').forEach(function (e) { e.textContent = state.unit === 'us' ? 'in' : 'cm'; });
+    root.querySelectorAll('.hglmc-u-bulk').forEach(function (e) { e.textContent = state.unit === 'us' ? 'cu yd' : 'm³'; });
+    root.querySelectorAll('.hglmc-u-bag').forEach(function (e) { e.textContent = state.unit === 'us' ? 'cu ft' : 'liters'; });
+    root.querySelectorAll('.hglmc__seg button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-unit') === state.unit ? 'true' : 'false'); });
+    $('hglmc-depth').value = state.depth;
+    $('hglmc-existing').value = state.existing;
+    $('hglmc-extra').value = String(state.extra);
+    $('hglmc-bagprice').value = state.bagPrice;
+    $('hglmc-bulkprice').value = state.bulkPrice;
+    $('hglmc-delivery').value = state.delivery;
+  }
+
+  function bagCuFt() {
+    var v = num(state.bag === 'custom' ? state.bagCustom : state.bag);
+    return state.unit === 'us' ? v : v * CUFT_PER_L;
+  }
+
+  function depthRange(t) {
+    return state.unit === 'us' ? t.min + '–' + t.max + ' in' : fmt(t.min * 2.54, 0) + '–' + fmt(t.max * 2.54, 0) + ' cm';
+  }
+  function syncBagUi() {
+    var t = TYPES[state.type];
+    $('hglmc-bag').disabled = !!t.bale;
+    $('hglmc-bagcustom-wrap').hidden = !!t.bale || state.bag !== 'custom';
+    $('hglmc-bagcustom').value = state.bagCustom;
+    root.querySelector('label[for="hglmc-bagprice"]').textContent = t.bale ? 'Price per bale ($)' : 'Price per bag ($)';
+    $('hglmc-type-hint').textContent = 'Recommended depth: ' + depthRange(t) + '. ' + t.hint;
+  }
+
+  function calc() {
+    var us = state.unit === 'us';
+    var t = TYPES[state.type];
+    var areaNative = state.areas.reduce(function (s, a) { return s + areaOf(a); }, 0);
+    var areaSqft = us ? areaNative : areaNative * FT_PER_M * FT_PER_M;
+    var depthIn = us ? num(state.depth) : num(state.depth) / 2.54;
+    var existIn = us ? num(state.existing) : num(state.existing) / 2.54;
+    var netIn = Math.max(0, depthIn - existIn);
+    var extra = 1 + num(state.extra) / 100;
+    var cuft = areaSqft * netIn / 12 * extra;
+    var yd3 = cuft / CUFT_PER_YD3;
+    var m3 = cuft / CUFT_PER_M3;
+    var bagSize = bagCuFt();
+    var bags = bagSize ? Math.ceil(cuft / bagSize - 1e-9) : 0;
+    var bulkUnits = us ? Math.ceil(yd3 * 2 - 1e-9) / 2 : Math.ceil(m3 * 2 - 1e-9) / 2;
+    var costBags = bags * num(state.bagPrice);
+    var costBulk = bulkUnits ? bulkUnits * num(state.bulkPrice) + num(state.delivery) : 0;
+
+    $('hglmc-area').textContent = fmt(areaNative, 1) + ' ' + areaU();
+    $('hglmc-depthnet').textContent = us ? fmt(netIn, 2) + ' in' : fmt(netIn * 2.54, 1) + ' cm';
+    $('hglmc-vol').textContent = us ? fmt(cuft, 1) + ' cu ft' : fmt(m3, 2) + ' m³ (' + fmt(m3 * 1000, 0) + ' L)';
+    $('hglmc-main').textContent = us ? fmt(yd3, 2) + ' cu yd' : fmt(m3, 2) + ' m³';
+
+    if (t.bale) {
+      var bales = Math.ceil(areaSqft * (netIn / 3) / t.bale * extra - 1e-9);
+      $('hglmc-bags-label').textContent = 'Pine straw bales';
+      $('hglmc-bags').textContent = areaSqft && netIn ? fmt(bales, 0) + ' bales' : '–';
+      $('hglmc-mainsub').textContent = areaSqft && netIn ? 'about ' + fmt(bales, 0) + ' bales of pine straw' : 'Enter your bed size to start';
+      costBags = bales * num(state.bagPrice);
+    } else {
+      var bagLabel = state.bag === 'custom' ? (state.bagCustom || '?') + (us ? ' cu ft' : ' L') : $('hglmc-bag').selectedOptions[0].text.replace(/ \(.*\)/, '');
+      $('hglmc-bags-label').textContent = 'Bags (' + bagLabel + ')';
+      $('hglmc-bags').textContent = bags ? fmt(bags, 0) + ' bags' : '–';
+      $('hglmc-mainsub').textContent = cuft ? (us ? fmt(cuft, 1) + ' cu ft' : fmt(m3 * 1000, 0) + ' liters') + ' · ' + fmt(bags, 0) + ' bags' : 'Enter your bed size to start';
+    }
+    $('hglmc-bulk').textContent = bulkUnits ? fmt(bulkUnits, 1) + (us ? ' cu yd' : ' m³') + ' (rounded up to ½)' : '–';
+    var lb = t.lb * yd3;
+    $('hglmc-weight').textContent = !t.lb || !lb ? (t.bale ? 'sold by the bale' : '–') : us ? (lb >= 2000 ? fmt(lb / 2000, 2) + ' tons' : fmt(lb, 0) + ' lb') : fmt(lb * KG_PER_LB, 0) + ' kg';
+    $('hglmc-cost-bags').textContent = costBags ? money(costBags) : '–';
+    $('hglmc-cost-bulk').textContent = costBulk ? money(costBulk) : '–';
+    var coverIn = netIn || depthIn;
+    $('hglmc-cover').textContent = coverIn ? (us ? fmt(324 / coverIn, 0) + ' sq ft at ' + fmt(coverIn, 1) + ' in' : fmt(1 / (coverIn * 2.54 / 100), 0) + ' m² at ' + fmt(coverIn * 2.54, 1) + ' cm') : '–';
+
+    var verdict = $('hglmc-verdict');
+    if (costBags && costBulk && !t.bale) {
+      var diff = costBags - costBulk;
+      verdict.hidden = false;
+      verdict.textContent = Math.abs(diff) < 5 ? 'Bags and bulk cost about the same. Bags are easier for small beds; bulk saves trips for big jobs.'
+        : diff > 0 ? 'Bulk delivery saves about ' + money(diff) + ' — worth it at this size.'
+        : 'Bags are cheaper by about ' + money(-diff) + ' — skip the delivery fee.';
+    } else {
+      verdict.hidden = true;
+    }
+
+    $('hglmc-bar-text').textContent = $('hglmc-main').textContent + (cuft ? ' · ' + $('hglmc-bags').textContent : '');
+
+    var warn = $('hglmc-warn');
+    var msgs = [];
+    if (depthIn > t.max + 0.01) msgs.push('That’s deeper than the ' + depthRange(t) + ' recommended for ' + t.name.toLowerCase() + '. Too much mulch can starve roots of oxygen.');
+    if (existIn && existIn >= depthIn) msgs.push('Your beds already have enough mulch — just fluff the old layer and top up thin spots.');
+    warn.textContent = msgs.join(' ');
+    warn.classList.toggle('is-on', msgs.length > 0);
+    save();
+  }
+
+  function bind() {
+    root.querySelectorAll('.hglmc__seg button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var to = b.getAttribute('data-unit');
+        if (to === state.unit) return;
+        var f = to === 'metric' ? 1 / FT_PER_M : FT_PER_M;
+        var af = f * f;
+        state.areas.forEach(function (a) {
+          Object.keys(a.v).forEach(function (k) {
+            var n = parseFloat(a.v[k]);
+            if (isFinite(n)) a.v[k] = String(+(n * (k === 'a' ? af : f)).toFixed(2));
+          });
+        });
+        state.depth = +(to === 'metric' ? num(state.depth) * 2.54 : num(state.depth) / 2.54).toFixed(1);
+        state.existing = +(to === 'metric' ? num(state.existing) * 2.54 : num(state.existing) / 2.54).toFixed(1);
+        state.bulkPrice = +(to === 'metric' ? num(state.bulkPrice) / 0.764555 : num(state.bulkPrice) * 0.764555).toFixed(0);
+        state.unit = to;
+        state.bag = to === 'us' ? '2' : '50';
+        state.bagCustom = '';
+        fillSelects();
+        syncBagUi();
+        renderAreas();
+        calc();
+      });
+    });
+    $('hglmc-type').addEventListener('change', function () {
+      state.type = this.value;
+      var t = TYPES[state.type];
+      state.depth = state.unit === 'us' ? t.def : +(t.def * 2.54).toFixed(1);
+      $('hglmc-depth').value = state.depth;
+      syncBagUi();
+      calc();
+    });
+    [['hglmc-depth', 'depth'], ['hglmc-existing', 'existing'], ['hglmc-bagprice', 'bagPrice'], ['hglmc-bulkprice', 'bulkPrice'], ['hglmc-delivery', 'delivery']].forEach(function (p) {
+      $(p[0]).addEventListener('input', function () { state[p[1]] = this.value; calc(); });
+    });
+    $('hglmc-extra').addEventListener('change', function () { state.extra = this.value; calc(); });
+    $('hglmc-bag').addEventListener('change', function () {
+      state.bag = this.value;
+      syncBagUi();
+      if (state.bag === 'custom') $('hglmc-bagcustom').focus();
+      calc();
+    });
+    $('hglmc-bagcustom').addEventListener('input', function () { state.bagCustom = this.value; calc(); });
+    $('hglmc-add').addEventListener('click', function () {
+      state.areas.push({ shape: 'rect', qty: 1, v: {} });
+      renderAreas();
+      var inputs = $('hglmc-areas').querySelectorAll('.hglmc__area:last-child input');
+      if (inputs[0]) inputs[0].focus();
+      calc();
+    });
+    $('hglmc-share').addEventListener('click', function () {
+      var btn = this;
+      var url = location.href.split('#')[0] + '#mc=' + encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(state)))));
+      var done = function () { btn.textContent = 'Link copied!'; setTimeout(function () { btn.textContent = 'Copy results link'; }, 2000); };
+      if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { prompt('Copy this link:', url); });
+      else prompt('Copy this link:', url);
+    });
+    $('hglmc-print').addEventListener('click', function () { window.print(); });
+    $('hglmc-bar').addEventListener('click', function () { $('hglmc-out').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    // Phone-only summary bar: visible while the calculator is on screen but the results card isn't.
+    if ('IntersectionObserver' in window) {
+      var seen = { tool: false, out: false };
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { seen[e.target === root ? 'tool' : 'out'] = e.isIntersecting; });
+        $('hglmc-bar').classList.toggle('is-hidden', !seen.tool || seen.out);
+      });
+      io.observe(root);
+      io.observe($('hglmc-out'));
+    }
+    $('hglmc-reset').addEventListener('click', function () {
+      state = defaults();
+      if (location.hash) history.replaceState(null, '', location.href.split('#')[0]);
+      init();
+    });
+  }
+
+  function init() {
+    fillSelects();
+    renderAreas();
+    syncBagUi();
+    calc();
+  }
+
+  load();
+  bind();
+  init();
+})();
+</script>
+
+<!-- ================= Article (crawlable content for featured snippets & AI answers) ================= -->
+<div class="hgl-answer">
+  <span class="hgl-answer__label">Quick answer</span>
+  <p><strong>To find how much mulch you need, multiply bed length × width (feet) × depth (inches), then divide by 324.</strong> The result is cubic yards. One cubic yard covers <strong>108 sq ft at 3 inches</strong> deep, the depth most beds need. That equals 13.5 bags of 2 cu ft or 9 bags of 3 cu ft.</p>
+</div>
+
+<h2>How the mulch calculator works</h2>
+<p>The calculator adds up the area of every bed you enter (rectangles, circles, triangles and rings around trees), multiplies it by the depth of mulch you still need to add, and converts the volume into cubic yards, bags and weight. It subtracts any mulch already on the bed, adds an allowance for settling, and compares the cost of bags with a bulk delivery so you can see which is cheaper.</p>
+
+<h3>The mulch formula</h3>
+<ul>
+  <li><strong>Cubic feet</strong> = length (ft) × width (ft) × depth (in) ÷ 12</li>
+  <li><strong>Cubic yards</strong> = cubic feet ÷ 27, or square feet × depth (in) ÷ 324</li>
+  <li><strong>Bags</strong> = cubic feet ÷ bag size (cu ft), rounded up</li>
+  <li><strong>Circle area</strong> = 3.1416 × (diameter ÷ 2)²; <strong>triangle</strong> = base × height ÷ 2</li>
+</ul>
+<p><strong>Worked example:</strong> a 10 × 20 ft bed (200 sq ft) at 3 in deep needs 200 × 3 ÷ 324 = <strong>1.85 cubic yards</strong>, which is 50 cubic feet, or <strong>25 bags</strong> of 2 cu ft. With 10% extra for settling (55 cu ft, 2.04 cubic yards), buy 28 bags, or order 2–2.5 cubic yards in bulk.</p>
+
+<h2>How much area does a cubic yard of mulch cover?</h2>
+<table>
+  <thead><tr><th>Depth</th><th>1 cubic yard covers</th><th>1 cubic meter covers</th></tr></thead>
+  <tbody>
+    <tr><td>1 in (2.5 cm)</td><td>324 sq ft</td><td>40 m²</td></tr>
+    <tr><td>2 in (5 cm)</td><td>162 sq ft</td><td>20 m²</td></tr>
+    <tr><td>3 in (7.5 cm)</td><td>108 sq ft</td><td>13 m²</td></tr>
+    <tr><td>4 in (10 cm)</td><td>81 sq ft</td><td>10 m²</td></tr>
+    <tr><td>6 in (15 cm)</td><td>54 sq ft</td><td>6.7 m²</td></tr>
+  </tbody>
+</table>
+
+<h2>How many bags of mulch do I need?</h2>
+<table>
+  <thead><tr><th>Bag size</th><th>Bags per cubic yard</th><th>Covers at 2 in</th><th>Covers at 3 in</th></tr></thead>
+  <tbody>
+    <tr><td>1.5 cu ft</td><td>18</td><td>9 sq ft</td><td>6 sq ft</td></tr>
+    <tr><td>2 cu ft</td><td>13.5</td><td>12 sq ft</td><td>8 sq ft</td></tr>
+    <tr><td>3 cu ft</td><td>9</td><td>18 sq ft</td><td>12 sq ft</td></tr>
+  </tbody>
+</table>
+
+<h2>How deep should mulch be?</h2>
+<table>
+  <thead><tr><th>Mulch type</th><th>Recommended depth</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td>Shredded hardwood, dyed mulch</td><td>2–3 in</td><td>Best general-purpose choice for beds</td></tr>
+    <tr><td>Wood chips, large bark nuggets</td><td>3–4 in</td><td>Coarse pieces leave gaps, so go deeper</td></tr>
+    <tr><td>Cedar / cypress</td><td>2–3 in</td><td>Light, slow to decompose</td></tr>
+    <tr><td>Pine straw</td><td>3–4 in loose</td><td>Settles to about 2 in; ideal on slopes</td></tr>
+    <tr><td>Rubber mulch</td><td>1.5–2 in</td><td>Never breaks down; keep out of food gardens</td></tr>
+    <tr><td>Pea gravel / river rock</td><td>2–3 in</td><td>Use landscape fabric underneath</td></tr>
+    <tr><td>Compost / leaf mold</td><td>1–2 in</td><td>Top-dress every spring</td></tr>
+  </tbody>
+</table>
+<div class="hgl-warning"><strong>Avoid "volcano mulching":</strong> never pile mulch against tree trunks or plant stems. Keep a 3–6 in bare ring around the trunk. Deep mulch against bark traps moisture and invites rot, rodents and disease.</div>
+
+<h2>Bagged vs bulk mulch: which is cheaper?</h2>
+<p>Bags win for small jobs because there's no delivery fee and they're easy to carry. Bulk usually wins somewhere between <strong>1.5 and 3 cubic yards</strong> (roughly 20–40 bags), depending on your local delivery charge. Enter your own prices in step 3 and the calculator shows the break-even for your project.</p>
+
+<h2>Mulch calculator FAQ</h2>
+<div class="hgl-faq">
+  <details open="open">
+    <summary>How much mulch do I need for a 10 × 10 area?</summary>
+    <p>A 10 × 10 ft area (100 sq ft) needs 0.93 cubic yards at 3 inches deep, which is 25 cubic feet or 13 bags of 2 cu ft. At 2 inches you need 0.62 cubic yards (9 bags).</p>
+  </details>
+  <details>
+    <summary>How many bags of mulch are in a yard?</summary>
+    <p>One cubic yard equals 27 cubic feet: 13.5 bags of 2 cu ft, 9 bags of 3 cu ft, or 18 bags of 1.5 cu ft.</p>
+  </details>
+  <details>
+    <summary>How many square feet does a bag of mulch cover?</summary>
+    <p>A 2 cu ft bag covers 12 sq ft at 2 inches deep or 8 sq ft at 3 inches. A 3 cu ft bag covers 18 sq ft at 2 inches or 12 sq ft at 3 inches.</p>
+  </details>
+  <details>
+    <summary>Should I remove old mulch before adding new mulch?</summary>
+    <p>Usually not. Rake the old layer to break up any crust, then top it up so the total stays within 2–4 inches. Enter the existing depth in the calculator and it only counts what you need to add. Remove old mulch only if it's moldy, matted or already deeper than 4 inches.</p>
+  </details>
+  <details>
+    <summary>How much does a cubic yard of mulch weigh?</summary>
+    <p>Wood mulch weighs roughly 400–800 lb per cubic yard depending on type and moisture. Compost is about 1,000–1,600 lb, and pea gravel or river rock about 2,700–2,900 lb (around 1.4 tons). Check your truck's payload before hauling bulk material.</p>
+  </details>
+  <details>
+    <summary>How much mulch do I need around a tree?</summary>
+    <p>For a 6 ft wide ring at 3 inches deep with a 1 ft bare circle at the trunk, you need about 7 cubic feet (4 bags of 2 cu ft). Choose "Ring around a tree" in the calculator and enter how many trees you have.</p>
+  </details>
+  <details>
+    <summary>How often should I add mulch?</summary>
+    <p>Most organic mulches break down within 1–2 years. Top up about 1 inch each spring, or 2 inches for fine mulch that decomposes quickly, to keep the total at 2–3 inches.</p>
+  </details>
+</div>
+
+<h2>More free garden calculators</h2>
+<ul>
+  <li><a href="/p/soil-calculator.html">Soil Calculator</a>: fill raised beds and planters</li>
+  <li><a href="/p/topsoil-gravel-calculator.html">Topsoil &amp; Gravel Calculator</a>: grading, paths and driveways</li>
+  <li><a href="/p/plant-spacing-calculator.html">Plant Spacing Calculator</a>: how many plants fit a bed</li>
+  <li><a href="/p/lawn-fertilizer-npk-calculator.html">Lawn Fertilizer NPK Calculator</a></li>
+  <li><a href="/p/paver-patio-calculator.html">Paver &amp; Patio Calculator</a></li>
+</ul>
+
+<div class="hgl-sources">
+  <p><strong>Method &amp; sources:</strong> Volume math uses standard US conversions (1 cubic yard = 27 cubic feet = 0.7646 m³). Depth guidance follows mulching recommendations published by US university extension services (e.g. University of Maryland Extension, Penn State Extension) and the International Society of Arboriculture's guidance against piling mulch on trunks. Weights are typical ranges; moisture changes them. <em>Last reviewed: October 2026.</em></p>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://www.homegardenlot.com/p/mulch-calculator.html#app",
+      "name": "Mulch Calculator",
+      "url": "https://www.homegardenlot.com/p/mulch-calculator.html",
+      "description": "Free mulch calculator for rectangular, circular, triangular and tree-ring beds. Returns cubic yards, cubic feet, bags, bulk order size, weight and bag vs bulk cost.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "inLanguage": "en-US",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "Multiple beds with rectangle, circle, triangle and tree-ring shapes",
+        "US and metric units",
+        "Mulch type presets with recommended depths",
+        "Top-up mode that subtracts existing mulch",
+        "Bags, bulk cubic yards, pine straw bales and weight",
+        "Bagged vs bulk cost comparison with delivery fee",
+        "Shareable results link"
+      ],
+      "publisher": { "@id": "https://www.homegardenlot.com/#organization" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.homegardenlot.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://www.homegardenlot.com/p/tools.html" },
+        { "@type": "ListItem", "position": 3, "name": "Mulch Calculator" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How much mulch do I need for a 10 × 10 area?", "acceptedAnswer": { "@type": "Answer", "text": "A 10 × 10 ft area (100 sq ft) needs 0.93 cubic yards at 3 inches deep, which is 25 cubic feet or 13 bags of 2 cu ft. At 2 inches you need 0.62 cubic yards (9 bags)." } },
+        { "@type": "Question", "name": "How many bags of mulch are in a yard?", "acceptedAnswer": { "@type": "Answer", "text": "One cubic yard equals 27 cubic feet: 13.5 bags of 2 cu ft, 9 bags of 3 cu ft, or 18 bags of 1.5 cu ft." } },
+        { "@type": "Question", "name": "How many square feet does a bag of mulch cover?", "acceptedAnswer": { "@type": "Answer", "text": "A 2 cu ft bag covers 12 sq ft at 2 inches deep or 8 sq ft at 3 inches. A 3 cu ft bag covers 18 sq ft at 2 inches or 12 sq ft at 3 inches." } },
+        { "@type": "Question", "name": "Should I remove old mulch before adding new mulch?", "acceptedAnswer": { "@type": "Answer", "text": "Usually not. Rake the old layer to break up any crust, then top it up so the total stays within 2–4 inches. Remove old mulch only if it's moldy, matted or already deeper than 4 inches." } },
+        { "@type": "Question", "name": "How much does a cubic yard of mulch weigh?", "acceptedAnswer": { "@type": "Answer", "text": "Wood mulch weighs roughly 400–800 lb per cubic yard depending on type and moisture. Compost is about 1,000–1,600 lb, and pea gravel or river rock about 2,700–2,900 lb (around 1.4 tons)." } },
+        { "@type": "Question", "name": "How much mulch do I need around a tree?", "acceptedAnswer": { "@type": "Answer", "text": "For a 6 ft wide ring at 3 inches deep with a 1 ft bare circle at the trunk, you need about 7 cubic feet (4 bags of 2 cu ft)." } },
+        { "@type": "Question", "name": "How often should I add mulch?", "acceptedAnswer": { "@type": "Answer", "text": "Most organic mulches break down within 1–2 years. Top up about 1 inch each spring, or 2 inches for fine mulch that decomposes quickly, to keep the total at 2–3 inches." } }
+      ]
+    }
+  ]
+}
+</script>
