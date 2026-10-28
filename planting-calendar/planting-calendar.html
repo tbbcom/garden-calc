@@ -1,0 +1,517 @@
+<!--
+  Home Garden Lot — Planting Calendar by ZIP Code v1.0
+  Paste into a NEW Blogger page (Pages → New page → HTML view). Set Custom permalink: planting-calendar
+  Page title: Planting Calendar by ZIP Code: When to Plant Vegetables
+  Search description: Enter your ZIP code to get your USDA zone, frost dates and exact start-indoors, transplant and direct-sow dates for 30 vegetables and herbs.
+  Zone data: data/zones/*.json in tbbcom/garden-calc (USDA 2023 map via PRISM), served by jsDelivr.
+-->
+<style>
+.hglpc{--pc-green:var(--hgl-green,#247b49);--pc-green-dark:var(--hgl-green-dark,#1b5e37);--pc-soft:var(--hgl-green-soft,#d4ecdb);--pc-bg:var(--hgl-gray,#fafafa);--pc-surface:var(--hgl-surface,#fff);--pc-text:var(--hgl-text,#09090b);--pc-muted:var(--hgl-muted,#71717a);--pc-line:var(--hgl-line,#e4e4e7);--pc-radius:var(--hgl-radius,.5rem);--pc-shadow:var(--hgl-shadow,0 1px 2px rgba(9,9,11,.05),0 10px 20px -8px rgba(9,9,11,.08));font-size:1rem;line-height:1.5;color:var(--pc-text);margin:0 0 2em}
+.hglpc *,.hglpc *::before,.hglpc *::after{box-sizing:border-box}
+.hglpc__card{background:var(--pc-surface);border-radius:var(--pc-radius);box-shadow:var(--pc-shadow);padding:20px;margin-bottom:16px}
+.hglpc__h{margin:0 0 12px!important;font-size:1.05rem!important;font-weight:700}
+.hglpc__row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:end}
+@media (max-width:720px){.hglpc__row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.hglpc__zipwrap{grid-column:1/-1}}
+.hglpc input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none}
+.hglpc label{display:block;font-size:.8rem;font-weight:600;color:var(--pc-muted);margin-bottom:4px}
+.hglpc input,.hglpc select{width:100%;padding:10px 12px;border:1px solid var(--pc-line);border-radius:var(--pc-radius);background:var(--pc-surface);font:inherit;font-size:1rem;color:var(--pc-text);min-height:44px}
+.hglpc input:focus,.hglpc select:focus{outline:2px solid var(--pc-green);border-color:transparent}
+.hglpc__zip{display:flex;gap:8px}
+.hglpc__zip input{flex:1;min-width:0;font-size:1.1rem;letter-spacing:.08em}
+.hglpc__btn{border:0;border-radius:var(--pc-radius);padding:0 18px;min-height:44px;font:700 .95rem inherit;font-family:inherit;cursor:pointer;background:var(--pc-green);color:#fff;white-space:nowrap}
+.hglpc__btn:hover{background:var(--pc-green-dark)}
+.hglpc__btn--ghost{background:var(--pc-bg);color:var(--pc-text);box-shadow:inset 0 0 0 1px var(--pc-line)}
+.hglpc__btn--ghost:hover{background:var(--pc-soft);color:var(--pc-green-dark)}
+.hglpc__status{min-height:1.5em;margin:10px 0 0;font-size:.9rem;color:var(--pc-muted)}
+.hglpc__status.is-error{color:#b91c1c}
+.hglpc__summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px}
+@media (max-width:720px){.hglpc__summary{grid-template-columns:1fr 1fr}}
+.hglpc__stat{background:var(--pc-bg);border-radius:var(--pc-radius);padding:12px;box-shadow:inset 0 0 0 1px var(--pc-line)}
+.hglpc__stat b{display:block;font-size:1.25rem;letter-spacing:-.02em}
+.hglpc__stat span{font-size:.78rem;color:var(--pc-muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.hglpc__now{background:linear-gradient(135deg,var(--pc-green),var(--pc-green-dark));color:#fff;border-radius:var(--pc-radius);padding:18px 20px;margin-bottom:16px}
+.hglpc__now h3{color:#fff!important;margin:0 0 8px!important;font-size:1.1rem!important}
+.hglpc__now ul{margin:0;padding-left:1.2em}
+.hglpc__now li{margin:.2em 0}
+.hglpc__now p{margin:0;opacity:.9}
+.hglpc__filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.hglpc__chip{border:1px solid var(--pc-line);background:var(--pc-surface);border-radius:999px;padding:6px 14px;font:600 .88rem inherit;font-family:inherit;cursor:pointer;color:var(--pc-text)}
+.hglpc__chip[aria-pressed="true"]{background:var(--pc-green);border-color:var(--pc-green);color:#fff}
+.hglpc__tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hglpc table{width:100%;border-collapse:collapse;font-size:.92rem;margin:0!important;display:table!important}
+.hglpc th,.hglpc td{border-bottom:1px solid var(--pc-line)!important;border-left:0!important;border-right:0!important;border-top:0!important;padding:10px 8px!important;text-align:left;vertical-align:top;white-space:nowrap}
+.hglpc th{background:var(--pc-bg)!important;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--pc-muted)}
+.hglpc td:first-child{font-weight:700;white-space:normal;min-width:120px}
+.hglpc__tag{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:middle}
+.hglpc__tag--warm{background:#fff1e6;color:#9a3412}
+.hglpc__tag--cool{background:#e0f2fe;color:#075985}
+.hglpc__tag--herb{background:var(--pc-soft);color:var(--pc-green-dark)}
+.hglpc__d--now{background:var(--pc-soft);color:var(--pc-green-dark);font-weight:700;border-radius:4px;padding:1px 6px}
+.hglpc__d--past{color:var(--pc-muted);text-decoration:line-through;text-decoration-color:rgba(113,113,122,.5)}
+.hglpc__dash{color:var(--pc-line)}
+.hglpc__note{font-size:.84rem;color:var(--pc-muted);margin:12px 0 0}
+.hglpc__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.hglpc__empty{padding:24px;text-align:center;color:var(--pc-muted)}
+@media print{.hglpc__actions,.hglpc__filters,.hglpc__zip .hglpc__btn{display:none!important}.hglpc__card{box-shadow:none;border:1px solid #ddd}.hglpc th,.hglpc td{white-space:normal}}
+</style>
+
+<div class="hglpc" id="hglpc">
+  <div class="hglpc__card">
+    <h2 class="hglpc__h">Your location &amp; frost dates</h2>
+    <div class="hglpc__row">
+      <div class="hglpc__zipwrap">
+        <label for="hglpc-zip">US ZIP code</label>
+        <form class="hglpc__zip" id="hglpc-form">
+          <input autocomplete="postal-code" id="hglpc-zip" inputmode="numeric" maxlength="5" pattern="[0-9]{5}" placeholder="e.g. 43215" type="text"/>
+          <button class="hglpc__btn" type="submit">Get my dates</button>
+        </form>
+      </div>
+      <div>
+        <label for="hglpc-lf">Last spring frost</label>
+        <input id="hglpc-lf" type="date"/>
+      </div>
+      <div>
+        <label for="hglpc-ff">First fall frost</label>
+        <input id="hglpc-ff" type="date"/>
+      </div>
+    </div>
+    <div class="hglpc__row" style="margin-top:12px">
+      <div class="hglpc__zipwrap">
+        <label for="hglpc-zone">USDA hardiness zone (or pick yours)</label>
+        <select id="hglpc-zone"></select>
+      </div>
+    </div>
+    <p aria-live="polite" class="hglpc__status" id="hglpc-status">Enter your ZIP code, or pick your zone. You can fine-tune both frost dates with your local extension office's figures.</p>
+    <div class="hglpc__summary" id="hglpc-summary" hidden="hidden">
+      <div class="hglpc__stat"><span>Zone</span><b id="hglpc-s-zone">–</b></div>
+      <div class="hglpc__stat"><span>Last frost</span><b id="hglpc-s-lf">–</b></div>
+      <div class="hglpc__stat"><span>First frost</span><b id="hglpc-s-ff">–</b></div>
+      <div class="hglpc__stat"><span>Growing season</span><b id="hglpc-s-days">–</b></div>
+    </div>
+  </div>
+
+  <div aria-live="polite" class="hglpc__now" id="hglpc-now" hidden="hidden"></div>
+
+  <div class="hglpc__card">
+    <h2 class="hglpc__h" id="hglpc-title">Your planting calendar</h2>
+    <div aria-label="Filter crops" class="hglpc__filters" role="group">
+      <button aria-pressed="true" class="hglpc__chip" data-f="all" type="button">All 30</button>
+      <button aria-pressed="false" class="hglpc__chip" data-f="cool" type="button">Cool-season</button>
+      <button aria-pressed="false" class="hglpc__chip" data-f="warm" type="button">Warm-season</button>
+      <button aria-pressed="false" class="hglpc__chip" data-f="herb" type="button">Herbs</button>
+      <button aria-pressed="false" class="hglpc__chip" data-f="soon" type="button">Next 30 days</button>
+    </div>
+    <div class="hglpc__tablewrap">
+      <table>
+        <thead><tr><th scope="col">Crop</th><th scope="col">Start indoors</th><th scope="col">Transplant out</th><th scope="col">Sow outdoors</th><th scope="col">Fall crop</th></tr></thead>
+        <tbody id="hglpc-body"><tr><td class="hglpc__empty" colspan="5">Enter your ZIP code or zone above to see your dates.</td></tr></tbody>
+      </table>
+    </div>
+    <p class="hglpc__note"><span class="hglpc__d--now">Highlighted</span> = do it now. Struck through = window passed this season. Fall crop = sow or transplant for a fall harvest (counted back from your first fall frost).</p>
+    <div class="hglpc__actions">
+      <button class="hglpc__btn" id="hglpc-share" type="button">Copy link to my calendar</button>
+      <button class="hglpc__btn hglpc__btn--ghost" id="hglpc-print" type="button">Print</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.getElementById('hglpc');
+  if (!root) return;
+
+  var DATA_URLS = [
+    'https://cdn.jsdelivr.net/gh/tbbcom/garden-calc@main/data/zones/',
+    'https://raw.githubusercontent.com/tbbcom/garden-calc/main/data/zones/'
+  ];
+  var STORE = 'hglpc:v1';
+  var DAY = 864e5;
+
+  // Typical average frost dates by half-zone (month, day). Zones describe winter lows, not frost
+  // dates, so these are starting estimates; local NOAA/extension dates are better and editable.
+  var FROST = {
+    '1a': [[6, 15], [8, 15]], '1b': [[6, 10], [8, 20]], '2a': [[6, 5], [8, 25]], '2b': [[6, 1], [9, 1]],
+    '3a': [[5, 25], [9, 8]], '3b': [[5, 18], [9, 15]], '4a': [[5, 12], [9, 21]], '4b': [[5, 6], [9, 28]],
+    '5a': [[4, 30], [10, 5]], '5b': [[4, 24], [10, 12]], '6a': [[4, 17], [10, 17]], '6b': [[4, 10], [10, 24]],
+    '7a': [[4, 3], [10, 31]], '7b': [[3, 27], [11, 7]], '8a': [[3, 20], [11, 14]], '8b': [[3, 10], [11, 21]],
+    '9a': [[2, 28], [12, 1]], '9b': [[2, 15], [12, 10]], '10a': [[1, 31], [12, 20]], '10b': [[1, 15], [12, 31]],
+    '11a': null, '11b': null, '12a': null, '12b': null, '13a': null, '13b': null
+  };
+
+  // Weeks relative to last spring frost (si = start indoors, tp = transplant, ds = sow outdoors);
+  // fall = weeks relative to first fall frost. Typical US extension guidance.
+  var CROPS = [
+    ['Tomato', 'warm', { si: [-8, -6], tp: [1, 3] }],
+    ['Pepper', 'warm', { si: [-10, -8], tp: [2, 3] }],
+    ['Eggplant', 'warm', { si: [-9, -7], tp: [2, 3] }],
+    ['Cucumber', 'warm', { si: [-4, -3], tp: [1, 3], ds: [1, 3] }],
+    ['Summer squash & zucchini', 'warm', { si: [-4, -3], ds: [1, 3] }],
+    ['Winter squash & pumpkin', 'warm', { ds: [2, 4] }],
+    ['Watermelon & cantaloupe', 'warm', { si: [-4, -3], tp: [2, 4], ds: [2, 4] }],
+    ['Beans (bush & pole)', 'warm', { ds: [1, 3] }],
+    ['Sweet corn', 'warm', { ds: [1, 3] }],
+    ['Okra', 'warm', { si: [-6, -4], ds: [2, 4] }],
+    ['Sweet potato (slips)', 'warm', { tp: [3, 5] }],
+    ['Broccoli', 'cool', { si: [-10, -8], tp: [-4, -2], fall: ['tp', -12, -10] }],
+    ['Cabbage', 'cool', { si: [-10, -8], tp: [-4, -2], fall: ['tp', -12, -10] }],
+    ['Cauliflower', 'cool', { si: [-10, -8], tp: [-2, 0], fall: ['tp', -12, -10] }],
+    ['Brussels sprouts', 'cool', { si: [-10, -8], tp: [-2, 0], fall: ['tp', -14, -12] }],
+    ['Kale & collards', 'cool', { si: [-8, -6], tp: [-4, -2], ds: [-4, -2], fall: ['ds', -10, -8] }],
+    ['Lettuce', 'cool', { si: [-6, -4], ds: [-4, -2], fall: ['ds', -8, -6] }],
+    ['Spinach', 'cool', { ds: [-6, -3], fall: ['ds', -6, -4] }],
+    ['Peas', 'cool', { ds: [-6, -4], fall: ['ds', -12, -10] }],
+    ['Radish', 'cool', { ds: [-4, 0], fall: ['ds', -6, -4] }],
+    ['Carrot', 'cool', { ds: [-3, 0], fall: ['ds', -12, -10] }],
+    ['Beet', 'cool', { ds: [-3, 0], fall: ['ds', -10, -8] }],
+    ['Swiss chard', 'cool', { ds: [-2, 0], fall: ['ds', -10, -8] }],
+    ['Onion (seed or transplants)', 'cool', { si: [-12, -10], tp: [-4, -2] }],
+    ['Potato (seed potatoes)', 'cool', { ds: [-4, -2] }],
+    ['Garlic (cloves)', 'cool', { fall: ['ds', -2, 2] }],
+    ['Basil', 'herb', { si: [-6, -4], tp: [1, 3] }],
+    ['Cilantro', 'herb', { ds: [-2, 0], fall: ['ds', -8, -6] }],
+    ['Parsley', 'herb', { si: [-10, -8], tp: [-2, 0] }],
+    ['Dill', 'herb', { ds: [0, 2] }]
+  ];
+  var TAG = { warm: 'Warm', cool: 'Cool', herb: 'Herb' };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var state = { zip: '', zone: '', lf: '', ff: '', filter: 'all' };
+  var cache = {};
+
+  var iso = function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  var parseIso = function (s) { var p = (s || '').split('-'); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null; };
+  var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+  var today = function () { var t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
+  var addWeeks = function (d, w) { return new Date(d.getTime() + w * 7 * DAY); };
+
+  // The season to plan: this year until two weeks after the average first fall frost, then next year
+  // (from November most visitors are planning next spring).
+  function seasonYear(zone) {
+    var t = today();
+    var f = FROST[zone];
+    var ffm = f ? f[1] : [12, 31];
+    var cutoff = new Date(t.getFullYear(), ffm[0] - 1, ffm[1] + 14);
+    return t > cutoff ? t.getFullYear() + 1 : t.getFullYear();
+  }
+
+  function datesForZone(zone) {
+    var y = seasonYear(zone);
+    var f = FROST[zone];
+    if (!f) return { lf: iso(new Date(y, 0, 15)), ff: iso(new Date(y, 11, 31)), frostFree: true };
+    return { lf: iso(new Date(y, f[0][0] - 1, f[0][1])), ff: iso(new Date(y, f[1][0] - 1, f[1][1])), frostFree: false };
+  }
+
+  function status(msg, isError) {
+    var el = $('hglpc-status');
+    el.textContent = msg;
+    el.classList.toggle('is-error', !!isError);
+  }
+
+  function fillZones() {
+    var opts = ['<option value="">Choose zone…</option>'];
+    Object.keys(FROST).forEach(function (z) { opts.push('<option value="' + z + '">Zone ' + z + '</option>'); });
+    $('hglpc-zone').innerHTML = opts.join('');
+  }
+
+  function loadPrefix(prefix, i) {
+    i = i || 0;
+    if (cache[prefix]) return Promise.resolve(cache[prefix]);
+    if (i >= DATA_URLS.length) return Promise.reject(new Error('lookup unavailable'));
+    return fetch(DATA_URLS[i] + prefix + '.json')
+      .then(function (r) {
+        if (r.status === 404) return {};
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (map) { cache[prefix] = map; return map; })
+      .catch(function () { return loadPrefix(prefix, i + 1); });
+  }
+
+  function lookup(zip) {
+    status('Looking up ZIP ' + zip + '…');
+    loadPrefix(zip.slice(0, 3)).then(function (map) {
+      var zone = map[zip];
+      if (!zone) {
+        status('We couldn’t find ZIP ' + zip + ' in the USDA zone data. Pick your zone from the list instead.', true);
+        return;
+      }
+      setZone(zone, 'ZIP ' + zip + ' is in USDA zone ' + zone + '.');
+    }).catch(function () {
+      status('Zone lookup is unavailable right now. Pick your zone from the list. Your calendar works the same.', true);
+    });
+  }
+
+  function setZone(zone, msg) {
+    state.zone = zone;
+    $('hglpc-zone').value = zone;
+    var d = datesForZone(zone);
+    state.lf = d.lf;
+    state.ff = d.ff;
+    $('hglpc-lf').value = d.lf;
+    $('hglpc-ff').value = d.ff;
+    status((msg ? msg + ' ' : '') + (d.frostFree
+      ? 'Frost is rare here: plant cool-season crops from fall through winter and warm-season crops from late winter on. Dates below use a mid-January reference.'
+      : 'Frost dates are typical estimates for zone ' + zone + '. Edit them if you know your local averages.'));
+    render();
+  }
+
+  function cell(startW, endW, base, now) {
+    var a = addWeeks(base, startW);
+    var b = addWeeks(base, endW);
+    if (b < a) { var t = a; a = b; b = t; }
+    var text = a.getTime() === b.getTime() ? fmt(a) : fmt(a) + ' – ' + fmt(b);
+    var cls = now >= a && now <= b ? 'hglpc__d--now' : (b < now ? 'hglpc__d--past' : '');
+    return { html: '<span class="' + cls + '">' + text + '</span>', a: a, b: b, active: cls === 'hglpc__d--now' };
+  }
+
+  function render() {
+    var lf = parseIso(state.lf);
+    var ff = parseIso(state.ff);
+    var body = $('hglpc-body');
+    if (!lf || !ff) {
+      body.innerHTML = '<tr><td class="hglpc__empty" colspan="5">Enter your ZIP code or zone above to see your dates.</td></tr>';
+      $('hglpc-summary').hidden = true;
+      $('hglpc-now').hidden = true;
+      return;
+    }
+    var now = today();
+    var soonEnd = new Date(now.getTime() + 30 * DAY);
+    var rows = [];
+    var doNow = [];
+    var comingUp = [];
+
+    CROPS.forEach(function (c) {
+      var name = c[0], type = c[1], t = c[2];
+      var cols = [];
+      var hit = false;
+      var soon = false;
+      ['si', 'tp', 'ds'].forEach(function (k) {
+        if (!t[k]) { cols.push('<span class="hglpc__dash">—</span>'); return; }
+        var r = cell(t[k][0], t[k][1], lf, now);
+        cols.push(r.html);
+        var label = { si: 'start indoors', tp: 'transplant', ds: 'sow outdoors' }[k];
+        if (r.active) { hit = true; doNow.push(name + ': ' + label); }
+        else if (r.a > now && r.a <= soonEnd) { soon = true; comingUp.push([r.a, name + ': ' + label + ' from ' + fmt(r.a)]); }
+      });
+      if (t.fall) {
+        var fr = cell(t.fall[1], t.fall[2], ff, now);
+        cols.push(fr.html + ' <small>(' + (t.fall[0] === 'tp' ? 'transplant' : 'sow') + ')</small>');
+        if (fr.active) { hit = true; doNow.push(name + ': fall ' + (t.fall[0] === 'tp' ? 'transplant' : 'sowing')); }
+        else if (fr.a > now && fr.a <= soonEnd) { soon = true; comingUp.push([fr.a, name + ': fall ' + (t.fall[0] === 'tp' ? 'transplant' : 'sowing') + ' from ' + fmt(fr.a)]); }
+      } else cols.push('<span class="hglpc__dash">—</span>');
+
+      var f = state.filter;
+      var show = f === 'all' || f === type || (f === 'soon' && (hit || soon));
+      if (show) rows.push('<tr><td>' + name + '<span class="hglpc__tag hglpc__tag--' + type + '">' + TAG[type] + '</span></td><td>' + cols.join('</td><td>') + '</td></tr>');
+    });
+
+    body.innerHTML = rows.length ? rows.join('') : '<tr><td class="hglpc__empty" colspan="5">Nothing to plant in the next 30 days. Check back soon, or switch to "All".</td></tr>';
+
+    var season = Math.round((ff - lf) / DAY);
+    $('hglpc-summary').hidden = false;
+    $('hglpc-s-zone').textContent = state.zone || 'custom';
+    $('hglpc-s-lf').textContent = fmt(lf);
+    $('hglpc-s-ff').textContent = fmt(ff);
+    $('hglpc-s-days').textContent = season > 0 ? season + ' days' : '–';
+    $('hglpc-title').textContent = 'Your ' + lf.getFullYear() + ' planting calendar' + (state.zone ? ' (zone ' + state.zone + ')' : '');
+
+    var box = $('hglpc-now');
+    comingUp.sort(function (a, b) { return a[0] - b[0]; });
+    if (doNow.length || comingUp.length) {
+      var html = '';
+      if (doNow.length) html += '<h3>Plant now</h3><ul><li>' + doNow.join('</li><li>') + '</li></ul>';
+      if (comingUp.length) html += '<h3' + (doNow.length ? ' style="margin-top:12px!important"' : '') + '>Coming up in the next 30 days</h3><ul><li>' + comingUp.slice(0, 8).map(function (x) { return x[1]; }).join('</li><li>') + '</li></ul>';
+      box.innerHTML = html;
+    } else {
+      box.innerHTML = '<h3>Nothing to plant right now</h3><p>Your next planting window opens on ' + fmt(addWeeks(lf, -12)) + ' (onion seeds indoors). Use the quiet time to plan beds and order seeds.</p>';
+    }
+    box.hidden = false;
+    save();
+  }
+
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({ zip: state.zip, zone: state.zone, lf: state.lf, ff: state.ff })); } catch (e) {}
+  }
+
+  function restore() {
+    var h = location.hash.match(/zip=(\d{5})/);
+    var z = location.hash.match(/zone=(\d{1,2}[ab])/);
+    if (h) { state.zip = h[1]; $('hglpc-zip').value = h[1]; lookup(h[1]); return; }
+    if (z && Object.prototype.hasOwnProperty.call(FROST, z[1])) { setZone(z[1]); return; }
+    try {
+      var s = JSON.parse(localStorage.getItem(STORE) || 'null');
+      if (s && s.zone && Object.prototype.hasOwnProperty.call(FROST, s.zone)) {
+        state.zip = s.zip || '';
+        $('hglpc-zip').value = state.zip;
+        setZone(s.zone, state.zip ? 'Welcome back: ZIP ' + state.zip + ', zone ' + s.zone + '.' : '');
+      }
+    } catch (e) { /* storage blocked: start empty */ }
+  }
+
+  $('hglpc-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var zip = $('hglpc-zip').value.replace(/\D/g, '');
+    if (!/^\d{5}$/.test(zip)) { status('Please enter a 5-digit US ZIP code.', true); return; }
+    state.zip = zip;
+    lookup(zip);
+  });
+  $('hglpc-zone').addEventListener('change', function () {
+    if (this.value) { state.zip = ''; $('hglpc-zip').value = ''; setZone(this.value); }
+  });
+  ['lf', 'ff'].forEach(function (k) {
+    $('hglpc-' + k).addEventListener('change', function () { state[k] = this.value; render(); });
+  });
+  root.querySelectorAll('.hglpc__chip').forEach(function (b) {
+    b.addEventListener('click', function () {
+      state.filter = b.getAttribute('data-f');
+      root.querySelectorAll('.hglpc__chip').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      render();
+    });
+  });
+  $('hglpc-share').addEventListener('click', function () {
+    var btn = this;
+    var hash = state.zip ? 'zip=' + state.zip : (state.zone ? 'zone=' + state.zone : '');
+    var url = location.href.split('#')[0] + (hash ? '#' + hash : '');
+    var done = function () { btn.textContent = 'Link copied!'; setTimeout(function () { btn.textContent = 'Copy link to my calendar'; }, 2000); };
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, function () { prompt('Copy this link:', url); });
+    else prompt('Copy this link:', url);
+  });
+  $('hglpc-print').addEventListener('click', function () { window.print(); });
+
+  fillZones();
+  restore();
+})();
+</script>
+
+<!-- ================= Article (crawlable content for featured snippets & AI answers) ================= -->
+<div class="hgl-answer">
+  <span class="hgl-answer__label">Quick answer</span>
+  <p><strong>Plan your vegetable garden around your average last spring frost date.</strong> Start tomatoes and peppers indoors 6–10 weeks before it, plant cool-season crops like peas, spinach and lettuce outdoors 2–6 weeks before it, and wait until 1–3 weeks after it to set out tomatoes, beans, squash and other warm-season crops. Enter your ZIP code above to get exact dates.</p>
+</div>
+
+<h2>How this planting calendar works</h2>
+<p>The calendar looks up your <strong>USDA plant hardiness zone</strong> from your ZIP code, using the 2023 USDA map, and estimates your average last spring and first fall frost dates. Every planting window is then counted in weeks from those two dates, the same method university extension services use in their regional planting guides.</p>
+<p>Zones are based on winter low temperatures, not frost dates, so two places in the same zone can have frost dates a couple of weeks apart. If your local extension office or weather service publishes average frost dates for your town, type them into the two date boxes and every date in the table updates instantly.</p>
+
+<h2>When to plant vegetables: weeks from your last frost</h2>
+<table>
+  <thead><tr><th>Timing</th><th>What to do</th><th>Examples</th></tr></thead>
+  <tbody>
+    <tr><td>10–12 weeks before last frost</td><td>Start slow crops indoors</td><td>Onions from seed, peppers, parsley</td></tr>
+    <tr><td>6–10 weeks before</td><td>Start most transplants indoors</td><td>Tomatoes, broccoli, cabbage, cauliflower, eggplant</td></tr>
+    <tr><td>2–6 weeks before</td><td>Sow and plant hardy crops outdoors</td><td>Peas, spinach, lettuce, kale, potatoes, onion sets</td></tr>
+    <tr><td>0–2 weeks before</td><td>Sow half-hardy crops</td><td>Carrots, beets, radishes, Swiss chard, cilantro</td></tr>
+    <tr><td>1–3 weeks after</td><td>Plant warm-season crops</td><td>Tomatoes, beans, corn, cucumbers, squash, basil</td></tr>
+    <tr><td>2–5 weeks after</td><td>Plant heat lovers once soil is warm</td><td>Peppers, eggplant, melons, okra, sweet potatoes</td></tr>
+  </tbody>
+</table>
+
+<h2>Average frost dates by USDA zone</h2>
+<p>These are typical averages used as a starting point. Your exact local dates can differ by 1–3 weeks, especially near large lakes, coasts or at elevation.</p>
+<table>
+  <thead><tr><th>Zone</th><th>Average last spring frost</th><th>Average first fall frost</th></tr></thead>
+  <tbody>
+    <tr><td>3</td><td>mid to late May</td><td>early to mid September</td></tr>
+    <tr><td>4</td><td>early to mid May</td><td>late September</td></tr>
+    <tr><td>5</td><td>late April</td><td>early to mid October</td></tr>
+    <tr><td>6</td><td>mid April</td><td>mid to late October</td></tr>
+    <tr><td>7</td><td>late March to early April</td><td>early November</td></tr>
+    <tr><td>8</td><td>mid March</td><td>mid to late November</td></tr>
+    <tr><td>9</td><td>mid to late February</td><td>early December</td></tr>
+    <tr><td>10</td><td>late January (frost is rare)</td><td>mid to late December</td></tr>
+  </tbody>
+</table>
+
+<h2>When to plant tomatoes</h2>
+<p>Tomatoes are killed by frost and stall in cold soil, so timing matters more than for almost any other crop. Start seeds indoors <strong>6–8 weeks before your last frost</strong>, and transplant outside <strong>1–3 weeks after it</strong>, once nights stay above 50°F and the soil is at least 60°F. In zone 6 that usually means starting seeds in mid to late February and planting out in late April to early May. In zone 8, start in January and plant out from late March.</p>
+
+<div class="hgl-warning"><strong>Average frost date ≠ last possible frost.</strong> An average last frost date means there's still roughly a 50% chance of a later frost. Keep a frost cloth or old bedsheet handy for tender transplants for two weeks after your date, and check the 10-day forecast before planting out.</div>
+
+<h2>Planting calendar FAQ</h2>
+<div class="hgl-faq">
+  <details open="open">
+    <summary>How do I find my last frost date?</summary>
+    <p>Enter your ZIP code above for an estimate based on your USDA zone. For the most precise date, check your state's cooperative extension service or NOAA climate normals for the weather station nearest you, then type that date into the calendar.</p>
+  </details>
+  <details>
+    <summary>What is the difference between a hardiness zone and a frost date?</summary>
+    <p>A hardiness zone is based on the average coldest winter temperature and tells you which perennials survive winter. A frost date is when the last spring or first fall frost typically happens, and it tells you when to plant annual vegetables.</p>
+  </details>
+  <details>
+    <summary>Can I plant before my last frost date?</summary>
+    <p>Yes, for hardy crops. Peas, spinach, lettuce, kale, radishes, onions and potatoes tolerate light frost and are planted 2–6 weeks before the last frost. Wait until after it for tomatoes, peppers, beans, cucumbers, squash and basil.</p>
+  </details>
+  <details>
+    <summary>When should I start seeds indoors?</summary>
+    <p>Most vegetables are started 4–10 weeks before your last frost: peppers and onions earliest (8–12 weeks), tomatoes and cabbage-family crops 6–10 weeks, and cucumbers, squash and melons only 3–4 weeks before, because they grow fast and dislike root disturbance.</p>
+  </details>
+  <details>
+    <summary>When should I plant a fall garden?</summary>
+    <p>Count back from your first fall frost. Broccoli and cabbage transplants go out 10–12 weeks before it, carrots and peas are sown 10–12 weeks before, and fast crops like lettuce, spinach and radishes 4–8 weeks before.</p>
+  </details>
+  <details>
+    <summary>Does this calendar work outside the US?</summary>
+    <p>The ZIP lookup is US-only, but the calendar works anywhere: pick the zone that matches your climate or simply type your own average last and first frost dates into the two date boxes.</p>
+  </details>
+</div>
+
+<h2>More free garden tools</h2>
+<ul>
+  <li><a href="/p/plant-spacing-calculator.html">Plant Spacing Calculator</a>: how many plants fit in your beds</li>
+  <li><a href="/p/soil-calculator.html">Soil Calculator</a>: fill raised beds before planting</li>
+  <li><a href="/p/mulch-calculator.html">Mulch Calculator</a>: mulch after the soil warms</li>
+  <li><a href="/p/irrigation-runtime-calculator.html">Irrigation Runtime Calculator</a>: water new plantings correctly</li>
+</ul>
+
+<div class="hgl-sources">
+  <p><strong>Method &amp; sources:</strong> Zones from the 2023 USDA Plant Hardiness Zone Map (USDA Agricultural Research Service and the PRISM Climate Group, Oregon State University). Frost dates are typical averages by zone and are estimates. NOAA 1991–2020 climate normals and your state cooperative extension service give station-level dates. Planting windows follow common US university extension guidance. Weather varies year to year; always check the forecast before planting out. <em>Last reviewed: October 2026.</em></p>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://www.homegardenlot.com/p/planting-calendar.html#app",
+      "name": "Planting Calendar by ZIP Code",
+      "url": "https://www.homegardenlot.com/p/planting-calendar.html",
+      "description": "Free vegetable planting calendar: enter a US ZIP code to get your USDA hardiness zone, estimated frost dates and start-indoors, transplant, direct-sow and fall planting dates for 30 vegetables and herbs.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "inLanguage": "en-US",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "featureList": [
+        "USDA 2023 hardiness zone lookup by ZIP code",
+        "Editable last spring and first fall frost dates",
+        "Start indoors, transplant, direct sow and fall planting windows for 30 crops",
+        "Plant now and next 30 days highlights",
+        "Shareable and printable calendar"
+      ],
+      "publisher": { "@id": "https://www.homegardenlot.com/#organization" }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.homegardenlot.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Tools", "item": "https://www.homegardenlot.com/p/tools.html" },
+        { "@type": "ListItem", "position": 3, "name": "Planting Calendar" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "How do I find my last frost date?", "acceptedAnswer": { "@type": "Answer", "text": "Enter your ZIP code for an estimate based on your USDA zone. For the most precise date, check your state's cooperative extension service or NOAA climate normals for the weather station nearest you." } },
+        { "@type": "Question", "name": "What is the difference between a hardiness zone and a frost date?", "acceptedAnswer": { "@type": "Answer", "text": "A hardiness zone is based on the average coldest winter temperature and tells you which perennials survive winter. A frost date is when the last spring or first fall frost typically happens, and it tells you when to plant annual vegetables." } },
+        { "@type": "Question", "name": "Can I plant before my last frost date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, for hardy crops. Peas, spinach, lettuce, kale, radishes, onions and potatoes tolerate light frost and are planted 2–6 weeks before the last frost. Wait until after it for tomatoes, peppers, beans, cucumbers, squash and basil." } },
+        { "@type": "Question", "name": "When should I start seeds indoors?", "acceptedAnswer": { "@type": "Answer", "text": "Most vegetables are started 4–10 weeks before your last frost: peppers and onions earliest (8–12 weeks), tomatoes and cabbage-family crops 6–10 weeks, and cucumbers, squash and melons only 3–4 weeks before." } },
+        { "@type": "Question", "name": "When should I plant a fall garden?", "acceptedAnswer": { "@type": "Answer", "text": "Count back from your first fall frost. Broccoli and cabbage transplants go out 10–12 weeks before it, carrots and peas are sown 10–12 weeks before, and fast crops like lettuce, spinach and radishes 4–8 weeks before." } },
+        { "@type": "Question", "name": "Does this calendar work outside the US?", "acceptedAnswer": { "@type": "Answer", "text": "The ZIP lookup is US-only, but the calendar works anywhere: pick the zone that matches your climate or type your own average last and first frost dates." } }
+      ]
+    }
+  ]
+}
+</script>
