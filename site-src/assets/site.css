@@ -51,7 +51,8 @@ table{border-collapse:collapse;width:100%}
 .hgt-crumbs a{color:var(--hgt-muted)}
 
 /* page blocks */
-.hgt-main{padding-bottom:48px}
+.hgt-main{padding:24px 0 48px}
+.hgt-crumbs{margin-top:-6px}
 .hgt-lede{font-size:1.15rem;color:var(--hgt-text-2);max-width:var(--hgt-read)}
 .hgt-meta{font-size:.88rem;color:var(--hgt-muted);margin-bottom:18px}
 .hgt-card{background:var(--hgt-surface);border:1px solid var(--hgt-line);border-radius:var(--hgt-radius);box-shadow:var(--hgt-shadow);padding:20px}
