@@ -1,0 +1,39 @@
+name: Build frost data
+
+# Downloads NOAA's 1991–2020 climate normals and Census ZIP centroids, then commits
+# data/frost/ (station frost dates + ZIP lookup files). Runs when the builder changes
+# (on any branch, so a PR carries its own data), on demand, and yearly.
+on:
+  push:
+    paths: ['scripts/build-frost-data.mjs']
+  schedule:
+    - cron: '41 4 3 1 *' # 3 January
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-frost-data-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Build data/frost
+        run: node scripts/build-frost-data.mjs
+
+      - name: Commit data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/frost
+          git diff --cached --quiet || { git commit -m "Update NOAA frost data $(date -u +%F) [skip ci]" && git push origin HEAD:${GITHUB_REF_NAME}; }
