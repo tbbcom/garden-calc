@@ -1,4 +1,4 @@
-/* tool.homegardenlot.com: shared styles (BEM, hgt- namespace) */
+/* tools.homegardenlot.com: shared styles (BEM, hgt- namespace) */
 :root{
   --hgt-green:#247b49;--hgt-green-dark:#1b5e37;--hgt-green-soft:#d4ecdb;--hgt-green-tint:#eef7f1;
   --hgt-bg:#f4f4f5;--hgt-surface:#fff;--hgt-text:#09090b;--hgt-text-2:#3f3f46;--hgt-muted:#71717a;--hgt-line:#e4e4e7;

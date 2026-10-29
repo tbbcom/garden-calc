@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Builds the static site for tool.homegardenlot.com into _site/ from site-src/ and data/frost/.
+// Builds the static site for tools.homegardenlot.com into _site/ from site-src/ and data/frost/.
 // Every number on the generated pages comes from NOAA's 1991–2020 normals (data/frost/stations.json).
 //
 // Usage: node scripts/build-site.mjs
 import { mkdir, readFile, writeFile, rm, cp, readdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 
-const SITE = 'https://tool.homegardenlot.com';
+const SITE = 'https://tools.homegardenlot.com';
 const MAIN = 'https://www.homegardenlot.com';
 const BRAND = 'Home Garden Lot';
 const ORG_ID = `${MAIN}/#organization`;
@@ -516,10 +516,10 @@ function privacyPage() {
     : '<p>This site does not currently use analytics or advertising cookies. If we add Google Analytics or ads, this notice will be updated first.</p>';
   return legalPage({
     path: '/privacy/', name: 'Privacy', title: 'Privacy Notice | Home Garden Lot Tools',
-    description: 'How tool.homegardenlot.com handles your data: tools run in your browser, ZIP codes are not sent to us, plus cookies, analytics and your privacy choices.',
+    description: 'How tools.homegardenlot.com handles your data: tools run in your browser, ZIP codes are not sent to us, plus cookies, analytics and your privacy choices.',
     body: `
 <h1>Privacy notice</h1>
-<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tool.homegardenlot.com</p>
+<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tools.homegardenlot.com</p>
 <div class="hgt-answer"><span class="hgt-answer__label">Summary</span><p>Our tools run <strong>in your browser</strong>. The ZIP codes and measurements you enter are <strong>not sent to us</strong> or stored on any server, and you never need an account. This notice covers what this tool site does; the <a href="${MAIN}/p/privacy-policy.html">full ${BRAND} Privacy Policy</a> covers both sites in detail, including advertising and your legal rights.</p></div>
 <section class="hgt-read">
 <h2>What happens when you use a tool</h2>
@@ -544,10 +544,10 @@ ${analytics}
 function termsPage() {
   return legalPage({
     path: '/terms/', name: 'Terms of use', title: 'Terms of Use | Home Garden Lot Tools',
-    description: 'Terms for using tool.homegardenlot.com: free personal use, the CC BY 4.0 frost-date dataset, embedding the widget, and the limits of estimates and averages.',
+    description: 'Terms for using tools.homegardenlot.com: free personal use, the CC BY 4.0 frost-date dataset, embedding the widget, and the limits of estimates and averages.',
     body: `
 <h1>Terms of use</h1>
-<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tool.homegardenlot.com</p>
+<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tools.homegardenlot.com</p>
 <div class="hgt-answer"><span class="hgt-answer__label">Summary</span><p>The tools are free to use. Frost dates are <strong>30-year averages, not forecasts</strong>, and calculator results are estimates, so check them before you plant or buy. The frost-date data is free to reuse with credit. These terms add to the main <a href="${MAIN}/p/terms.html">${BRAND} Terms of Use</a>, which also apply here.</p></div>
 <section class="hgt-read">
 <h2>Using the tools</h2>
