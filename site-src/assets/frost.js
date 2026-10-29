@@ -1,4 +1,4 @@
-/* Frost dates by ZIP code: tool.homegardenlot.com (NOAA 1991–2020 normals, nearest stations) */
+/* Frost dates by ZIP code: tools.homegardenlot.com (NOAA 1991–2020 normals, nearest stations) */
 (function () {
   'use strict';
   var roots = document.querySelectorAll('[data-hgt-frost]');

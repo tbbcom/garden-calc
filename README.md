@@ -14,7 +14,7 @@ To update a live page: Blogger → Pages → open the page → **HTML view** →
 ### Planting calendar data
 `data/zones/<first 3 ZIP digits>.json` maps each ZIP to its 2023 USDA hardiness zone (USDA-ARS / PRISM Climate Group, Oregon State University). It's built by `scripts/build-zone-data.mjs` in the **Build zone data** GitHub Action (runs automatically when the builder changes, yearly on 2 January, or manually) and served to the page through jsDelivr, with raw.githubusercontent.com as a fallback. If both are unavailable, visitors pick their zone from the list instead.
 
-## tool.homegardenlot.com (GitHub Pages)
+## tools.homegardenlot.com (GitHub Pages)
 
 A static companion site for data-driven tools, built by `scripts/build-site.mjs` from `site-src/` and `data/frost/` and deployed by the **Deploy tool site** workflow.
 
@@ -30,10 +30,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 **Data:** `data/frost/` is built by `scripts/build-frost-data.mjs` in the **Build frost data** workflow from NOAA NCEI 1991–2020 U.S. Climate Normals and Census 2024 ZCTA centroids. It runs when the builder changes, every 3 January, or on demand; each run redeploys the site. The Blogger planting calendar reads the same ZIP files through jsDelivr, so both sites show identical dates.
 
 **One-time setup**
-1. DNS at your domain registrar: add a `CNAME` record, host `tool`, value `tbbcom.github.io`.
-2. GitHub → this repo → Settings → Pages → Source: **GitHub Actions**. Custom domain: `tool.homegardenlot.com` → Save → tick **Enforce HTTPS** once the certificate is issued (up to 24 h).
+1. DNS at your domain registrar: add a `CNAME` record, host `tools`, value `tbbcom.github.io`.
+2. GitHub → this repo → Settings → Pages → Source: **GitHub Actions**. Custom domain: `tools.homegardenlot.com` → Save → tick **Enforce HTTPS** once the certificate is issued (up to 24 h).
 3. Recommended: GitHub → your profile/organization Settings → Pages → **Add a verified domain** → `homegardenlot.com` (prevents subdomain takeover).
-4. Google Search Console: add a **Domain** property for `homegardenlot.com` (covers the subdomain), then submit `https://tool.homegardenlot.com/sitemap.xml`.
+4. Google Search Console: add a **Domain** property for `homegardenlot.com` (covers the subdomain), then submit `https://tools.homegardenlot.com/sitemap.xml`.
 
 **Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
 

@@ -1,4 +1,4 @@
-/* tool.homegardenlot.com: menu, sortable/filterable tables, copy buttons, offline support */
+/* tools.homegardenlot.com: menu, sortable/filterable tables, copy buttons, offline support */
 (function () {
   'use strict';
   var d = document;
