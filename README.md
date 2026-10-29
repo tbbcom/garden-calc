@@ -25,6 +25,7 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/data/` | Free CSV download (CC BY 4.0) for journalists, bloggers and teachers |
 | `/embed/` | One-line embeddable frost-date widget with a credit link |
 | `/about/` | Sources, method and limits |
+| `/contact/`, `/privacy/`, `/terms/` | Tool-site trust pages, linked to the main site's full policies |
 
 **Data:** `data/frost/` is built by `scripts/build-frost-data.mjs` in the **Build frost data** workflow from NOAA NCEI 1991–2020 U.S. Climate Normals and Census 2024 ZCTA centroids. It runs when the builder changes, every 3 January, or on demand; each run redeploys the site. The Blogger planting calendar reads the same ZIP files through jsDelivr, so both sites show identical dates.
 
@@ -33,5 +34,7 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 2. GitHub → this repo → Settings → Pages → Source: **GitHub Actions**. Custom domain: `tool.homegardenlot.com` → Save → tick **Enforce HTTPS** once the certificate is issued (up to 24 h).
 3. Recommended: GitHub → your profile/organization Settings → Pages → **Add a verified domain** → `homegardenlot.com` (prevents subdomain takeover).
 4. Google Search Console: add a **Domain** property for `homegardenlot.com` (covers the subdomain), then submit `https://tool.homegardenlot.com/sitemap.xml`.
+
+**Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
 
 **Local preview:** `node scripts/build-site.mjs && cd _site && python3 -m http.server`
