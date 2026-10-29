@@ -1,0 +1,22 @@
+name: Probe data sources
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          set -x
+          curl -sSL https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/archive/ | grep -o 'href="[^"]*"' | head -50
+          curl -sSL https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/ | grep -o 'href="[^"]*csv"' | wc -l
+          curl -sSL https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/USW00094728.csv | head -c 9000
+          echo; echo ---
+          curl -sSL https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/access/USC00042294.csv | head -c 3000
+          echo; echo ---
+          curl -sSL https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/doc/ | grep -o 'href="[^"]*"' | head
+          curl -sSL https://www2.census.gov/geo/docs/maps-data/data/gazetteer/ | grep -o 'href="[^"]*"' | tail -8
+          curl -sSL https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/ | grep -o 'href="[^"]*zcta[^"]*"'
+          curl -sSL -o z.zip https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_zcta_national.zip && unzip -l z.zip && unzip -p z.zip | head -3 | cat -A | head -3
+          curl -sSL https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/ | grep -o 'href="[^"]*place[^"]*"'
