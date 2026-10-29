@@ -40,7 +40,7 @@ const WORDS = {
   RVR: 'River', RES: 'Reservoir', NWS: 'NWS', WSO: 'WSO', WFO: 'WFO', NWSFO: 'NWSFO', AFB: 'AFB', NAS: 'NAS',
   CRK: 'Creek', VLY: 'Valley', JCT: 'Junction', ISL: 'Island', BCH: 'Beach', PT: 'Point', UNIV: 'University',
   AG: 'Agricultural', CAA: 'CAA', WB: 'WB', DAM: 'Dam', RS: 'Ranger Station', HQ: 'HQ', USFS: 'USFS',
-  NWR: 'NWR', NP: 'National Park', NM: 'National Monument', SP: 'State Park', TV: 'TV', ARPT: 'Airport',
+  NWR: 'NWR', IS: 'Island', CTR: 'Center', SCI: 'Science', FCST: 'Forecast', OFC: 'Office', MEM: 'Memorial', CNTY: 'County', RNGR: 'Ranger', NP: 'National Park', NM: 'National Monument', SP: 'State Park', TV: 'TV', ARPT: 'Airport',
 };
 const DIR = /^(\d+(\.\d+)?)?(N|S|E|W|NE|NW|SE|SW|NNE|NNW|ENE|ESE|SSE|SSW|WNW|WSW)$/;
 

@@ -125,11 +125,16 @@
     'https://cdn.jsdelivr.net/gh/tbbcom/garden-calc@main/data/zones/',
     'https://raw.githubusercontent.com/tbbcom/garden-calc/main/data/zones/'
   ];
+  // NOAA 1991–2020 frost dates for the 3 nearest weather stations, per ZIP prefix (built by tool.homegardenlot.com).
+  var FROST_URLS = [
+    'https://cdn.jsdelivr.net/gh/tbbcom/garden-calc@main/data/frost/zip/',
+    'https://raw.githubusercontent.com/tbbcom/garden-calc/main/data/frost/zip/'
+  ];
   var STORE = 'hglpc:v1';
   var DAY = 864e5;
 
-  // Typical average frost dates by half-zone (month, day). Zones describe winter lows, not frost
-  // dates, so these are starting estimates; local NOAA/extension dates are better and editable.
+  // Fallback frost dates by half-zone (month, day), used only when no NOAA station is near a ZIP
+  // or when the visitor picks a zone by hand. Zones describe winter lows, not frost dates.
   var FROST = {
     '1a': [[6, 15], [8, 15]], '1b': [[6, 10], [8, 20]], '2a': [[6, 5], [8, 25]], '2b': [[6, 1], [9, 1]],
     '3a': [[5, 25], [9, 8]], '3b': [[5, 18], [9, 15]], '4a': [[5, 12], [9, 21]], '4b': [[5, 6], [9, 28]],
@@ -178,6 +183,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var state = { zip: '', zone: '', lf: '', ff: '', filter: 'all' };
   var cache = {};
+  var frostCache = {};
 
   var iso = function (d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
   var parseIso = function (s) { var p = (s || '').split('-'); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null; };
@@ -214,18 +220,51 @@
     $('hglpc-zone').innerHTML = opts.join('');
   }
 
-  function loadPrefix(prefix, i) {
+  function fetchJson(urls, store, prefix, i) {
     i = i || 0;
-    if (cache[prefix]) return Promise.resolve(cache[prefix]);
-    if (i >= DATA_URLS.length) return Promise.reject(new Error('lookup unavailable'));
-    return fetch(DATA_URLS[i] + prefix + '.json')
+    if (store[prefix]) return Promise.resolve(store[prefix]);
+    if (i >= urls.length) return Promise.reject(new Error('lookup unavailable'));
+    return fetch(urls[i] + prefix + '.json')
       .then(function (r) {
         if (r.status === 404) return {};
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
-      .then(function (map) { cache[prefix] = map; return map; })
-      .catch(function () { return loadPrefix(prefix, i + 1); });
+      .then(function (map) { store[prefix] = map; return map; })
+      .catch(function () { return fetchJson(urls, store, prefix, i + 1); });
+  }
+  function loadPrefix(prefix) { return fetchJson(DATA_URLS, cache, prefix); }
+
+  // Nearest station's median frost dates, or null when unavailable, too far or not a plain date.
+  function stationFor(zip) {
+    return fetchJson(FROST_URLS, frostCache, zip.slice(0, 3)).then(function (d) {
+      var near = d && d.z && d.z[zip];
+      if (!near || near[0][1] > 60) return null;
+      var s = d.s[near[0][0]];
+      return { name: s[0] + ', ' + s[1], miles: near[0][1], last: s[5], first: s[7] };
+    }).catch(function () { return null; });
+  }
+
+  function mdDate(v, year) {
+    var m = /^(\d\d)-(\d\d)$/.exec(v || '');
+    return m ? new Date(year, +m[1] - 1, +m[2]) : null;
+  }
+
+  function setStation(zone, st, msg) {
+    var t = today();
+    var y = t.getFullYear();
+    var ff = mdDate(st.first, y);
+    // Same rule as zones: switch to next season two weeks after this year's first fall frost.
+    if (t > new Date(ff.getTime() + 14 * DAY)) y++;
+    state.zone = zone || '';
+    if (zone) $('hglpc-zone').value = zone;
+    state.lf = iso(mdDate(st.last, y));
+    state.ff = iso(mdDate(st.first, y));
+    $('hglpc-lf').value = state.lf;
+    $('hglpc-ff').value = state.ff;
+    status(msg + ' Frost dates are NOAA 1991–2020 medians from the ' + st.name + ' weather station, ' + st.miles +
+      ' mi away. There is still about a 50% chance of a later spring frost, so edit them if you know your local averages.');
+    render();
   }
 
   function lookup(zip) {
@@ -236,7 +275,11 @@
         status('We couldn’t find ZIP ' + zip + ' in the USDA zone data. Pick your zone from the list instead.', true);
         return;
       }
-      setZone(zone, 'ZIP ' + zip + ' is in USDA zone ' + zone + '.');
+      var msg = 'ZIP ' + zip + ' is in USDA zone ' + zone + '.';
+      return stationFor(zip).then(function (st) {
+        if (st && /^\d/.test(st.last) && /^\d/.test(st.first)) setStation(zone, st, msg);
+        else setZone(zone, msg);
+      });
     }).catch(function () {
       status('Zone lookup is unavailable right now. Pick your zone from the list. Your calendar works the same.', true);
     });
@@ -341,7 +384,11 @@
     if (z && Object.prototype.hasOwnProperty.call(FROST, z[1])) { setZone(z[1]); return; }
     try {
       var s = JSON.parse(localStorage.getItem(STORE) || 'null');
-      if (s && s.zone && Object.prototype.hasOwnProperty.call(FROST, s.zone)) {
+      if (s && /^\d{5}$/.test(s.zip || '')) {
+        state.zip = s.zip;
+        $('hglpc-zip').value = s.zip;
+        lookup(s.zip);
+      } else if (s && s.zone && Object.prototype.hasOwnProperty.call(FROST, s.zone)) {
         state.zip = s.zip || '';
         $('hglpc-zip').value = state.zip;
         setZone(s.zone, state.zip ? 'Welcome back: ZIP ' + state.zip + ', zone ' + s.zone + '.' : '');
@@ -391,7 +438,7 @@
 </div>
 
 <h2>How this planting calendar works</h2>
-<p>The calendar looks up your <strong>USDA plant hardiness zone</strong> from your ZIP code, using the 2023 USDA map, and estimates your average last spring and first fall frost dates. Every planting window is then counted in weeks from those two dates, the same method university extension services use in their regional planting guides.</p>
+<p>The calendar looks up your <strong>USDA plant hardiness zone</strong> from your ZIP code, using the 2023 USDA map, and your average last spring and first fall frost dates from the <strong>nearest NOAA weather station</strong> (1991–2020 climate normals). See every station's dates on our <a href="https://tool.homegardenlot.com/frost-dates/">frost dates by ZIP code</a> tool. Every planting window is then counted in weeks from those two dates, the same method university extension services use in their regional planting guides.</p>
 <p>Zones are based on winter low temperatures, not frost dates, so two places in the same zone can have frost dates a couple of weeks apart. If your local extension office or weather service publishes average frost dates for your town, type them into the two date boxes and every date in the table updates instantly.</p>
 
 <h2>When to plant vegetables: weeks from your last frost</h2>
@@ -432,7 +479,7 @@
 <div class="hgl-faq">
   <details open="open">
     <summary>How do I find my last frost date?</summary>
-    <p>Enter your ZIP code above for an estimate based on your USDA zone. For the most precise date, check your state's cooperative extension service or NOAA climate normals for the weather station nearest you, then type that date into the calendar.</p>
+    <p>Enter your ZIP code above: the calendar fills in the median last frost date from the nearest NOAA weather station (1991–2020 climate normals). The <a href="https://tool.homegardenlot.com/frost-dates/">frost dates by ZIP code</a> tool also shows a safer 10%-risk date and compares the three nearest stations, which helps if your garden sits higher or lower than the station.</p>
   </details>
   <details>
     <summary>What is the difference between a hardiness zone and a frost date?</summary>
@@ -465,7 +512,7 @@
 </ul>
 
 <div class="hgl-sources">
-  <p><strong>Method &amp; sources:</strong> Zones from the 2023 USDA Plant Hardiness Zone Map (USDA Agricultural Research Service and the PRISM Climate Group, Oregon State University). Frost dates are typical averages by zone and are estimates. NOAA 1991–2020 climate normals and your state cooperative extension service give station-level dates. Planting windows follow common US university extension guidance. Weather varies year to year; always check the forecast before planting out. <em>Last reviewed: October 2026.</em></p>
+  <p><strong>Method &amp; sources:</strong> Zones from the 2023 USDA Plant Hardiness Zone Map (USDA Agricultural Research Service and the PRISM Climate Group, Oregon State University). Frost dates are medians for the nearest station in the NOAA NCEI 1991–2020 U.S. Climate Normals; where no station is within 60 miles, typical averages by zone are used as an estimate. Planting windows follow common US university extension guidance. Weather varies year to year; always check the forecast before planting out. <em>Last reviewed: October 2026.</em></p>
 </div>
 
 <script type="application/ld+json">
@@ -477,7 +524,7 @@
       "@id": "https://www.homegardenlot.com/p/planting-calendar.html#app",
       "name": "Planting Calendar by ZIP Code",
       "url": "https://www.homegardenlot.com/p/planting-calendar.html",
-      "description": "Free vegetable planting calendar: enter a US ZIP code to get your USDA hardiness zone, estimated frost dates and start-indoors, transplant, direct-sow and fall planting dates for 30 vegetables and herbs.",
+      "description": "Free vegetable planting calendar: enter a US ZIP code to get your USDA hardiness zone, NOAA frost dates for the nearest weather station and start-indoors, transplant, direct-sow and fall planting dates for 30 vegetables and herbs.",
       "applicationCategory": "UtilitiesApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
@@ -504,7 +551,7 @@
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "How do I find my last frost date?", "acceptedAnswer": { "@type": "Answer", "text": "Enter your ZIP code for an estimate based on your USDA zone. For the most precise date, check your state's cooperative extension service or NOAA climate normals for the weather station nearest you." } },
+        { "@type": "Question", "name": "How do I find my last frost date?", "acceptedAnswer": { "@type": "Answer", "text": "Enter your ZIP code: the calendar uses the median last frost date from the nearest NOAA weather station (1991–2020 climate normals). For a safer planting date, use the 10%-risk date shown by the frost dates by ZIP code tool at tool.homegardenlot.com." } },
         { "@type": "Question", "name": "What is the difference between a hardiness zone and a frost date?", "acceptedAnswer": { "@type": "Answer", "text": "A hardiness zone is based on the average coldest winter temperature and tells you which perennials survive winter. A frost date is when the last spring or first fall frost typically happens, and it tells you when to plant annual vegetables." } },
         { "@type": "Question", "name": "Can I plant before my last frost date?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, for hardy crops. Peas, spinach, lettuce, kale, radishes, onions and potatoes tolerate light frost and are planted 2–6 weeks before the last frost. Wait until after it for tomatoes, peppers, beans, cucumbers, squash and basil." } },
         { "@type": "Question", "name": "When should I start seeds indoors?", "acceptedAnswer": { "@type": "Answer", "text": "Most vegetables are started 4–10 weeks before your last frost: peppers and onions earliest (8–12 weeks), tomatoes and cabbage-family crops 6–10 weeks, and cucumbers, squash and melons only 3–4 weeks before." } },
