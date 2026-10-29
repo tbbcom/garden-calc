@@ -1,7 +1,7 @@
 /* tools.homegardenlot.com: shared styles (BEM, hgt- namespace) */
 :root{
   --hgt-green:#247b49;--hgt-green-dark:#1b5e37;--hgt-green-soft:#d4ecdb;--hgt-green-tint:#eef7f1;
-  --hgt-bg:#f4f4f5;--hgt-surface:#fff;--hgt-text:#09090b;--hgt-text-2:#3f3f46;--hgt-muted:#71717a;--hgt-line:#e4e4e7;
+  --hgt-bg:#f4f4f5;--hgt-surface:#fff;--hgt-text:#09090b;--hgt-text-2:#3f3f46;--hgt-muted:#5c5c66;--hgt-line:#e4e4e7;
   --hgt-footer:#142c1e;--hgt-footer-bar:#0f2217;--hgt-footer-text:#fafafa;--hgt-footer-meta:#a1a1aa;
   --hgt-frost:#2563eb;--hgt-frost-soft:#e0ecff;--hgt-warn:#b45309;--hgt-warn-soft:#fef3c7;
   --hgt-radius:.6rem;--hgt-shadow:0 1px 2px rgba(9,9,11,.05),0 10px 20px -8px rgba(9,9,11,.08);
