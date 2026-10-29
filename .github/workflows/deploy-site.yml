@@ -37,6 +37,8 @@ jobs:
 
       - name: Build site
         run: node scripts/build-site.mjs
+        env:
+          GTM_ID: ${{ vars.GTM_ID }}
 
       - uses: actions/configure-pages@v5
 

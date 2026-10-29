@@ -1,5 +1,5 @@
 /* Offline support: pages network-first, assets and ZIP data stale-while-revalidate. */
-var CACHE = 'hgt-v1';
+var CACHE = 'hgt-v2';
 var SHELL = ['/', '/frost-dates/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/icon.svg'];
 
 self.addEventListener('install', function (e) {

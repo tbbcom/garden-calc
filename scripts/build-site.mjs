@@ -16,6 +16,12 @@ const OUT = '_site';
 const CSV_NAME = 'frost-dates-1991-2020.csv';
 const NOAA_URL = 'https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals';
 const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
+// Google Tag Manager container, set as the GTM_ID repository variable (Settings → Secrets and variables → Actions → Variables).
+const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(process.env.GTM_ID || '') ? process.env.GTM_ID : '';
+const EFFECTIVE = 'October 29, 2026';
+// EEA, UK and Switzerland: analytics and ad storage stay denied until the visitor consents (Consent Mode v2).
+const CONSENT_REGIONS = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'];
+let CSS = '';
 
 const STATES = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut',
@@ -78,6 +84,20 @@ const NAV = [
   ['/about/', 'About'],
 ];
 
+// Consent defaults run first; GTM itself loads after the page is idle so it never competes with LCP or input.
+function gtmHead() {
+  if (!GTM_ID) return '';
+  return `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',region:${JSON.stringify(CONSENT_REGIONS)},wait_for_update:500});
+gtag('consent','default',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});
+gtag('set','ads_data_redaction',true);gtag('set','url_passthrough',true);
+dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});
+(function(){function l(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtm.js?id=${GTM_ID}';document.head.appendChild(s);}
+function q(){'requestIdleCallback' in window?requestIdleCallback(l,{timeout:2500}):setTimeout(l,200);}
+document.readyState==='complete'?q():addEventListener('load',q);})();</script>
+<link rel="preconnect" href="https://www.googletagmanager.com">`;
+}
+
 function page({ path, title, description, body, crumbs = [], schema = [], scripts = [], noindex = false, active }) {
   const url = SITE + path;
   const crumbHtml = crumbs.length
@@ -110,10 +130,12 @@ ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" cont
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/site.css">
+<style>${CSS}</style>
+${gtmHead()}
 ${graph.length ? jsonLd({ '@context': 'https://schema.org', '@graph': graph }) : ''}
 </head>
 <body>
+${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden" title="Google Tag Manager"></iframe></noscript>` : ''}
 <a class="hgt-skip" href="#main">Skip to content</a>
 <header class="hgt-header">
   <div class="hgt-wrap hgt-header__in">
@@ -155,17 +177,18 @@ ${graph.length ? jsonLd({ '@context': 'https://schema.org', '@graph': graph }) :
       </ul>
     </div>
     <div>
-      <p class="hgt-footer__title">Company</p>
+      <p class="hgt-footer__title">About &amp; trust</p>
       <ul class="hgt-footer__list">
         <li><a href="/about/">About these tools</a></li>
-        <li><a href="${MAIN}/p/about.html">About &amp; Author</a></li>
-        <li><a href="${MAIN}/p/contact.html">Contact</a></li>
-        <li><a href="${MAIN}/p/privacy-policy.html">Privacy Policy</a></li>
-        <li><a href="${MAIN}/p/disclaimer.html">Disclaimer</a></li>
+        <li><a href="${MAIN}/p/about.html">About ${BRAND}</a></li>
+        <li><a href="${MAIN}/p/editorial-policy.html">Editorial policy</a></li>
+        <li><a href="/contact/">Contact</a></li>
+        <li><a href="/privacy/">Privacy</a></li>
+        <li><a href="/terms/">Terms of use</a></li>
       </ul>
     </div>
   </div>
-  <div class="hgt-footer__bar">© ${new Date().getUTCFullYear()} ${BRAND}. Frost data: NOAA NCEI 1991–2020 U.S. Climate Normals. Dates are long-term averages, not forecasts.</div>
+  <div class="hgt-footer__bar">© ${new Date().getUTCFullYear()} ${BRAND} · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="${MAIN}/p/disclaimer.html">Disclaimer</a> · <a href="/contact/">Contact</a><br>Frost data: NOAA NCEI 1991–2020 U.S. Climate Normals. Dates are long-term averages, not forecasts.</div>
 </footer>
 <script src="/assets/site.js" defer></script>
 ${scripts.map((s) => `<script src="${s}" defer></script>`).join('\n')}
@@ -448,7 +471,7 @@ function embedWidget() {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Frost dates by ZIP code | ${BRAND}</title><meta name="robots" content="noindex">
-<link rel="canonical" href="${SITE}/frost-dates/"><link rel="stylesheet" href="/assets/site.css">
+<link rel="canonical" href="${SITE}/frost-dates/"><style>${CSS}</style>
 <base target="_blank"></head>
 <body class="hgt-embed">
 ${frostWidget('hgt-zip', true).replace('hgt-card ', '')}
@@ -474,11 +497,88 @@ function aboutPage(meta) {
 <li><strong>Updates:</strong> the data is rebuilt automatically every January from NOAA's files and whenever the build script changes. Last built ${meta.built}.</li>
 </ul>
 <h2>Who makes these tools</h2>
-<p class="hgt-read">${BRAND} is an independent, reader-supported site. The people behind the site and how we research and fact-check are on the <a href="${MAIN}/p/about.html">About &amp; Author</a> page. Found a problem with a number? <a href="${MAIN}/p/contact.html">Tell us</a> and we'll check it against the source.</p>
+<p class="hgt-read">${BRAND} is an independent, reader-supported site. The people behind the site are on the <a href="${MAIN}/p/about.html">About</a> page, and how we research, use AI tools and correct errors is in our <a href="${MAIN}/p/editorial-policy.html">Editorial Policy</a>. Found a problem with a number? <a href="${MAIN}/p/contact.html">Tell us</a> and we'll check it against the source.</p>
 <h2>Privacy</h2>
-<p class="hgt-read">The tools run in your browser. ZIP codes you enter are not sent to us; your browser downloads a small data file for your ZIP prefix and remembers your last ZIP on your device only. See the <a href="${MAIN}/p/privacy-policy.html">privacy policy</a>.</p>`;
+<p class="hgt-read">The tools run in your browser. ZIP codes you enter are not sent to us; your browser downloads a small data file for your ZIP prefix and remembers your last ZIP on your device only. See the <a href="/privacy/">privacy notice</a>.</p>`;
   const schema = [{ '@type': 'AboutPage', '@id': `${SITE}${path}#webpage`, url: SITE + path, name: title, description, isPartOf: { '@id': `${SITE}/#website` }, about: { '@id': ORG_ID } }, orgRef];
   return page({ path, title, description, body, active: '/about/', crumbs: [[path, 'About']], schema });
+}
+
+function legalPage({ path, name, title, description, body, type = 'WebPage' }) {
+  const schema = [{ '@type': type, '@id': `${SITE}${path}#webpage`, url: SITE + path, name: title, description, inLanguage: 'en-US', isPartOf: { '@id': `${SITE}/#website` }, publisher: { '@id': ORG_ID }, dateModified: '2026-10-29' }];
+  if (type === 'ContactPage') schema[0].mainEntity = { '@type': 'Organization', '@id': ORG_ID, name: BRAND, contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', url: `${MAIN}/p/contact.html`, availableLanguage: ['en'] } };
+  return page({ path, title, description, body, crumbs: [[path, name]], schema });
+}
+
+function privacyPage() {
+  const analytics = GTM_ID
+    ? `<p>We use <strong>Google Tag Manager</strong> to load <strong>Google Analytics 4</strong>, which counts visits and shows how the tools are used (for example, that a frost lookup happened and in which state, never your ZIP code). Visitors in the EEA, UK and Switzerland are asked for consent first; until then Google Consent Mode keeps these tags in a cookieless, non-identifying mode. You can opt out anytime with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>.</p>`
+    : '<p>This site does not currently use analytics or advertising cookies. If we add Google Analytics or ads, this notice will be updated first.</p>';
+  return legalPage({
+    path: '/privacy/', name: 'Privacy', title: 'Privacy Notice | Home Garden Lot Tools',
+    description: 'How tool.homegardenlot.com handles your data: tools run in your browser, ZIP codes are not sent to us, plus cookies, analytics and your privacy choices.',
+    body: `
+<h1>Privacy notice</h1>
+<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tool.homegardenlot.com</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Summary</span><p>Our tools run <strong>in your browser</strong>. The ZIP codes and measurements you enter are <strong>not sent to us</strong> or stored on any server, and you never need an account. This notice covers what this tool site does; the <a href="${MAIN}/p/privacy-policy.html">full ${BRAND} Privacy Policy</a> covers both sites in detail, including advertising and your legal rights.</p></div>
+<section class="hgt-read">
+<h2>What happens when you use a tool</h2>
+<ul>
+<li>When you enter a ZIP code, your browser downloads a small public data file for the first three digits (for example <code>100.json</code>) and finds your ZIP inside it on your device.</li>
+<li>Your last ZIP code is saved in your browser's local storage so the tool is ready next time. Clear it anytime in your browser settings.</li>
+<li>Pages can work offline thanks to a service worker that caches pages and data files on your device.</li>
+</ul>
+<h2>Information collected automatically</h2>
+<p>The site is hosted on <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub Pages</a>, which logs visitor IP addresses for security and to operate the service. We don't receive or use these logs.</p>
+<h2>Analytics and cookies</h2>
+${analytics}
+<h2>Advertising</h2>
+<p>If we show Google ads here in future, Google and its partners will use cookies to serve ads based on your visits to this and other sites. You'll be able to opt out of personalized ads at <a href="https://adssettings.google.com/" rel="noopener">Google Ads Settings</a> or <a href="https://www.aboutads.info/choices/" rel="noopener">aboutads.info</a>, and details will be added to this notice and the <a href="${MAIN}/p/privacy-policy.html#advertising">full policy</a> before ads appear.</p>
+<h2>Embedded widget</h2>
+<p>Sites that embed our frost-date widget load it from this domain; the same rules apply inside the widget. No tracking is added to the host site.</p>
+<h2>Your rights and contact</h2>
+<p>You can ask us to access or delete information you've sent us, and you have rights under GDPR and U.S. state privacy laws described in the <a href="${MAIN}/p/privacy-policy.html#rights">full policy</a>. To make a request, use our <a href="/contact/">contact page</a>.</p>
+</section>` });
+}
+
+function termsPage() {
+  return legalPage({
+    path: '/terms/', name: 'Terms of use', title: 'Terms of Use | Home Garden Lot Tools',
+    description: 'Terms for using tool.homegardenlot.com: free personal use, the CC BY 4.0 frost-date dataset, embedding the widget, and the limits of estimates and averages.',
+    body: `
+<h1>Terms of use</h1>
+<p class="hgt-meta">Effective ${EFFECTIVE} · Applies to tool.homegardenlot.com</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Summary</span><p>The tools are free to use. Frost dates are <strong>30-year averages, not forecasts</strong>, and calculator results are estimates, so check them before you plant or buy. The frost-date data is free to reuse with credit. These terms add to the main <a href="${MAIN}/p/terms.html">${BRAND} Terms of Use</a>, which also apply here.</p></div>
+<section class="hgt-read">
+<h2>Using the tools</h2>
+<p>You may use the tools for personal and professional planning at no cost. Please don't overload the site with automated requests; download the <a href="/data/">dataset</a> instead.</p>
+<h2>Frost dates and estimates</h2>
+<p>Frost dates come from NOAA's 1991–2020 U.S. Climate Normals for the nearest weather stations. A frost after the median last frost date happens in about half of all years, and conditions at your garden can differ from the station because of elevation, slope and nearby water. Use the 10%-risk date for tender plants and watch your local forecast. We're not liable for crop, plant or material losses from relying on these averages.</p>
+<h2>Reusing our data</h2>
+<p>The <a href="/data/">frost-date dataset</a> is licensed under <a href="${LICENSE}" rel="license noopener">CC BY 4.0</a>: you may share and adapt it, including commercially, if you credit ${BRAND} with a link to <a href="/data/">${SITE}/data/</a>. The underlying NOAA data is U.S. public domain. Page text, design and code remain © ${BRAND}.</p>
+<h2>Embedding the widget</h2>
+<p>You may embed the frost-date widget with the code on our <a href="/embed/">embed page</a> on any lawful site, provided the credit line stays visible. We may change or stop the widget at any time.</p>
+<h2>Everything else</h2>
+<p>Disclaimers, limitation of liability, governing law and changes are covered by the main <a href="${MAIN}/p/terms.html">Terms of Use</a> and <a href="${MAIN}/p/disclaimer.html">Disclaimer</a>. Questions: <a href="/contact/">contact us</a>.</p>
+</section>` });
+}
+
+function contactPage() {
+  return legalPage({
+    path: '/contact/', name: 'Contact', type: 'ContactPage', title: 'Contact Home Garden Lot Tools: Report Data or Ask a Question',
+    description: 'Report a frost-date or calculator issue, ask about reusing our NOAA frost data or embedding the widget, or send a question to the Home Garden Lot team.',
+    body: `
+<h1>Contact us</h1>
+<div class="hgt-answer"><span class="hgt-answer__label">How to reach us</span><p>Send us a message through the <a href="${MAIN}/p/contact.html">${BRAND} contact form</a>. It reaches the same team that builds these tools, and we usually reply within 3 business days.</p></div>
+<p><a class="hgt-btn" href="${MAIN}/p/contact.html">Open the contact form</a></p>
+<section class="hgt-read">
+<h2>Reporting a data problem</h2>
+<p>If a frost date looks wrong for your area, tell us the ZIP code, the station the tool showed and what you expected. We'll check it against NOAA's published normals. Often the nearest station sits at a different elevation; in that case the "Compare nearby stations" list in the results usually helps.</p>
+<h2>Press, teachers and bloggers</h2>
+<p>You're welcome to use our <a href="/data/">free frost-date dataset</a> or <a href="/embed/">embed the frost-date tool</a>. For a state summary, a chart or a custom cut of the data, ask through the form.</p>
+<h2>What we don't do</h2>
+<p>We don't sell links, sponsored posts or data about our visitors.</p>
+</section>` });
 }
 
 function notFound() {
@@ -499,6 +599,8 @@ async function main() {
   const stations = JSON.parse(await readFile('data/frost/stations.json', 'utf8'));
   const fmeta = JSON.parse(await readFile('data/frost/meta.json', 'utf8'));
   const csv = await readFile(`data/frost/${CSV_NAME}`);
+  // Inlined into every page: one less render-blocking request on the first (usually only) page view.
+  CSS = (await readFile('site-src/assets/site.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s*\n\s*/g, '').replace(/\s*([{};,>])\s*/g, '$1');
   const byState = {};
   for (const s of stations) (byState[s.st] ||= []).push(s);
   const meta = { ...fmeta, byState, csvBytes: csv.length };
@@ -509,7 +611,7 @@ async function main() {
   await cp('data/frost/zip', join(OUT, 'data/frost/zip'), { recursive: true });
   await writeFile(join(OUT, 'data', CSV_NAME), csv);
 
-  const urls = [['/', 1.0], ['/frost-dates/', 0.9], ['/data/', 0.6], ['/embed/', 0.5], ['/about/', 0.4]];
+  const urls = [['/', 1.0], ['/frost-dates/', 0.9], ['/data/', 0.6], ['/embed/', 0.5], ['/about/', 0.4], ['/contact/', 0.3], ['/privacy/', 0.2], ['/terms/', 0.2]];
   const states = [];
   for (const code of Object.keys(STATES)) {
     const list = byState[code];
@@ -525,6 +627,9 @@ async function main() {
   await write('/embed/', embedPage());
   await write('/embed/frost-dates/', embedWidget());
   await write('/about/', aboutPage(meta));
+  await write('/privacy/', privacyPage());
+  await write('/terms/', termsPage());
+  await write('/contact/', contactPage());
   await write('/404.html', notFound());
 
   await write('/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>

@@ -147,6 +147,8 @@
         }
         say('');
         render(root, zip, data);
+        // Analytics event: the station's state only, never the ZIP code (see /privacy/).
+        if (window.dataLayer) window.dataLayer.push({ event: 'frost_lookup', frost_state: data.s[data.z[zip][0][0]][1], frost_embed: root.hasAttribute('data-compact') });
         try { localStorage.setItem(STORE, zip); } catch (e) { /* storage blocked */ }
         if (!quiet && !root.hasAttribute('data-compact') && history.replaceState) history.replaceState(null, '', '#zip=' + zip);
       }).catch(function () {
