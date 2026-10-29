@@ -127,3 +127,7 @@ table{border-collapse:collapse;width:100%}
 .hgt-embed__by{font-size:.8rem;color:var(--hgt-muted);margin:12px 0 0}
 
 @media print{.hgt-header,.hgt-footer,.hgt-frost__form,.hgt-filter{display:none}}
+/* keep the station name visible while scrolling wide tables on phones */
+.hgt-table tbody td:first-child,.hgt-table thead th:first-child{position:sticky;left:0;background:var(--hgt-surface);z-index:1}
+.hgt-table thead th:first-child{background:#f8faf9;z-index:2}
+@media (max-width:640px){.hgt-table td:first-child{min-width:130px}}
