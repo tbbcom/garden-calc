@@ -1,0 +1,37 @@
+name: Probe live site
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          H=tools.homegardenlot.com
+          echo "== DNS"; dig +short $H CNAME; dig +short $H A
+          echo "== HTTP->HTTPS"; curl -sI http://$H/ | grep -iE '^(HTTP|location)'
+          echo "== TLS"; echo | openssl s_client -servername $H -connect $H:443 2>/dev/null | openssl x509 -noout -subject -issuer -enddate || echo "no cert"
+          echo "== pages (code, ttfb, total, bytes)"
+          for p in / /frost-dates/ /frost-dates/texas/ /frost-dates/california/ /data/ /embed/ /embed/frost-dates/ /about/ /contact/ /privacy/ /terms/ /sitemap.xml /robots.txt /llms.txt /manifest.webmanifest /sw.js /data/frost-dates-1991-2020.csv /data/frost/zip/100.json /assets/og.png /nope/; do
+            curl -s -o /tmp/o -w "%{http_code} %{time_starttransfer} %{time_total} %{size_download} $p\n" "https://$H$p"
+          done
+          echo "== headers /frost-dates/"; curl -sI https://$H/frost-dates/ | grep -iE 'cache-control|content-type|server|x-cache|age:'
+          echo "== canonical/GTM/title"
+          curl -s https://$H/frost-dates/ | grep -oE '<title>[^<]*|rel="canonical" href="[^"]*|googletagmanager.com/gtm.js\?id=[A-Z0-9-]*|<meta name="robots"[^>]*' | head
+          echo "== sitemap count"; curl -s https://$H/sitemap.xml | grep -c '<loc>'
+          echo "== github.io redirect"; curl -sI https://tbbcom.github.io/garden-calc/ | grep -iE '^(HTTP|location)'
+          echo "== main site links"; curl -s https://www.homegardenlot.com/ | grep -oE 'https://tools?\.homegardenlot\.com[^"'"'"' ]*' | sort -u | head
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
+      - name: Lighthouse (mobile)
+        run: |
+          npx -y lighthouse@12 https://tools.homegardenlot.com/frost-dates/texas/ --quiet --chrome-flags="--headless=new --no-sandbox" --only-categories=performance,seo,accessibility,best-practices --output=json --output-path=lh1.json || true
+          npx -y lighthouse@12 https://tools.homegardenlot.com/ --quiet --chrome-flags="--headless=new --no-sandbox" --only-categories=performance,seo,accessibility,best-practices --output=json --output-path=lh2.json || true
+          for f in lh1.json lh2.json; do node -e '
+          const r=require("./'$f'");const c=r.categories,a=r.audits;
+          console.log(r.finalDisplayedUrl);
+          console.log(Object.entries(c).map(([k,v])=>k+"="+Math.round(v.score*100)).join(" "));
+          for(const k of ["first-contentful-paint","largest-contentful-paint","total-blocking-time","cumulative-layout-shift","speed-index","server-response-time"]) console.log(" ",k,a[k]&&a[k].displayValue);
+          for(const [k,v] of Object.entries(a)) if(v.score!==null&&v.score<0.9&&v.scoreDisplayMode!=="informative"&&v.scoreDisplayMode!=="notApplicable") console.log("  FAIL",k,"-",v.title,v.displayValue||"");
+          ' || echo "lighthouse failed for $f"; done
