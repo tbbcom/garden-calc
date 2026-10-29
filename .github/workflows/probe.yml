@@ -1,0 +1,13 @@
+name: Probe main-site links
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['.github/workflows/probe.yml']
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for p in planting-calendar mulch-calculator soil-calculator topsoil-gravel-calculator lawn-fertilizer-npk-calculator paver-patio-calculator garden-calculator plant-spacing-calculator irrigation-runtime-calculator flooring-calculator tools about contact privacy-policy disclaimer editorial-policy terms; do
+            echo "$p $(curl -s -o /dev/null -w '%{http_code}' -L https://www.homegardenlot.com/p/$p.html)"
+          done
