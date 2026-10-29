@@ -1,0 +1,18 @@
+{
+  "source": "NOAA NCEI U.S. Climate Normals 1991–2020 (annual/seasonal, by station); U.S. Census Bureau 2024 ZCTA Gazetteer",
+  "normals": "https://www.ncei.noaa.gov/data/normals-annualseasonal/1991-2020/archive/us-climate-normals_1991-2020_v1.0.1_annualseasonal_multivariate_by-station_c20230404.tar.gz",
+  "zcta": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_zcta_national.zip",
+  "stations": 7247,
+  "zips": 33791,
+  "zipsOver50Miles": 234,
+  "files": 896,
+  "built": "2026-10-29",
+  "fields": {
+    "last50": "date with a 50% chance of a 32°F freeze on or after it (median last spring frost)",
+    "last10": "date with a 10% chance of a 32°F freeze on or after it",
+    "first50": "date with a 50% chance of a 32°F freeze on or before it (median first fall frost)",
+    "first10": "date with a 10% chance of a 32°F freeze on or before it",
+    "season50": "median 32°F freeze-free days",
+    "special": "\"rare\" = freezes too infrequent to compute (frost-free in most years); \"all\" = freeze possible in any month"
+  }
+}
