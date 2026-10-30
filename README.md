@@ -22,10 +22,14 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 |---|---|
 | `/frost-dates/` | Frost dates by ZIP code (nearest of ~7,200 NOAA stations) |
 | `/frost-dates/<state>/` | Town-by-town frost tables for 50 states, with data-derived insights |
+| `/hardiness-zones/` | USDA 2023 hardiness zone by ZIP code, with the zone's temperature range and local frost dates |
+| `/hardiness-zones/<state>/` | Zone share by ZIP code, zones and frost dates by town, and same-zone frost-date spread for 50 states, D.C. and Puerto Rico |
 | `/data/` | Free CSV download (CC BY 4.0) for journalists, bloggers and teachers |
 | `/embed/` | One-line embeddable frost-date widget with a credit link |
 | `/about/` | Sources, method and limits |
 | `/contact/`, `/privacy/`, `/terms/` | Tool-site trust pages, linked to the main site's full policies |
+
+**Zones:** the zone pages read `data/zones/` (see *Planting calendar data* above). ZIP codes are grouped into states by USPS prefix (`scripts/zip-state.mjs`); each NOAA station gets the zone of the nearest ZIP code within 8 miles. A **Build zone data** run redeploys the site.
 
 **Data:** `data/frost/` is built by `scripts/build-frost-data.mjs` in the **Build frost data** workflow from NOAA NCEI 1991–2020 U.S. Climate Normals and Census 2024 ZCTA centroids. It runs when the builder changes, every 3 January, or on demand; each run redeploys the site. The Blogger planting calendar reads the same ZIP files through jsDelivr, so both sites show identical dates.
 

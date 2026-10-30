@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-// Builds the static site for tools.homegardenlot.com into _site/ from site-src/ and data/frost/.
-// Every number on the generated pages comes from NOAA's 1991–2020 normals (data/frost/stations.json).
+// Builds the static site for tools.homegardenlot.com into _site/ from site-src/, data/frost/ and data/zones/.
+// Frost numbers come from NOAA's 1991–2020 normals (data/frost/stations.json); hardiness zones from the
+// USDA 2023 Plant Hardiness Zone Map ZIP files (data/zones/).
 //
 // Usage: node scripts/build-site.mjs
 import { mkdir, readFile, writeFile, rm, cp, readdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
+import { zipState, ZIP_RANGES } from './zip-state.mjs';
 
 const SITE = 'https://tools.homegardenlot.com';
 const MAIN = 'https://www.homegardenlot.com';
@@ -16,6 +18,8 @@ const OUT = '_site';
 const CSV_NAME = 'frost-dates-1991-2020.csv';
 const NOAA_URL = 'https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals';
 const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
+const USDA_URL = 'https://planthardiness.ars.usda.gov/';
+const PRISM_URL = 'https://prism.oregonstate.edu/phzm/';
 // Google Tag Manager container, set as the GTM_ID repository variable (Settings → Secrets and variables → Actions → Variables).
 const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(process.env.GTM_ID || '') ? process.env.GTM_ID : '';
 const EFFECTIVE = 'October 29, 2026';
@@ -78,7 +82,7 @@ function slope(points) {
 const LEAF = '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#247b49"/><path d="M9 23c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0 7-7" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const NAV = [
   ['/frost-dates/', 'Frost Dates'],
-  ['/frost-dates/#states', 'By State'],
+  ['/hardiness-zones/', 'Hardiness Zones'],
   ['/data/', 'Free Data'],
   ['/embed/', 'Embed'],
   ['/about/', 'About'],
@@ -166,6 +170,8 @@ ${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=$
       <ul class="hgt-footer__list">
         <li><a href="/frost-dates/">Frost dates by ZIP</a></li>
         <li><a href="/frost-dates/#states">Frost dates by state</a></li>
+        <li><a href="/hardiness-zones/">Hardiness zone by ZIP</a></li>
+        <li><a href="/hardiness-zones/#states">Hardiness zones by state</a></li>
         <li><a href="/data/">Download the data</a></li>
         <li><a href="/embed/">Embed on your site</a></li>
       </ul>
@@ -188,7 +194,7 @@ ${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=$
       </ul>
     </div>
   </div>
-  <div class="hgt-footer__bar">© ${new Date().getUTCFullYear()} ${BRAND} · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="${MAIN}/p/disclaimer.html">Disclaimer</a> · <a href="/contact/">Contact</a><br>Frost data: NOAA NCEI 1991–2020 U.S. Climate Normals. Dates are long-term averages, not forecasts.</div>
+  <div class="hgt-footer__bar">© ${new Date().getUTCFullYear()} ${BRAND} · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="${MAIN}/p/disclaimer.html">Disclaimer</a> · <a href="/contact/">Contact</a><br>Frost data: NOAA NCEI 1991–2020 U.S. Climate Normals. Dates are long-term averages, not forecasts. Hardiness zones: USDA 2023 Plant Hardiness Zone Map (USDA-ARS, PRISM Climate Group, Oregon State University).</div>
 </footer>
 <script src="/assets/site.js" defer></script>
 ${scripts.map((s) => `<script src="${s}" defer></script>`).join('\n')}
@@ -326,7 +332,7 @@ ${table(list, 'hgt-all')}
 ${faqs.length ? faqBlock(faqs) : ''}
 <section class="hgt-read"><h2>How to use these dates</h2>
 <p>Frost dates are 30-year averages from NOAA, not forecasts. Use them to plan seed starting and planting, then watch the 10-day forecast as the date approaches. Cold air settles in valleys and low spots, so a garden at the bottom of a slope can frost a week or more later in spring than the nearest station shows.</p>
-<p>Ready to plan? The <a href="${PLAN_URL}">planting calendar by ZIP code</a> turns these dates into start-indoors, transplant and sowing dates for 30 crops.</p></section>
+<p>Ready to plan? The <a href="${PLAN_URL}">planting calendar by ZIP code</a> turns these dates into start-indoors, transplant and sowing dates for 30 crops.${meta.zoneStates[code] ? ` Choosing perennials? See <a href="${zonePath(name)}">${name} hardiness zones by town</a>.` : ''}</p></section>
 <section class="hgt-sources hgt-read"><h2>Sources and method</h2>
 <p>Dates are the 32°F freeze probabilities published in the <a href="${NOAA_URL}" rel="nofollow">NOAA NCEI 1991–2020 U.S. Climate Normals</a> for each station. Station names are NOAA's, lightly expanded for readability. See the <a href="/about/">methodology</a> or <a href="/data/">download the full table</a>.</p></section>
 <section><h2>Frost dates in other states</h2><ul class="hgt-states">${others}</ul></section>`;
@@ -380,7 +386,7 @@ ${faqBlock(faqs)}
 function homePage(meta) {
   const path = '/';
   const title = 'Free Garden Tools and Calculators | Home Garden Lot';
-  const description = `Free garden tools built on public data: frost dates for ${fmtInt(meta.zips)} ZIP codes from NOAA, a planting calendar, and mulch, soil, gravel and fertilizer calculators.`;
+  const description = `Free garden tools built on public data: frost dates and USDA hardiness zones by ZIP code, a planting calendar, and mulch, soil, gravel and fertilizer calculators.`;
   const card = ([icon, name, url, text], tag = '') => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}${tag ? `<span class="hgt-tool__tag">${tag}</span>` : ''}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`;
   const body = `
 <h1>Free garden tools, built on real data</h1>
@@ -389,6 +395,7 @@ ${frostWidget('hgt-zip')}
 <h2>Data tools</h2>
 <div class="hgt-grid">
 ${card(['❄️', 'Frost Dates by ZIP Code', '/frost-dates/', `Median and safer 10%-risk frost dates and frost-free days from the nearest of ${fmtInt(meta.stations)} NOAA stations.`], 'New')}
+${card(['🌡️', 'Hardiness Zone by ZIP Code', ZONE_IDX, `Your USDA 2023 plant hardiness zone, its coldest-night temperature and your frost dates in one lookup.`], 'New')}
 ${card(['🗺️', 'Frost Dates by State', '/frost-dates/#states', 'Town-by-town last and first frost tables for every state, with how elevation shifts the dates.'])}
 ${card(['📊', 'Free Frost Date Dataset', '/data/', 'Download every station\'s frost dates as CSV for your blog, class or research. Free with attribution.'])}
 ${card(['🧩', 'Embed the Frost Date Tool', '/embed/', 'Add the ZIP-code frost lookup to your own garden club or nursery website in one line.'])}
@@ -403,7 +410,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -496,10 +503,17 @@ function aboutPage(meta) {
 <li><strong>Limits:</strong> distance is not everything. A station 10 miles away but 2,000 ft higher can be colder than one 25 miles away at your elevation, so compare the nearby stations. About ${fmtInt(meta.zipsOver50Miles)} remote ZIP codes are more than 50 miles from any station.</li>
 <li><strong>Updates:</strong> the data is rebuilt automatically every January from NOAA's files and whenever the build script changes. Last built ${meta.built}.</li>
 </ul>
+<h2>Hardiness zones: data and method</h2>
+<ul class="hgt-read">
+<li><strong>Source:</strong> the <a href="${USDA_URL}" rel="nofollow">USDA 2023 Plant Hardiness Zone Map</a>, using the ZIP-code files published by the <a href="${PRISM_URL}" rel="nofollow">PRISM Climate Group at Oregon State University</a>, which produced the map with USDA-ARS. Zones are based on the average annual extreme minimum temperature for 1991–2020.</li>
+<li><strong>Coverage:</strong> ${fmtInt(meta.zoneMeta.zips)} ZIP codes in the 50 states, D.C. and Puerto Rico. ZIP codes are grouped into states by their USPS three-digit prefix.</li>
+<li><strong>Towns:</strong> each NOAA weather station on the state pages shows the zone of the nearest ZIP code within 8 miles, so you can see zones and frost dates side by side.</li>
+<li><strong>Limits:</strong> a ZIP code can cover several microclimates; hilltops, valleys and city centers can differ by half a zone or more. This is an independent tool, not an official USDA site. Updated every January; last built ${meta.zoneMeta.built}.</li>
+</ul>
 <h2>Who makes these tools</h2>
 <p class="hgt-read">${BRAND} is an independent, reader-supported site. The people behind the site are on the <a href="${MAIN}/p/about.html">About</a> page, and how we research, use AI tools and correct errors is in our <a href="${MAIN}/p/editorial-policy.html">Editorial Policy</a>. Found a problem with a number? <a href="${MAIN}/p/contact.html">Tell us</a> and we'll check it against the source.</p>
 <h2>Privacy</h2>
-<p class="hgt-read">The tools run in your browser. ZIP codes you enter are not sent to us; your browser downloads a small data file for your ZIP prefix and remembers your last ZIP on your device only. See the <a href="/privacy/">privacy notice</a>.</p>`;
+<p class="hgt-read">The tools run in your browser. ZIP codes you enter are not sent to us; your browser downloads small data files for your ZIP prefix and remembers your last ZIP on your device only. See the <a href="/privacy/">privacy notice</a>.</p>`;
   const schema = [{ '@type': 'AboutPage', '@id': `${SITE}${path}#webpage`, url: SITE + path, name: title, description, isPartOf: { '@id': `${SITE}/#website` }, about: { '@id': ORG_ID } }, orgRef];
   return page({ path, title, description, body, active: '/about/', crumbs: [[path, 'About']], schema });
 }
@@ -524,7 +538,7 @@ function privacyPage() {
 <section class="hgt-read">
 <h2>What happens when you use a tool</h2>
 <ul>
-<li>When you enter a ZIP code, your browser downloads a small public data file for the first three digits (for example <code>100.json</code>) and finds your ZIP inside it on your device.</li>
+<li>When you enter a ZIP code, your browser downloads small public data files (frost dates and hardiness zones) for the first three digits (for example <code>100.json</code>) and finds your ZIP inside them on your device.</li>
 <li>Your last ZIP code is saved in your browser's local storage so the tool is ready next time. Clear it anytime in your browser settings.</li>
 <li>Pages can work offline thanks to a service worker that caches pages and data files on your device.</li>
 </ul>
@@ -588,6 +602,198 @@ function notFound() {
   });
 }
 
+// ---------- hardiness zones ----------
+const zoneKey = (z) => parseInt(z, 10) * 2 + (z.endsWith('b') ? 1 : 0);
+// USDA zones are 10°F bands of average annual extreme minimum temperature, split into 5°F halves; 1a starts at -60°F.
+const zoneLow = (z) => -60 + (parseInt(z, 10) - 1) * 10 + (z.endsWith('b') ? 5 : 0);
+const fToC = (f) => Math.round(((f - 32) * 5) / 9);
+const fmtF = (f) => `${f < 0 ? '−' : ''}${Math.abs(f)}°F`;
+const fmtC = (c) => `${c < 0 ? '−' : ''}${Math.abs(c)}°C`;
+const zoneRange = (z) => `${fmtF(zoneLow(z))} to ${fmtF(zoneLow(z) + 5)}`;
+const zoneRangeC = (z) => `${fmtC(fToC(zoneLow(z)))} to ${fmtC(fToC(zoneLow(z) + 5))}`;
+// Cold zones blue, warm zones orange; the label carries the meaning, the colour is a visual aid only.
+const zoneHue = (z) => Math.round(225 - ((zoneKey(z) - 2) / 25) * 205);
+const zoneBadge = (z) => `<span class="hgt-zone" style="--hgt-zone-h:${zoneHue(z)}">${esc(z)}</span>`;
+const pct = (n, d) => { const p = (n / d) * 100; return p >= 1 ? `${Math.round(p)}%` : '<1%'; };
+const zoneSpan = (zs) => (zs.length === 1 ? zs[0] : `${zs[0]}–${zs[zs.length - 1]}`);
+const ZONE_IDX = '/hardiness-zones/';
+const zonePath = (name) => `${ZONE_IDX}${slug(name)}/`;
+// The client maps a ZIP prefix to its state page with the same ranges the build uses.
+const zoneWidget = (id) => `<div class="hgt-card hgt-frost" data-hgt-zone data-plan-url="${PLAN_URL}" data-states='${esc(JSON.stringify(ZIP_RANGES.filter(([, , st]) => STATES[st]).map(([a, b, st]) => [a, b, st, slug(STATES[st]), STATES[st]])))}'>
+  <form class="hgt-frost__form" novalidate>
+    <div>
+      <label class="hgt-frost__label" for="${id}">Your ZIP code</label>
+      <input class="hgt-frost__input" id="${id}" inputmode="numeric" autocomplete="postal-code" maxlength="5" pattern="[0-9]{5}" placeholder="e.g. 60601">
+    </div>
+    <button class="hgt-btn" type="submit">Find my zone</button>
+  </form>
+  <p class="hgt-frost__status" role="status" aria-live="polite"></p>
+  <div class="hgt-frost__out" hidden></div>
+</div>`;
+
+function zoneSummary(counts) {
+  const zones = Object.keys(counts).sort((a, b) => zoneKey(a) - zoneKey(b));
+  const total = zones.reduce((a, z) => a + counts[z], 0);
+  const ranked = [...zones].sort((a, b) => counts[b] - counts[a] || zoneKey(a) - zoneKey(b));
+  return { zones, total, mode: ranked[0], ranked };
+}
+
+const zoneBars = (counts, sum) => `<div class="hgt-bars">${sum.zones.map((z) => `<div class="hgt-bars__row"><span class="hgt-bars__label">Zone ${esc(z)}</span><span class="hgt-bars__track"><span class="hgt-bars__fill" style="width:${Math.max(1, Math.round((counts[z] / counts[sum.mode]) * 100))}%;--hgt-zone-h:${zoneHue(z)}"></span></span><span class="hgt-bars__value">${pct(counts[z], sum.total)}<span class="hgt-bars__n"> · ${plural(counts[z], 'ZIP')}</span></span></div>`).join('')}</div>`;
+
+function zoneStatePage(code, zd, meta) {
+  const name = STATES[code];
+  const path = zonePath(name);
+  const { counts, towns } = zd;
+  const sum = zoneSummary(counts);
+  const span = zoneSpan(sum.zones);
+  const [z1, z2] = sum.ranked;
+  const title = `What Hardiness Zone Is ${name}? USDA 2023 Zones by ZIP`;
+  let description = `${name} spans USDA hardiness zones ${span} on the 2023 map; zone ${sum.mode} covers the most ZIP codes. Look up your ZIP and see zones and frost dates by town.`;
+  if (description.length > 160) description = `${name} spans USDA hardiness zones ${span} (2023 map), mostly zone ${sum.mode}. Look up your ZIP code and see zones by town.`;
+
+  const share2 = z2 && counts[z2] / sum.total >= 0.1 ? `, followed by zone ${z2} (${pct(counts[z2], sum.total)})` : '';
+  const answer = `<p>${sum.zones.length === 1 ? `All of ${name} is in <strong>USDA hardiness zone ${sum.mode}</strong>` : `${name} spans <strong>USDA hardiness zones ${span}</strong>`} on the 2023 Plant Hardiness Zone Map. The most common zone is <strong>${sum.mode}</strong>, covering ${pct(counts[sum.mode], sum.total)} of ${name}'s ZIP codes${share2}. Zone ${sum.mode} means the coldest night of an average winter reaches ${zoneRange(sum.mode)} (${zoneRangeC(sum.mode)}). Enter your ZIP code for your exact zone.</p>`;
+
+  const dated = towns.filter((t) => isDate(t.last50));
+  const byZone = [...towns].sort((a, b) => zoneKey(a.zone) - zoneKey(b.zone) || b.elevFt - a.elevFt);
+  const coldest = byZone[0];
+  const warmest = byZone[byZone.length - 1];
+  const insights = [];
+  if (coldest && warmest && coldest.zone !== warmest.zone) {
+    insights.push(`<li><strong>Coldest and warmest towns:</strong> among towns with NOAA weather stations, ${esc(coldest.name)} (${fmtInt(coldest.elevFt)} ft) is in zone ${coldest.zone}, while ${esc(warmest.name)} (${fmtInt(warmest.elevFt)} ft) is in zone ${warmest.zone}. That is a difference of about ${fmtInt((zoneKey(warmest.zone) - zoneKey(coldest.zone)) * 5)}°F in the coldest night of a typical winter.</li>`);
+  }
+  // Zones measure winter cold, not season length: show how much frost dates still vary inside the main zone.
+  const same = dated.filter((t) => t.zone === sum.mode).sort((a, b) => springDoy(a.last50) - springDoy(b.last50));
+  let sameZone = null;
+  if (same.length >= 4) {
+    const a = same[0], b = same[same.length - 1];
+    const gap = springDoy(b.last50) - springDoy(a.last50);
+    if (gap >= 7) {
+      sameZone = { a, b, gap };
+      insights.push(`<li><strong>Same zone, different frost dates:</strong> within zone ${sum.mode}, the median last spring frost ranges from ${long(a.last50)} at ${esc(a.name)} to ${long(b.last50)} at ${esc(b.name)}, ${plural(gap, 'day')} apart. Your zone tells you which perennials survive winter; your <a href="/frost-dates/${slug(name)}/">frost dates</a> tell you when to plant.</li>`);
+    }
+  }
+  const zoneFrost = sum.zones.map((z) => {
+    const d = dated.filter((t) => t.zone === z);
+    return d.length >= 3 ? [z, springFromDoy(median(d.map((t) => springDoy(t.last50)))), fallFromDoy(median(d.map((t) => fallDoy(t.first50)))), d.length] : null;
+  }).filter(Boolean);
+
+  const faqs = [
+    [`What hardiness zone is ${name}?`, `${name} is in USDA hardiness zone${sum.zones.length > 1 ? `s ${span}` : ` ${span}`} on the 2023 USDA Plant Hardiness Zone Map. Zone ${sum.mode} is the most common, covering ${pct(counts[sum.mode], sum.total)} of ${name}'s ZIP codes${z2 ? `, and zone ${z2} covers ${pct(counts[z2], sum.total)}` : ''}. Enter your ZIP code for your exact zone.`],
+    [`What does zone ${sum.mode} mean?`, `Zone ${sum.mode} means the average annual extreme minimum temperature, the coldest night of a typical winter, is ${zoneRange(sum.mode)} (${zoneRangeC(sum.mode)}). Perennials, shrubs and trees rated for zone ${sum.mode} or colder should survive winter there.`],
+  ];
+  if (coldest && warmest && coldest.zone !== warmest.zone) faqs.push([`What is the coldest hardiness zone in ${name}?`, `Zone ${sum.zones[0]} is the coldest zone mapped in ${name}${coldest.zone === sum.zones[0] ? `, found around ${esc(coldest.name)}` : ''}, and zone ${sum.zones[sum.zones.length - 1]} is the warmest${warmest.zone === sum.zones[sum.zones.length - 1] ? `, found around ${esc(warmest.name)}` : ''}.`]);
+  faqs.push([`Did ${name}'s hardiness zones change in 2023?`, `The USDA released a new Plant Hardiness Zone Map in November 2023, based on 1991–2020 temperatures instead of 1976–2005. About half of the United States shifted half a zone warmer. Check your ZIP code here, because plant tags and older books may still list your 2012 zone.`]);
+  faqs.push([`When should I plant in zone ${sum.mode}?`, `Hardiness zones don't set planting dates; frost dates do. ${sameZone ? `Inside zone ${sum.mode} in ${name}, the median last spring frost varies from ${long(sameZone.a.last50)} to ${long(sameZone.b.last50)}. ` : ''}Look up your local frost dates and plant tender crops such as tomatoes after the 10%-risk last-frost date.`]);
+
+  const rows = (list) => list.map((t) => `<tr><td>${esc(t.name)}</td><td data-v="${zoneKey(t.zone)}">${zoneBadge(t.zone)}</td><td data-v="${zoneLow(t.zone)}">${fmtF(zoneLow(t.zone))} to ${fmtF(zoneLow(t.zone) + 5)}</td><td data-v="${t.elevFt}">${fmtInt(t.elevFt)}</td><td data-v="${isDate(t.last50) ? springDoy(t.last50) : t.last50 === 'rare' ? -999 : 999}">${short(t.last50)}</td><td data-v="${isDate(t.first50) ? fallDoy(t.first50) : t.first50 === 'rare' ? 999 : -999}">${short(t.first50)}</td></tr>`).join('');
+  const table = (list, id) => `<div class="hgt-table-wrap"><table class="hgt-table" id="${id}" data-sortable>
+<thead><tr><th scope="col"><button type="button">Town / station</button></th><th scope="col"><button type="button">Zone</button></th><th scope="col"><button type="button">Coldest night</button></th><th scope="col"><button type="button">Elev. (ft)</button></th><th scope="col"><button type="button">Last frost</button></th><th scope="col"><button type="button">First frost</button></th></tr></thead>
+<tbody>${rows(list)}</tbody></table></div>`;
+  const major = towns.filter((t) => t.id.startsWith('USW'));
+  const others = Object.entries(STATES).filter(([c]) => c !== code && meta.zoneStates[c]).map(([, n]) => `<li><a href="${zonePath(n)}">${n}</a></li>`).join('');
+  const frostLink = meta.byState[code] && meta.byState[code].length >= 3 ? `/frost-dates/${slug(name)}/` : null;
+
+  const body = `
+<h1>What Hardiness Zone Is ${name}?</h1>
+<p class="hgt-meta">USDA 2023 Plant Hardiness Zone Map · ${plural(sum.total, 'ZIP code')} · Data updated ${meta.zoneMeta.built}</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span>${answer}</div>
+${zoneWidget('hgt-zip')}
+<h2>${name} hardiness zones by share of ZIP codes</h2>
+${zoneBars(counts, sum)}
+${insights.length ? `<section class="hgt-read"><h2>What the zones mean for ${name} gardeners</h2><ul>${insights.join('')}</ul></section>` : ''}
+${zoneFrost.length >= 2 ? `<h2>Typical frost dates in each ${name} zone</h2><p class="hgt-read">Medians across NOAA weather stations in each zone. Colder zones usually have later spring frosts, but local terrain can shift the dates by weeks.</p><div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Zone</th><th scope="col">Last spring frost</th><th scope="col">First fall frost</th><th scope="col">Stations</th></tr></thead><tbody>${zoneFrost.map(([z, l, f, n]) => `<tr><td>${zoneBadge(z)}</td><td>${long(l)}</td><td>${long(f)}</td><td>${n}</td></tr>`).join('')}</tbody></table></div>` : ''}
+${major.length >= 3 ? `<h2>Hardiness zones for ${name} cities</h2><p class="hgt-read">Zones at the National Weather Service stations, mostly city airports, with their median frost dates.</p>${table(major, 'hgt-major')}` : ''}
+${towns.length ? `<h2>Hardiness zones for ${plural(towns.length, 'town')} in ${name}</h2>
+<p class="hgt-read">Each NOAA weather station is shown with the USDA zone of the nearest ZIP code (within 8 miles). <strong>Coldest night</strong> is the zone's range for the average annual extreme minimum temperature. Click a column to sort.</p>
+<label class="hgt-frost__label" for="hgt-filter">Filter by town</label>
+<input class="hgt-filter" id="hgt-filter" type="search" placeholder="Type a town or airport…" data-filter="hgt-all">
+${table(towns, 'hgt-all')}` : ''}
+${faqBlock(faqs)}
+<section class="hgt-read"><h2>Zone and frost dates: use both</h2>
+<p>Your hardiness zone answers one question: will this plant survive the winter here? Choose perennials, shrubs, trees and bulbs rated for your zone or a colder one. For vegetables and annuals, what matters is the length of the frost-free season.${frostLink ? ` See <a href="${frostLink}">${name} frost dates by town</a>, or` : ''} get a <a href="${PLAN_URL}">planting calendar for your ZIP code</a> with start-indoors, transplant and sowing dates for 30 crops.</p></section>
+<section class="hgt-sources hgt-read"><h2>Sources and method</h2>
+<p>Zones are from the <a href="${USDA_URL}" rel="nofollow">USDA 2023 Plant Hardiness Zone Map</a> ZIP-code files published by the <a href="${PRISM_URL}" rel="nofollow">PRISM Climate Group, Oregon State University</a>, based on 1991–2020 minimum temperatures. ZIP codes are assigned to states by USPS prefix. Town zones use the ZIP code nearest each <a href="${NOAA_URL}" rel="nofollow">NOAA 1991–2020 Climate Normals</a> station. This is an independent tool, not an official USDA site. <a href="/about/">Full methodology.</a></p></section>
+<section><h2>Hardiness zones in other states</h2><ul class="hgt-states">${others}</ul></section>`;
+
+  const schema = [
+    { '@type': 'WebPage', '@id': `${SITE}${path}#webpage`, url: SITE + path, name: title, description, inLanguage: 'en-US', isPartOf: { '@id': `${SITE}/#website` }, dateModified: meta.zoneMeta.built, about: { '@type': 'State', name } },
+    faqSchema(faqs),
+  ];
+  return {
+    path, sum,
+    html: page({ path, title, description, body, active: ZONE_IDX, crumbs: [[ZONE_IDX, 'Hardiness Zones'], [path, name]], schema, scripts: ['/assets/zone.js'] }),
+  };
+}
+
+function zoneIndex(states, usCounts, meta) {
+  const path = ZONE_IDX;
+  const title = 'Hardiness Zone by ZIP Code: USDA 2023 Zone Finder';
+  const sum = zoneSummary(usCounts);
+  const description = `Find your USDA plant hardiness zone by ZIP code from the 2023 map, with the coldest winter temperature and your local frost dates. ${fmtInt(meta.zoneMeta.zips)} ZIP codes, free.`;
+  const allZones = [];
+  for (let n = 1; n <= 13; n++) for (const h of ['a', 'b']) allZones.push(`${n}${h}`);
+  const faqs = [
+    ['What is a plant hardiness zone?', 'A USDA plant hardiness zone is based on the average annual extreme minimum temperature: the coldest night of a typical winter. Each zone is a 10°F band split into "a" (colder) and "b" (warmer) halves of 5°F. Plants labeled for your zone or a lower number should survive your winters.'],
+    ['How do I find my hardiness zone?', `Enter your 5-digit ZIP code in the zone finder above. It looks up your zone in the official USDA 2023 ZIP code files and shows the temperature range, the zone in degrees Celsius and your local frost dates.`],
+    ['Did the hardiness zone map change in 2023?', 'Yes. The USDA released a new map in November 2023 based on 1991–2020 temperatures. About half of the country moved half a zone warmer than on the 2012 map, so plant tags and older books may show an outdated zone for you.'],
+    ['Is my hardiness zone the same as my planting zone?', 'People often use the terms interchangeably, but hardiness zones only measure winter cold. They don\'t tell you when to plant vegetables. For that, use your average last spring and first fall frost dates.'],
+    ['What is the difference between zone 6a and 6b?', 'Zone 6b is 5°F warmer than zone 6a. In 6a the coldest winter night averages −10°F to −5°F; in 6b it averages −5°F to 0°F. The same rule applies to every "a" and "b" pair.'],
+  ];
+  const stateRows = states.map((s) => `<tr><td><a href="${s.path}">${s.name}</a></td><td data-v="${zoneKey(s.sum.zones[0])}">${zoneSpan(s.sum.zones)}</td><td data-v="${zoneKey(s.sum.mode)}">${zoneBadge(s.sum.mode)}</td><td data-v="${s.sum.total}">${fmtInt(s.sum.total)}</td></tr>`).join('');
+  const body = `
+<h1>Hardiness Zone by ZIP Code</h1>
+<p class="hgt-lede">Find your USDA plant hardiness zone from the official 2023 map, plus your local frost dates, in one lookup. Covers ${fmtInt(meta.zoneMeta.zips)} ZIP codes in all 50 states and Puerto Rico.</p>
+${zoneWidget('hgt-zip')}
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p>Your hardiness zone is set by the <strong>coldest night of an average winter</strong> where you live. The 2023 USDA map runs from zone 1a (below −55°F, interior Alaska) to 13b (above 65°F, Puerto Rico). Zone <strong>${sum.mode}</strong> covers the most U.S. ZIP codes (${pct(usCounts[sum.mode], sum.total)}). Choose perennials rated for your zone or colder, and use frost dates, not zones, to time vegetable planting.</p></div>
+<h2>USDA hardiness zone temperature chart</h2>
+<p class="hgt-read">Average annual extreme minimum temperature for each zone, with how many U.S. ZIP codes fall in it on the 2023 map.</p>
+<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Zone</th><th scope="col">Coldest night (°F)</th><th scope="col">Coldest night (°C)</th><th scope="col">U.S. ZIP codes</th></tr></thead><tbody>
+${allZones.map((z) => `<tr><td>${zoneBadge(z)}</td><td>${zoneRange(z)}</td><td>${zoneRangeC(z)}</td><td>${usCounts[z] ? `${fmtInt(usCounts[z])} (${pct(usCounts[z], sum.total)})` : '–'}</td></tr>`).join('\n')}
+</tbody></table></div>
+<h2 id="states">Hardiness zones by state</h2>
+<p class="hgt-read">The range of zones in each state and the zone that covers the most ZIP codes. Open a state for town-by-town zones and frost dates.</p>
+<div class="hgt-table-wrap"><table class="hgt-table" data-sortable>
+<thead><tr><th scope="col"><button type="button">State</button></th><th scope="col"><button type="button">Zones</button></th><th scope="col"><button type="button">Most common</button></th><th scope="col"><button type="button">ZIP codes</button></th></tr></thead>
+<tbody>${stateRows}</tbody></table></div>
+<ul class="hgt-states">${states.map((s) => `<li><a href="${s.path}">${s.name}</a></li>`).join('')}</ul>
+${faqBlock(faqs)}
+<section class="hgt-sources hgt-read"><h2>Sources</h2><p><a href="${USDA_URL}" rel="nofollow">USDA Agricultural Research Service, 2023 Plant Hardiness Zone Map</a>; ZIP code zone files from the <a href="${PRISM_URL}" rel="nofollow">PRISM Climate Group, Oregon State University</a>. Frost dates: <a href="${NOAA_URL}" rel="nofollow">NOAA NCEI 1991–2020 U.S. Climate Normals</a>. This is an independent tool, not an official USDA site. <a href="/about/">How the lookup works.</a></p></section>`;
+  const schema = [
+    { '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name: 'Hardiness Zone by ZIP Code', url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` }, isBasedOn: USDA_URL },
+    faqSchema(faqs),
+  ];
+  return page({ path, title, description, body, active: ZONE_IDX, crumbs: [[path, 'Hardiness Zones']], schema, scripts: ['/assets/zone.js'] });
+}
+
+async function loadZones(stations) {
+  const zoneMeta = JSON.parse(await readFile('data/zones/meta.json', 'utf8'));
+  const byCode = {};
+  const usCounts = {};
+  const nearest = {};
+  for (const f of await readdir('data/zones')) {
+    if (!/^\d{3}\.json$/.test(f)) continue;
+    const zones = JSON.parse(await readFile(join('data/zones', f), 'utf8'));
+    let frost = null;
+    try { frost = JSON.parse(await readFile(join('data/frost/zip', f), 'utf8')); } catch { /* no frost file for this prefix */ }
+    for (const [zip, zone] of Object.entries(zones)) {
+      usCounts[zone] = (usCounts[zone] || 0) + 1;
+      const st = zipState(zip);
+      if (st && STATES[st]) { const c = (byCode[st] ||= {}); c[zone] = (c[zone] || 0) + 1; }
+      const n = frost && frost.z[zip] && frost.z[zip][0];
+      if (n && n[1] <= 8 && (!nearest[n[0]] || n[1] < nearest[n[0]].d)) nearest[n[0]] = { d: n[1], zone };
+    }
+  }
+  const towns = {};
+  for (const s of stations) if (nearest[s.id]) (towns[s.st] ||= []).push({ ...s, zone: nearest[s.id].zone });
+  const zoneStates = {};
+  for (const [code, counts] of Object.entries(byCode)) {
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (total >= 20) zoneStates[code] = { counts, towns: (towns[code] || []).sort((a, b) => a.name.localeCompare(b.name)) };
+  }
+  return { zoneMeta, zoneStates, usCounts };
+}
+
 // ---------- main ----------
 async function write(path, content) {
   const file = join(OUT, path.endsWith('/') ? path + 'index.html' : path);
@@ -603,15 +809,17 @@ async function main() {
   CSS = (await readFile('site-src/assets/site.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s*\n\s*/g, '').replace(/\s*([{};,>])\s*/g, '$1');
   const byState = {};
   for (const s of stations) (byState[s.st] ||= []).push(s);
-  const meta = { ...fmeta, byState, csvBytes: csv.length };
+  const { zoneMeta, zoneStates, usCounts } = await loadZones(stations);
+  const meta = { ...fmeta, byState, csvBytes: csv.length, zoneMeta, zoneStates };
 
   await rm(OUT, { recursive: true, force: true });
   await mkdir(OUT, { recursive: true });
   await cp('site-src', OUT, { recursive: true });
   await cp('data/frost/zip', join(OUT, 'data/frost/zip'), { recursive: true });
+  await cp('data/zones', join(OUT, 'data/zones'), { recursive: true, filter: (f) => !f.endsWith('meta.json') });
   await writeFile(join(OUT, 'data', CSV_NAME), csv);
 
-  const urls = [['/', 1.0], ['/frost-dates/', 0.9], ['/data/', 0.6], ['/embed/', 0.5], ['/about/', 0.4], ['/contact/', 0.3], ['/privacy/', 0.2], ['/terms/', 0.2]];
+  const urls = [['/', 1.0], ['/frost-dates/', 0.9], [ZONE_IDX, 0.9], ['/data/', 0.6], ['/embed/', 0.5], ['/about/', 0.4], ['/contact/', 0.3], ['/privacy/', 0.2], ['/terms/', 0.2]];
   const states = [];
   for (const code of Object.keys(STATES)) {
     const list = byState[code];
@@ -621,6 +829,15 @@ async function main() {
     await write(p.path, p.html);
     urls.push([p.path, 0.8]);
   }
+  const zones = [];
+  for (const code of Object.keys(STATES)) {
+    if (!zoneStates[code]) continue;
+    const p = zoneStatePage(code, zoneStates[code], meta);
+    zones.push({ code, name: STATES[code], path: p.path, sum: p.sum });
+    await write(p.path, p.html);
+    urls.push([p.path, 0.8]);
+  }
+  await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
   await write('/', homePage(meta));
   await write('/frost-dates/', frostIndex(states, meta));
   await write('/data/', dataPage(meta));
@@ -651,11 +868,15 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
+- [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
 - [Planting calendar by ZIP code](${PLAN_URL}): planting dates for 30 crops from local frost dates
 - [Garden guides](${MAIN}/): articles on vegetables, lawns, soil and home improvement
 
 ## Frost dates by state
 ${states.map((s) => `- [${s.name}](${SITE}${s.path}): ${s.st.dated >= 5 && s.st.dated >= s.st.n / 2 ? `median last frost ${long(s.st.medLast)}, first frost ${long(s.st.medFirst)}` : 'frost is rare at most stations'}, ${s.st.n} stations`).join('\n')}
+
+## Hardiness zones by state (USDA 2023 map)
+${zones.map((z) => `- [${z.name}](${SITE}${z.path}): zones ${zoneSpan(z.sum.zones)}, most common ${z.sum.mode}`).join('\n')}
 
 ## Data
 - [Dataset page and field definitions](${SITE}/data/)
@@ -675,7 +896,7 @@ ${states.map((s) => `- [${s.name}](${SITE}${s.path}): ${s.st.dated >= 5 && s.st.
   await write('/.nojekyll', '');
 
   const count = (await readdir(OUT, { recursive: true })).filter((f) => f.endsWith('.html')).length;
-  console.log(`Built ${count} HTML pages (${states.length} state pages) into ${OUT}/`);
+  console.log(`Built ${count} HTML pages (${states.length} frost state pages, ${zones.length} zone state pages) into ${OUT}/`);
 }
 
 main().catch((e) => {
