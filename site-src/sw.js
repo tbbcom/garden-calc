@@ -1,6 +1,6 @@
-/* Offline support: pages network-first, assets and ZIP data stale-while-revalidate. */
-var CACHE = 'hgt-v2';
-var SHELL = ['/', '/frost-dates/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/icon.svg'];
+/* Offline support: pages network-first, assets and ZIP data (frost and zones) stale-while-revalidate. */
+var CACHE = 'hgt-v3';
+var SHELL = ['/', '/frost-dates/', '/hardiness-zones/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/zone.js', '/assets/icon.svg'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
@@ -28,7 +28,7 @@ self.addEventListener('fetch', function (e) {
     return;
   }
 
-  if (url.pathname.indexOf('/assets/') === 0 || url.pathname.indexOf('/data/frost/zip/') === 0) {
+  if (url.pathname.indexOf('/assets/') === 0 || url.pathname.indexOf('/data/frost/zip/') === 0 || url.pathname.indexOf('/data/zones/') === 0) {
     e.respondWith(caches.open(CACHE).then(function (c) {
       return c.match(req).then(function (hit) {
         var net = fetch(req).then(function (res) { if (res.ok) c.put(req, res.clone()); return res; });

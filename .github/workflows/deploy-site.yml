@@ -1,13 +1,13 @@
 name: Deploy tool site
 
-# Builds tools.homegardenlot.com from site-src/ + data/frost/ and publishes it to GitHub Pages.
+# Builds tools.homegardenlot.com from site-src/ + data/frost/ + data/zones/ and publishes it to GitHub Pages.
 # One-time setup: Settings → Pages → Source: "GitHub Actions"; Custom domain: tools.homegardenlot.com.
 on:
   push:
     branches: [main]
-    paths: ['site-src/**', 'scripts/build-site.mjs', 'data/frost/**', '.github/workflows/deploy-site.yml']
+    paths: ['site-src/**', 'scripts/build-site.mjs', 'scripts/zip-state.mjs', 'data/frost/**', 'data/zones/**', '.github/workflows/deploy-site.yml']
   workflow_run:
-    workflows: ['Build frost data']
+    workflows: ['Build frost data', 'Build zone data']
     types: [completed]
     branches: [main]
   workflow_dispatch:
