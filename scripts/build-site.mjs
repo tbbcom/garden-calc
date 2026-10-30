@@ -21,7 +21,11 @@ const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
 const USDA_URL = 'https://planthardiness.ars.usda.gov/';
 const PRISM_URL = 'https://prism.oregonstate.edu/phzm/';
 // Google Tag Manager container, set as the GTM_ID repository variable (Settings → Secrets and variables → Actions → Variables).
-const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(process.env.GTM_ID || '') ? process.env.GTM_ID : '';
+// Accepts the ID from a repository variable or secret, ignoring stray spaces and letter case.
+const GTM_RAW = (process.env.GTM_ID || '').trim().toUpperCase();
+const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(GTM_RAW) ? GTM_RAW : '';
+if (GTM_RAW && !GTM_ID) console.warn(`::warning::GTM_ID "${GTM_RAW}" doesn't look like GTM-XXXXXXX, so GTM was not added`);
+console.log(GTM_ID ? `GTM container: ${GTM_ID}` : 'GTM: not configured');
 const EFFECTIVE = 'October 29, 2026';
 // EEA, UK and Switzerland: analytics and ad storage stay denied until the visitor consents (Consent Mode v2).
 const CONSENT_REGIONS = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'];
