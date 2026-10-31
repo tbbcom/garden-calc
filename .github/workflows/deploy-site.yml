@@ -26,10 +26,16 @@ jobs:
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.changed.outputs.urls }}
     steps:
       - uses: actions/checkout@v5
         with:
           ref: main
+
+      # Content hashes of the pages currently live, to compare with this build (empty on the first deploy).
+      - name: Fetch live page hashes
+        run: curl -fsS "https://tools.homegardenlot.com/page-hashes.json?v=$GITHUB_RUN_ID" -o "$RUNNER_TEMP/old-hashes.json" || echo '{}' > "$RUNNER_TEMP/old-hashes.json"
 
       - uses: actions/setup-node@v5
         with:
@@ -39,6 +45,13 @@ jobs:
         run: node scripts/build-site.mjs
         env:
           GTM_ID: ${{ vars.GTM_ID || secrets.GTM_ID }}
+
+      - name: Find changed pages
+        id: changed
+        run: |
+          urls=$(node scripts/indexnow-diff.mjs "$RUNNER_TEMP/old-hashes.json" _site/page-hashes.json https://tools.homegardenlot.com)
+          echo "$urls" | jq -r '"\(length) changed page(s)", .[]' | head -40
+          echo "urls=$urls" >> "$GITHUB_OUTPUT"
 
       - uses: actions/configure-pages@v5
 
@@ -74,11 +87,13 @@ jobs:
             -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" \
             --data '{"hosts":["tools.homegardenlot.com"]}' | grep -q '"success":true' && echo "Cloudflare cache purged." || { echo "::warning::Cloudflare purge failed; check CF_ZONE_ID / CF_API_TOKEN"; exit 0; }
 
-  # Pings IndexNow (Bing, Yandex, Seznam, Naver) with every URL in the live sitemap so changed pages are
-  # recrawled within hours. Bing's index also feeds ChatGPT search and Copilot. Google doesn't use IndexNow;
-  # it reads the sitemap submitted in Search Console. A failure here never blocks the deploy.
+  # Tells IndexNow (Bing, Yandex, Seznam, Naver) about pages whose content changed in this deploy, after
+  # Cloudflare's cache is purged so crawlers fetch the new version. Bing's index also feeds ChatGPT search
+  # and Copilot. Google doesn't use IndexNow; it reads the sitemap submitted in Search Console.
+  # Submitting only changed URLs follows the IndexNow guidance. A failure here never blocks the deploy.
   indexnow:
-    needs: deploy
+    needs: [build, purge-cloudflare]
+    if: needs.build.outputs.changed != '' && needs.build.outputs.changed != '[]'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -88,13 +103,14 @@ jobs:
           sparse-checkout: scripts/build-site.mjs
           sparse-checkout-cone-mode: false
 
-      - name: Submit URLs to IndexNow
+      - name: Submit changed URLs to IndexNow
+        env:
+          URLS: ${{ needs.build.outputs.changed }}
         run: |
           key=$(grep -oP "INDEXNOW_KEY = '\K[0-9a-f]+" scripts/build-site.mjs)
-          sleep 60 # let GitHub Pages serve the new build
-          curl -fsS https://tools.homegardenlot.com/sitemap.xml | grep -oP '(?<=<loc>)[^<]+' > urls.txt
-          jq -n --arg key "$key" --rawfile u urls.txt \
-            '{host:"tools.homegardenlot.com", key:$key, keyLocation:("https://tools.homegardenlot.com/" + $key + ".txt"), urlList:($u | split("\n") | map(select(length > 0)))}' > body.json
-          echo "Submitting $(wc -l < urls.txt) URLs"
-          curl -sS -o /dev/null -w "IndexNow HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow \
+          sleep 30 # let GitHub Pages and Cloudflare serve the new build
+          jq -n --arg key "$key" --argjson u "$URLS" \
+            '{host:"tools.homegardenlot.com", key:$key, keyLocation:("https://tools.homegardenlot.com/" + $key + ".txt"), urlList:$u}' > body.json
+          echo "Submitting $(jq '.urlList | length' body.json) changed URL(s)"
+          curl -sS -o /dev/null -w "IndexNow HTTP %{http_code} (200/202 = accepted)\n" -X POST https://api.indexnow.org/indexnow \
             -H 'Content-Type: application/json; charset=utf-8' --data @body.json
