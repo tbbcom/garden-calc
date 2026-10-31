@@ -45,6 +45,6 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 
 **Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
 
-**IndexNow:** after each deploy, the `indexnow` job sends every sitemap URL to IndexNow (Bing and others) using the key file `/<INDEXNOW_KEY>.txt` written by the build. Nothing to set up.
+**IndexNow:** each build writes `/page-hashes.json` (a content hash per page). The deploy compares it with the live copy and, after the Cloudflare purge, sends only the changed URLs to IndexNow (Bing, Yandex, Seznam, Naver) using the key file `/<INDEXNOW_KEY>.txt`. Nothing to set up. Google doesn't use IndexNow; it reads the sitemap in Search Console.
 
 **Local preview:** `node scripts/build-site.mjs && cd _site && python3 -m http.server`

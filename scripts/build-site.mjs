@@ -6,6 +6,7 @@
 // Usage: node scripts/build-site.mjs
 import { mkdir, readFile, writeFile, rm, cp, readdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import { zipState, ZIP_RANGES } from './zip-state.mjs';
 
 const SITE = 'https://tools.homegardenlot.com';
@@ -1275,6 +1276,15 @@ ${zones.map((z) => `- [${z.name}](${SITE}${z.path}): zones ${zoneSpan(z.sum.zone
   await write(`/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY);
   await write('/CNAME', new URL(SITE).host + '\n');
   await write('/.nojekyll', '');
+
+  // Content hash per indexable page, so the deploy can tell IndexNow about changed pages only.
+  const hashes = {};
+  for (const f of (await readdir(OUT, { recursive: true })).filter((x) => x.endsWith('.html')).sort()) {
+    const path = '/' + f.replace(/\\/g, '/').replace(/(^|\/)index\.html$/, '$1');
+    if (path === '/404.html' || path.startsWith('/embed/') && path !== '/embed/') continue;
+    hashes[path] = createHash('sha1').update(await readFile(join(OUT, f))).digest('hex').slice(0, 16);
+  }
+  await write('/page-hashes.json', JSON.stringify(hashes));
 
   const count = (await readdir(OUT, { recursive: true })).filter((f) => f.endsWith('.html')).length;
   console.log(`Built ${count} HTML pages (${states.length} frost state pages, ${zones.length} zone state pages) into ${OUT}/`);
