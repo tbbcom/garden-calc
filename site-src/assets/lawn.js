@@ -12,6 +12,11 @@
     s: ['Known area', 'Square feet', '']
   };
 
+  // Same routing as frost.js: direct GA4 when configured, otherwise the GTM dataLayer.
+  function track(ev) {
+    if (window.hgtGA4 && window.gtag) window.gtag('event', 'calc_result', ev);
+    else if (window.dataLayer) window.dataLayer.push(Object.assign({ event: 'calc_result' }, ev));
+  }
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
   }
@@ -133,7 +138,7 @@
       out.innerHTML = html;
       out.hidden = false;
       writeHash({ a: encRows(t.rows), sub: t.sub || '', p: f('piece').value, pl: pallet, x: Math.round(waste * 100), so: f('soil').value });
-      if (window.dataLayer) window.dataLayer.push({ event: 'calc_result', calc: 'sod', sqft: Math.round(need) });
+      track({ calc: 'sod', sqft: Math.round(need) });
     }
     function load() {
       var h = readHash();
@@ -205,7 +210,7 @@
       out.innerHTML = html;
       out.hidden = false;
       writeHash({ a: encRows(t.rows), sub: t.sub || '', g: f('grass').value, j: f('job').value, cr: f('grass').value === 'custom' ? r : '' });
-      if (window.dataLayer) window.dataLayer.push({ event: 'calc_result', calc: 'seed', grass: f('grass').value });
+      track({ calc: 'seed', grass: f('grass').value });
     }
     function sync() {
       var custom = f('grass').value === 'custom';

@@ -6,6 +6,11 @@
   var roots = document.querySelectorAll('[data-hgt-calc]');
   if (!roots.length) return;
 
+  // Same routing as frost.js: direct GA4 when configured, otherwise the GTM dataLayer.
+  function track(ev) {
+    if (window.hgtGA4 && window.gtag) window.gtag('event', 'calc_result', ev);
+    else if (window.dataLayer) window.dataLayer.push(Object.assign({ event: 'calc_result' }, ev));
+  }
   function esc(s) {
     return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; });
   }
@@ -151,7 +156,7 @@
       out.hidden = false;
 
       writeHash({ w: walls.map(function (w) { return w[0] + 'x' + w[1]; }).join(','), s: f('size').value, o: openSqft || '', g: groutMode, r: spacing, ft: footing ? 1 : 0, x: Math.round(waste * 100) });
-      if (window.dataLayer) window.dataLayer.push({ event: 'calc_result', calc: 'cmu', blocks: order });
+      track({ calc: 'cmu', blocks: order });
     }
 
     function load() {
@@ -274,7 +279,7 @@
       var st = { w: walls.map(function (w) { return w[0] + 'x' + w[1]; }).join(','), b: f('block').value, c: capL ? capL : 0, p: pipe ? 1 : 0, x: Math.round(waste * 100) };
       if (f('block').value === 'custom') st.bs = [b.h, b.l, b.d, b.lb].join('x');
       writeHash(st);
-      if (window.dataLayer) window.dataLayer.push({ event: 'calc_result', calc: 'srw', blocks: order });
+      track({ calc: 'srw', blocks: order });
     }
 
     function load() {

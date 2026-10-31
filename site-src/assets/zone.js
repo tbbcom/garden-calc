@@ -104,7 +104,9 @@
         say('');
         render(root, zip, zone, r[1], state);
         // Analytics event: zone and state only, never the ZIP code (see /privacy/).
-        if (window.dataLayer) window.dataLayer.push({ event: 'zone_lookup', zone: zone, zone_state: state ? state[2] : '' });
+        var ev = { zone: zone, zone_state: state ? state[2] : '' };
+        if (window.hgtGA4 && window.gtag) window.gtag('event', 'zone_lookup', ev);
+        else if (window.dataLayer) window.dataLayer.push(Object.assign({ event: 'zone_lookup' }, ev));
         try { localStorage.setItem(STORE, zip); } catch (e) { /* storage blocked */ }
         if (!quiet && history.replaceState) history.replaceState(null, '', '#zip=' + zip);
       }).catch(function () {
