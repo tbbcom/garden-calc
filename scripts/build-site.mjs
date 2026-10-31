@@ -20,12 +20,14 @@ const NOAA_URL = 'https://www.ncei.noaa.gov/products/land-based-station/us-clima
 const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
 const USDA_URL = 'https://planthardiness.ars.usda.gov/';
 const PRISM_URL = 'https://prism.oregonstate.edu/phzm/';
-// Google Tag Manager container, set as the GTM_ID repository variable (Settings → Secrets and variables → Actions → Variables).
+// Analytics ID from the GTM_ID repository variable or secret: a Tag Manager container (GTM-XXXXXXX)
+// or a Google Analytics 4 measurement ID (G-XXXXXXXXXX), which loads gtag.js directly.
 // Accepts the ID from a repository variable or secret, ignoring stray spaces and letter case.
 const GTM_RAW = (process.env.GTM_ID || '').trim().toUpperCase();
 const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(GTM_RAW) ? GTM_RAW : '';
-if (GTM_RAW && !GTM_ID) console.warn(`::warning::GTM_ID "${GTM_RAW}" doesn't look like GTM-XXXXXXX, so GTM was not added`);
-console.log(GTM_ID ? `GTM container: ${GTM_ID}` : 'GTM: not configured');
+const GA4_ID = /^G-[A-Z0-9]{6,14}$/.test(GTM_RAW) ? GTM_RAW : '';
+if (GTM_RAW && !GTM_ID && !GA4_ID) console.warn(`::warning::GTM_ID "${GTM_RAW}" is neither GTM-XXXXXXX nor G-XXXXXXXXXX, so no analytics was added`);
+console.log(GTM_ID ? `Google Tag Manager: ${GTM_ID}` : GA4_ID ? `Google Analytics 4 (direct): ${GA4_ID}` : 'Analytics: not configured');
 const EFFECTIVE = 'October 29, 2026';
 // EEA, UK and Switzerland: analytics and ad storage stay denied until the visitor consents (Consent Mode v2).
 const CONSENT_REGIONS = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'];
@@ -94,13 +96,15 @@ const NAV = [
 
 // Consent defaults run first; GTM itself loads after the page is idle so it never competes with LCP or input.
 function gtmHead() {
-  if (!GTM_ID) return '';
+  if (!GTM_ID && !GA4_ID) return '';
+  const src = GTM_ID ? `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}` : `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
+  const boot = GTM_ID ? `dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});` : `window.hgtGA4=1;gtag('js',new Date());gtag('config','${GA4_ID}');`;
   return `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',region:${JSON.stringify(CONSENT_REGIONS)},wait_for_update:500});
 gtag('consent','default',{ad_storage:'granted',ad_user_data:'granted',ad_personalization:'granted',analytics_storage:'granted'});
 gtag('set','ads_data_redaction',true);gtag('set','url_passthrough',true);
-dataLayer.push({'gtm.start':Date.now(),event:'gtm.js'});
-(function(){function l(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtm.js?id=${GTM_ID}';document.head.appendChild(s);}
+${boot}
+(function(){function l(){var s=document.createElement('script');s.async=true;s.src='${src}';document.head.appendChild(s);}
 function q(){'requestIdleCallback' in window?requestIdleCallback(l,{timeout:2500}):setTimeout(l,200);}
 document.readyState==='complete'?q():addEventListener('load',q);})();</script>
 <link rel="preconnect" href="https://www.googletagmanager.com">`;
@@ -529,8 +533,8 @@ function legalPage({ path, name, title, description, body, type = 'WebPage' }) {
 }
 
 function privacyPage() {
-  const analytics = GTM_ID
-    ? `<p>We use <strong>Google Tag Manager</strong> to load <strong>Google Analytics 4</strong>, which counts visits and shows how the tools are used (for example, that a frost lookup happened and in which state, never your ZIP code). Visitors in the EEA, UK and Switzerland are asked for consent first; until then Google Consent Mode keeps these tags in a cookieless, non-identifying mode. You can opt out anytime with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>.</p>`
+  const analytics = GTM_ID || GA4_ID
+    ? `<p>We use <strong>Google Analytics 4</strong>${GTM_ID ? ' (loaded through <strong>Google Tag Manager</strong>)' : ''}, which counts visits and shows how the tools are used (for example, that a frost lookup happened and in which state, never your ZIP code). Visitors in the EEA, UK and Switzerland are asked for consent first; until then Google Consent Mode keeps these tags in a cookieless, non-identifying mode. You can opt out anytime with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>.</p>`
     : '<p>This site does not currently use analytics or advertising cookies. If we add Google Analytics or ads, this notice will be updated first.</p>';
   return legalPage({
     path: '/privacy/', name: 'Privacy', title: 'Privacy Notice | Home Garden Lot Tools',
