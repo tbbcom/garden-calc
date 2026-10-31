@@ -73,3 +73,28 @@ jobs:
           curl -fsS -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/purge_cache" \
             -H "Authorization: Bearer $CF_API_TOKEN" -H "Content-Type: application/json" \
             --data '{"hosts":["tools.homegardenlot.com"]}' | grep -q '"success":true' && echo "Cloudflare cache purged." || { echo "::warning::Cloudflare purge failed; check CF_ZONE_ID / CF_API_TOKEN"; exit 0; }
+
+  # Pings IndexNow (Bing, Yandex, Seznam, Naver) with every URL in the live sitemap so changed pages are
+  # recrawled within hours. Bing's index also feeds ChatGPT search and Copilot. Google doesn't use IndexNow;
+  # it reads the sitemap submitted in Search Console. A failure here never blocks the deploy.
+  indexnow:
+    needs: deploy
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          sparse-checkout: scripts/build-site.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Submit URLs to IndexNow
+        run: |
+          key=$(grep -oP "INDEXNOW_KEY = '\K[0-9a-f]+" scripts/build-site.mjs)
+          sleep 60 # let GitHub Pages serve the new build
+          curl -fsS https://tools.homegardenlot.com/sitemap.xml | grep -oP '(?<=<loc>)[^<]+' > urls.txt
+          jq -n --arg key "$key" --rawfile u urls.txt \
+            '{host:"tools.homegardenlot.com", key:$key, keyLocation:("https://tools.homegardenlot.com/" + $key + ".txt"), urlList:($u | split("\n") | map(select(length > 0)))}' > body.json
+          echo "Submitting $(wc -l < urls.txt) URLs"
+          curl -sS -o /dev/null -w "IndexNow HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow \
+            -H 'Content-Type: application/json; charset=utf-8' --data @body.json

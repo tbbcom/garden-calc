@@ -24,10 +24,12 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/frost-dates/<state>/` | Town-by-town frost tables for 50 states, with data-derived insights |
 | `/hardiness-zones/` | USDA 2023 hardiness zone by ZIP code, with the zone's temperature range and local frost dates |
 | `/hardiness-zones/<state>/` | Zone share by ZIP code, zones and frost dates by town, and same-zone frost-date spread for 50 states, D.C. and Puerto Rico |
+| `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
+| `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
 | `/retaining-wall-calculator/` | Segmental wall and cap blocks with buried courses, base gravel, drainage stone, drain pipe and fabric, with height warnings |
 | `/data/` | Free CSV download (CC BY 4.0) for journalists, bloggers and teachers |
-| `/embed/` | One-line embeddable frost-date widget with a credit link |
+| `/embed/` | One-line embeds for the frost lookup and every calculator, each with a branded credit link (the link-building engine) |
 | `/about/` | Sources, method and limits |
 | `/contact/`, `/privacy/`, `/terms/` | Tool-site trust pages, linked to the main site's full policies |
 
@@ -42,5 +44,7 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 4. Google Search Console: add a **Domain** property for `homegardenlot.com` (covers the subdomain), then submit `https://tools.homegardenlot.com/sitemap.xml`.
 
 **Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
+
+**IndexNow:** after each deploy, the `indexnow` job sends every sitemap URL to IndexNow (Bing and others) using the key file `/<INDEXNOW_KEY>.txt` written by the build. Nothing to set up.
 
 **Local preview:** `node scripts/build-site.mjs && cd _site && python3 -m http.server`
