@@ -18,6 +18,7 @@ const OUT = '_site';
 const CSV_NAME = 'frost-dates-1991-2020.csv';
 const NOAA_URL = 'https://www.ncei.noaa.gov/products/land-based-station/us-climate-normals';
 const LICENSE = 'https://creativecommons.org/licenses/by/4.0/';
+const INDEXNOW_KEY = 'f6b36fd77837445fcaa6cfad74c7ace4';
 const USDA_URL = 'https://planthardiness.ars.usda.gov/';
 const PRISM_URL = 'https://prism.oregonstate.edu/phzm/';
 // Google Tag Manager container, set as the GTM_ID repository variable (Settings → Secrets and variables → Actions → Variables).
@@ -179,7 +180,7 @@ ${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=$
     <div>
       <p class="hgt-footer__title">Calculators</p>
       <ul class="hgt-footer__list">
-        ${[...CALC_TOOLS, ...MAIN_TOOLS.slice(0, 4)].map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
+        ${[...LAWN_TOOLS, ...CALC_TOOLS, ...MAIN_TOOLS.slice(0, 2)].map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
       </ul>
     </div>
     <div>
@@ -374,6 +375,8 @@ ${frostWidget('hgt-zip')}
 <h2>Frost dates by state, town by town</h2>
 <ul class="hgt-states">${stateLinks}</ul>
 ${faqBlock(faqs)}
+${embedCta('frost-dates')}
+${relatedTools(path)}
 <section class="hgt-sources hgt-read"><h2>Sources</h2><p><a href="${NOAA_URL}" rel="nofollow">NOAA NCEI U.S. Climate Normals, 1991–2020</a> (freeze-date probabilities by station); U.S. Census Bureau 2024 ZIP Code Tabulation Area gazetteer (ZIP locations). <a href="/about/">How we match ZIP codes to stations.</a></p></section>`;
   const schema = [
     { '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name: 'Frost Dates by ZIP Code', url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` } },
@@ -386,7 +389,7 @@ ${faqBlock(faqs)}
 function homePage(meta) {
   const path = '/';
   const title = 'Free Garden Tools and Calculators | Home Garden Lot';
-  const description = `Free garden tools built on public data: frost dates and USDA hardiness zones by ZIP code, concrete block and retaining wall calculators, and a planting calendar.`;
+  const description = `Free garden tools built on public data: frost dates and hardiness zones by ZIP code, sod, grass seed, concrete block and retaining wall calculators.`;
   const card = ([icon, name, url, text], tag = '') => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}${tag ? `<span class="hgt-tool__tag">${tag}</span>` : ''}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`;
   const body = `
 <h1>Free garden tools, built on real data</h1>
@@ -398,9 +401,13 @@ ${card(['❄️', 'Frost Dates by ZIP Code', '/frost-dates/', `Median and safer 
 ${card(['🌡️', 'Hardiness Zone by ZIP Code', ZONE_IDX, `Your USDA 2023 plant hardiness zone, its coldest-night temperature and your frost dates in one lookup.`], 'New')}
 ${card(['🗺️', 'Frost Dates by State', '/frost-dates/#states', 'Town-by-town last and first frost tables for every state, with how elevation shifts the dates.'])}
 ${card(['📊', 'Free Frost Date Dataset', '/data/', 'Download every station\'s frost dates as CSV for your blog, class or research. Free with attribution.'])}
-${card(['🧩', 'Embed the Frost Date Tool', '/embed/', 'Add the ZIP-code frost lookup to your own garden club or nursery website in one line.'])}
+${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calculator to your garden club, nursery or landscaping site in one line.'])}
 </div>
-<h2 id="calculators">Home and hardscape calculators</h2>
+<h2 id="calculators">Lawn calculators</h2>
+<div class="hgt-grid">
+${LAWN_TOOLS.map((t) => card(t, 'New')).join('\n')}
+</div>
+<h2>Home and hardscape calculators</h2>
 <div class="hgt-grid">
 ${CALC_TOOLS.map((t) => card(t, 'New')).join('\n')}
 </div>
@@ -414,7 +421,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -460,36 +467,19 @@ ${fields.map(([c, m]) => `<tr><td><code>${c}</code></td><td style="white-space:n
 
 function embedPage() {
   const path = '/embed/';
-  const title = 'Embed a Free Frost Date Lookup on Your Website';
-  const description = 'Add a free ZIP-code frost date lookup to your garden club, nursery or blog in one line of code. NOAA 1991–2020 data, mobile-friendly, no sign-up.';
-  const snippet = `<iframe src="${SITE}/embed/frost-dates/" title="Frost dates by ZIP code" width="100%" height="440" style="border:0;max-width:520px" loading="lazy"></iframe>
-<p style="font-size:13px">Frost date tool by <a href="${SITE}/frost-dates/">${BRAND}</a></p>`;
+  const title = 'Free Garden & Home Calculators to Embed on Your Website';
+  const description = 'Add free frost date, concrete block, retaining wall, sod and grass seed calculators to your garden club, nursery, landscaping or blog site in one line of code.';
   const body = `
-<h1>Embed the Frost Date Lookup</h1>
-<p class="hgt-lede">Give your visitors their local frost dates without leaving your site. Free for garden clubs, nurseries, schools and bloggers.</p>
-<h2>1. Copy this code</h2>
-<textarea class="hgt-code" readonly aria-label="Embed code">${esc(snippet)}</textarea>
-<p><button class="hgt-btn" type="button" data-copy=".hgt-code">Copy code</button></p>
-<h2>2. Paste it into your page</h2>
-<p class="hgt-read">Use an HTML or Custom HTML block (WordPress, Blogger, Squarespace, Wix and most site builders have one). The widget resizes to the column width and works on phones.</p>
-<h2>Preview</h2>
-<iframe src="/embed/frost-dates/" title="Frost dates by ZIP code (preview)" width="100%" height="440" style="border:1px solid #e4e4e7;border-radius:10px;max-width:520px" loading="lazy"></iframe>
-<section class="hgt-read"><h2>Terms</h2><p>The widget is free. Please keep the credit line under it. The data is NOAA's 1991–2020 climate normals; dates are averages, not forecasts. No cookies or tracking are added to your site.</p></section>`;
-  return page({ path, title, description, body, active: '/embed/', crumbs: [[path, 'Embed']] });
-}
-
-function embedWidget() {
-  return `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Frost dates by ZIP code | ${BRAND}</title><meta name="robots" content="noindex">
-<link rel="canonical" href="${SITE}/frost-dates/"><style>${CSS}</style>
-<base target="_blank"></head>
-<body class="hgt-embed">
-${frostWidget('hgt-zip', true).replace('hgt-card ', '')}
-<p class="hgt-embed__by">NOAA 1991–2020 data · <a href="${SITE}/frost-dates/" rel="noopener">${BRAND}</a></p>
-<script src="/assets/frost.js" defer></script>
-</body></html>
-`;
+<h1>Embed Our Free Tools on Your Site</h1>
+<p class="hgt-lede">Give your visitors a working calculator without building one. Free for garden clubs, nurseries, landscapers, hardscape contractors, schools and bloggers. Mobile-friendly, no sign-up, no ads, no tracking.</p>
+<div class="hgt-answer"><span class="hgt-answer__label">How it works</span><p>Copy the code for a tool, paste it into an <strong>HTML</strong> or <strong>Custom HTML</strong> block (WordPress, Blogger, Squarespace, Wix and most builders have one), and publish. Please keep the one-line credit under the tool.</p></div>
+<ul class="hgt-states">${EMBEDS.map((e) => `<li><a href="#${e.id}">${e.name}</a></li>`).join('')}</ul>
+${EMBEDS.map((e) => `<section id="${e.id}"><h2>${e.name}</h2>
+<textarea class="hgt-code" id="code-${e.id}" readonly aria-label="${e.name} embed code">${esc(embedSnippet(e))}</textarea>
+<p><button class="hgt-btn" type="button" data-copy="#code-${e.id}">Copy code</button> <a class="hgt-btn hgt-btn--ghost" href="${e.tool}">See the full tool</a></p>
+<details><summary>Preview</summary><iframe src="/embed/${e.id}/" title="${e.name} (preview)" width="100%" height="${e.height}" style="border:1px solid #e4e4e7;border-radius:10px;max-width:640px" loading="lazy"></iframe></details></section>`).join('\n')}
+<section class="hgt-read"><h2>Terms</h2><p>The tools are free to embed on any lawful site. Please keep the credit line visible; you may add <code>rel="nofollow"</code> to it if your site policy requires. We may update or retire a tool at any time. Frost dates are NOAA 1991–2020 averages, not forecasts; calculator results are estimates. No cookies or tracking are added to your site.</p></section>`;
+  return page({ path, title, description, body, crumbs: [[path, 'Embed']] });
 }
 
 function aboutPage(meta) {
@@ -762,6 +752,7 @@ ${allZones.map((z) => `<tr><td>${zoneBadge(z)}</td><td>${zoneRange(z)}</td><td>$
 <tbody>${stateRows}</tbody></table></div>
 <ul class="hgt-states">${states.map((s) => `<li><a href="${s.path}">${s.name}</a></li>`).join('')}</ul>
 ${faqBlock(faqs)}
+${relatedTools(path)}
 <section class="hgt-sources hgt-read"><h2>Sources</h2><p><a href="${USDA_URL}" rel="nofollow">USDA Agricultural Research Service, 2023 Plant Hardiness Zone Map</a>; ZIP code zone files from the <a href="${PRISM_URL}" rel="nofollow">PRISM Climate Group, Oregon State University</a>. Frost dates: <a href="${NOAA_URL}" rel="nofollow">NOAA NCEI 1991–2020 U.S. Climate Normals</a>. This is an independent tool, not an official USDA site. <a href="/about/">How the lookup works.</a></p></section>`;
   const schema = [
     { '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name: 'Hardiness Zone by ZIP Code', url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` }, isBasedOn: USDA_URL },
@@ -831,14 +822,7 @@ const priceInput = (name, label, value) => `<label class="hgt-calc__field"><span
 const wallRows = () => `<fieldset class="hgt-calc__set"><legend>Wall size</legend><div data-rows></div>
 <button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another wall</button></fieldset>`;
 
-function blockCalcPage() {
-  const path = '/concrete-block-calculator/';
-  const title = 'Concrete Block Calculator: CMU Blocks, Mortar & Grout';
-  const description = 'Free concrete block calculator: how many CMU blocks, 80 lb mortar bags, core grout, rebar and footing concrete your wall needs, with cost and a printable list.';
-  const s8 = CMU.sizes[8];
-  const perSq = 144 / (s8.h * s8.l);
-  const ex = cmuCount(10, 8, s8);
-  const card = `<div class="hgt-card hgt-calc" data-hgt-calc="cmu" data-config='${esc(JSON.stringify(CMU))}'>
+const cmuCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-calc="cmu"${embed ? ' data-embed' : ''} data-config='${esc(JSON.stringify(CMU))}'>
 <form novalidate>
 ${wallRows()}
 <div class="hgt-calc__grid">
@@ -855,6 +839,38 @@ ${priceInput('pBlock', 'Per block', 2.5)}${priceInput('pMortar', 'Mortar, 80 lb 
 </form>
 <div class="hgt-frost__out" data-out hidden></div>
 </div>`;
+
+const srwCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-calc="srw"${embed ? ' data-embed' : ''} data-config='${esc(JSON.stringify(SRW))}'>
+<form novalidate>
+<p class="hgt-calc__hint">Enter the <strong>exposed</strong> height, above finished ground. Buried courses are added for you.</p>
+${wallRows()}
+<div class="hgt-calc__grid">
+<label class="hgt-calc__field"><span>Wall block</span><select name="block">${Object.entries(SRW.blocks).map(([k, v]) => `<option value="${k}"${k === 'standard' ? ' selected' : ''}>${v.label}</option>`).join('')}<option value="custom">Custom size…</option></select></label>
+<label class="hgt-calc__field"><span>Waste allowance (%)</span><input type="number" inputmode="numeric" min="0" max="30" step="1" name="waste" value="5"></label>
+<label class="hgt-calc__check"><input type="checkbox" name="cap" checked> Cap blocks, <input class="hgt-calc__inline" type="number" min="4" max="36" step="1" name="capl" value="12" aria-label="Cap block length in inches"> in long</label>
+<label class="hgt-calc__check"><input type="checkbox" name="pipe" checked> Perforated drain pipe</label>
+</div>
+<div class="hgt-calc__grid" data-custom hidden>
+<label class="hgt-calc__field"><span>Block height (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bh" value="6"></label>
+<label class="hgt-calc__field"><span>Block face length (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bl" value="16"></label>
+<label class="hgt-calc__field"><span>Block depth (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bd" value="12"></label>
+<label class="hgt-calc__field"><span>Weight per block (lb)</span><input type="number" inputmode="decimal" min="0" step="1" name="bw" value="50"></label>
+</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
+${priceInput('pBlock', 'Per wall block', 4)}${priceInput('pCap', 'Per cap block', 5)}${priceInput('pStone', 'Gravel, per cu yd', 55)}${priceInput('pPipe', 'Drain pipe, 10 ft', 12)}${priceInput('pFabric', 'Fabric, 3 × 50 ft roll', 25)}
+</div></details>
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+function blockCalcPage() {
+  const path = '/concrete-block-calculator/';
+  const title = 'Concrete Block Calculator: CMU Blocks, Mortar & Grout';
+  const description = 'Free concrete block calculator: how many CMU blocks, 80 lb mortar bags, core grout, rebar and footing concrete your wall needs, with cost and a printable list.';
+  const s8 = CMU.sizes[8];
+  const perSq = 144 / (s8.h * s8.l);
+  const ex = cmuCount(10, 8, s8);
+  const card = cmuCard();
 
   const lengths = [8, 10, 12, 16, 20, 24, 30, 40, 50];
   const heights = [2, 3, 4, 6, 8];
@@ -893,6 +909,8 @@ ${per100}
 </ol>
 <p>Building a garden or landscape wall that holds back soil? Mortared block needs a structural design for that. Dry-stacked segmental blocks are usually easier; use the <a href="/retaining-wall-calculator/">retaining wall calculator</a>.</p></section>
 ${faqBlock(faqs)}
+${embedCta('concrete-block')}
+${relatedTools(path)}
 <section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2>
 <p>Block sizes are ASTM C90 nominal sizes (actual faces are ⅜ in smaller to leave room for the joint). Mortar yield is from the 80 lb <a href="${QUIKRETE_URL}" rel="nofollow">Quikrete Mason Mix</a> and Mortar Mix bag labels (12–13 standard blocks per bag). Grout rates are the commonly published fill volumes for fully grouted 6, 8 and 12 in walls, plus 10% waste. Concrete bags are 80 lb at 0.6 cu ft yield. Rebar lengths add 2 ft per bar to lap into the footing. Results are estimates for planning and ordering; structural walls need a design that meets your local building code.</p></section>`;
   const schema = [
@@ -906,28 +924,7 @@ function retainingCalcPage() {
   const path = '/retaining-wall-calculator/';
   const title = 'Retaining Wall Calculator: Blocks, Caps, Gravel & Drainage';
   const description = 'Free retaining wall block calculator: wall and cap blocks, base gravel, drainage stone, drain pipe and fabric for a segmental block wall, with buried courses and cost.';
-  const card = `<div class="hgt-card hgt-calc" data-hgt-calc="srw" data-config='${esc(JSON.stringify(SRW))}'>
-<form novalidate>
-<p class="hgt-calc__hint">Enter the <strong>exposed</strong> height, above finished ground. Buried courses are added for you.</p>
-${wallRows()}
-<div class="hgt-calc__grid">
-<label class="hgt-calc__field"><span>Wall block</span><select name="block">${Object.entries(SRW.blocks).map(([k, v]) => `<option value="${k}"${k === 'standard' ? ' selected' : ''}>${v.label}</option>`).join('')}<option value="custom">Custom size…</option></select></label>
-<label class="hgt-calc__field"><span>Waste allowance (%)</span><input type="number" inputmode="numeric" min="0" max="30" step="1" name="waste" value="5"></label>
-<label class="hgt-calc__check"><input type="checkbox" name="cap" checked> Cap blocks, <input class="hgt-calc__inline" type="number" min="4" max="36" step="1" name="capl" value="12" aria-label="Cap block length in inches"> in long</label>
-<label class="hgt-calc__check"><input type="checkbox" name="pipe" checked> Perforated drain pipe</label>
-</div>
-<div class="hgt-calc__grid" data-custom hidden>
-<label class="hgt-calc__field"><span>Block height (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bh" value="6"></label>
-<label class="hgt-calc__field"><span>Block face length (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bl" value="16"></label>
-<label class="hgt-calc__field"><span>Block depth (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bd" value="12"></label>
-<label class="hgt-calc__field"><span>Weight per block (lb)</span><input type="number" inputmode="decimal" min="0" step="1" name="bw" value="50"></label>
-</div>
-<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
-${priceInput('pBlock', 'Per wall block', 4)}${priceInput('pCap', 'Per cap block', 5)}${priceInput('pStone', 'Gravel, per cu yd', 55)}${priceInput('pPipe', 'Drain pipe, 10 ft', 12)}${priceInput('pFabric', 'Fabric, 3 × 50 ft roll', 25)}
-</div></details>
-</form>
-<div class="hgt-frost__out" data-out hidden></div>
-</div>`;
+  const card = srwCard();
 
   // Per 10 ft of wall, using the same rules as the calculator.
   const per10 = (b, hFt) => {
@@ -968,6 +965,8 @@ ${ref}
 </ol>
 <p>Building a mortared wall instead? Use the <a href="/concrete-block-calculator/">concrete block calculator</a>.</p></section>
 ${faqBlock(faqs)}
+${embedCta('retaining-wall')}
+${relatedTools(path)}
 <section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2>
 <p>Base, buried-course and drainage-zone dimensions follow common segmental retaining wall practice described by the <a href="${CMHA_URL}" rel="nofollow">Concrete Masonry and Hardscapes Association</a> and block makers' installation guides; your block's own guide takes priority. Stone is converted at ${SRW.tonsPerYd} tons per cubic yard; filter fabric adds 1 ft per wall for overlap. Block sizes and weights are typical of each class; enter your exact block under "Custom size". The height limit cites International Residential Code section R404.4. Results are estimates for planning and ordering, not an engineered design.</p></section>`;
   const schema = [
@@ -976,6 +975,187 @@ ${faqBlock(faqs)}
   ];
   return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, 'Retaining Wall Calculator']], schema, scripts: ['/assets/masonry.js'] }) };
 }
+
+// ---------- lawn calculators ----------
+// Seeding rates (lb per 1,000 sq ft, new lawn) use the University of Tennessee Extension W160-B ranges;
+// the calculator uses one value inside each range, and overseeding uses about half the new-lawn rate.
+const UT_SEED_URL = 'https://uthort.tennessee.edu/wp-content/uploads/sites/228/2023/11/W160-B.pdf';
+const UC_SEED_URL = 'https://ipm.ucanr.edu/TOOLS/TURF/SITEPREP/sdtimert.html';
+const SOD_URL = 'https://sodsolutions.com/sod-university/square-feet-per-pallet/';
+const COOL = { season: 'Late summer to early fall', soil: 'Sprouts best in 50–65°F soil' };
+const WARM = { season: 'Late spring to early summer', soil: 'Needs soil above 65°F to sprout' };
+const SEED = {
+  grasses: {
+    tf: { name: 'Tall fescue', range: '5–8', rate: 7, over: 3.5, days: '7–14', ...COOL },
+    kbg: { name: 'Kentucky bluegrass', range: '1.5–2', rate: 2, over: 1, days: '14–30', ...COOL, note: 'Kentucky bluegrass is slow to sprout (2–4 weeks). Keep the surface moist the whole time, or mix in perennial ryegrass for quick cover.' },
+    prg: { name: 'Perennial ryegrass', range: '4–6', rate: 5, over: 2.5, days: '5–10', ...COOL },
+    berm: { name: 'Bermudagrass (hulled)', range: '0.5–1', rate: 1, over: 0.5, days: '7–14', ...WARM },
+    zoy: { name: 'Zoysiagrass (japonica)', range: '0.5–3', rate: 2, over: 1, days: '14–21', ...WARM, note: 'Zoysia from seed is slow and can take a full season to fill in; many lawns use sod or plugs instead.' },
+  },
+  bags: [50, 20, 7, 3], strawSqft: 1000, defaultL: 50, defaultW: 30,
+};
+const SOD = {
+  pieces: {
+    slab: { name: 'Slabs', plural: 'slabs', size: '16 × 24 in', sqft: 2.67 },
+    roll: { name: 'Rolls', plural: 'rolls', size: '2 × 5 ft', sqft: 10 },
+  },
+  pallet: 450, defaultL: 50, defaultW: 30,
+};
+const LAWN_TOOLS = [
+  ['🌾', 'Sod Calculator', '/sod-calculator/', 'Square feet, pallets, slabs or rolls, topsoil and cost for any lawn shape.'],
+  ['🌱', 'Grass Seed Calculator', '/grass-seed-calculator/', 'Pounds of seed and the bags to buy by grass type, for a new lawn or overseeding.'],
+];
+
+const areaRows = () => `<fieldset class="hgt-calc__set"><legend>Lawn area</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another area</button></fieldset>`;
+const subField = () => `<label class="hgt-calc__field"><span>Exclude (beds, patio) sq ft</span><input type="number" inputmode="decimal" min="0" step="1" name="sub" placeholder="0"></label>`;
+
+const sodCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-lawn="sod"${embed ? ' data-embed' : ''} data-config='${esc(JSON.stringify(SOD))}'>
+<form novalidate>
+${areaRows()}
+<div class="hgt-calc__grid">
+${subField()}
+<label class="hgt-calc__field"><span>Extra for cuts (%)</span><input type="number" inputmode="numeric" min="0" max="30" step="1" name="waste" value="5"></label>
+<label class="hgt-calc__field"><span>Sod comes as</span><select name="piece">${Object.entries(SOD.pieces).map(([k, v]) => `<option value="${k}">${v.name} (${v.size})</option>`).join('')}</select></label>
+<label class="hgt-calc__field"><span>Sq ft per pallet</span><input type="number" inputmode="numeric" min="100" step="10" name="pallet" value="${SOD.pallet}"></label>
+<label class="hgt-calc__field"><span>Topsoil under sod</span><select name="soil"><option value="0">None</option><option value="1">1 in</option><option value="2">2 in</option><option value="4">4 in</option><option value="6">6 in</option></select></label>
+</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your supplier)</summary><div class="hgt-calc__grid">
+${priceInput('pSqft', 'Sod per sq ft', 0.5)}${priceInput('pDelivery', 'Delivery fee', 75)}${priceInput('pSoil', 'Topsoil per cu yd', 40)}
+</div></details>
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+const seedCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-lawn="seed"${embed ? ' data-embed' : ''} data-config='${esc(JSON.stringify(SEED))}'>
+<form novalidate>
+${areaRows()}
+<div class="hgt-calc__grid">
+<label class="hgt-calc__field"><span>Grass type</span><select name="grass">${Object.entries(SEED.grasses).map(([k, v]) => `<option value="${k}">${v.name}</option>`).join('')}<option value="custom">Rate from my seed bag…</option></select></label>
+<label class="hgt-calc__field"><span>Job</span><select name="job"><option value="new">New lawn or bare soil</option><option value="over">Overseeding a thin lawn</option></select></label>
+${subField()}
+<label class="hgt-calc__field" data-custom hidden><span>Bag rate (lb per 1,000 sq ft)</span><input type="number" inputmode="decimal" min="0" step="0.1" name="custom" value="5"></label>
+<label class="hgt-calc__check"><input type="checkbox" name="straw"> Add straw mulch</label>
+</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
+${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 10)}
+</div></details>
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+const ALL_TOOLS = () => [
+  ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
+  ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
+  ...LAWN_TOOLS, ...CALC_TOOLS,
+];
+// Each tool page links to its siblings so link equity and visitors flow across the cluster.
+const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
+const embedCta = (slugName) => `<p class="hgt-read hgt-sources">Run a garden club, nursery or landscaping site? <a href="/embed/#${slugName}">Embed this calculator free</a> with one line of code.</p>`;
+const appSchema = (path, name, description) => ({ '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name, url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` } });
+
+function sodCalcPage() {
+  const path = '/sod-calculator/';
+  const title = 'Sod Calculator: Square Feet, Pallets, Rolls & Cost';
+  const description = 'Free sod calculator: how many square feet, pallets, slabs or rolls of sod you need for any lawn shape, plus topsoil and cost. Shows the math, prints a list.';
+  const areas = [200, 500, 1000, 1500, 2000, 2500, 3000, 5000, 10000];
+  const rows = areas.map((a) => { const need = a * 1.05; return `<tr><td>${fmtInt(a)} sq ft</td><td>${fmtInt(Math.ceil(need))}</td><td>${(need / SOD.pallet).toFixed(1)}</td><td>${fmtInt(Math.ceil(need / SOD.pieces.slab.sqft))}</td><td>${fmtInt(Math.ceil(need / SOD.pieces.roll.sqft))}</td></tr>`; }).join('\n');
+  const faqs = [
+    ['How much sod do I need?', 'Measure the lawn in feet, multiply length by width for each rectangle (or use the circle and triangle options for curves), add the areas together and subtract beds and patios. Add 5% for straight edges or 10% for curves and lots of cutting. That total, in square feet, is what to order.'],
+    ['How many square feet are in a pallet of sod?', `Most sod farms load about 450 to 500 sq ft per pallet, but some use 400 sq ft or large rolls of 500 to 700 sq ft. This calculator uses ${SOD.pallet} sq ft; enter your supplier's number for an exact pallet count.`],
+    ['How many pieces of sod are on a pallet?', `A standard 16 × 24 in slab covers 2.67 sq ft, so a ${SOD.pallet} sq ft pallet holds about ${Math.round(SOD.pallet / SOD.pieces.slab.sqft)} slabs. Rolls of 2 × 5 ft cover 10 sq ft each, about ${SOD.pallet / SOD.pieces.roll.sqft} per pallet.`],
+    ['How much sod do I need for 1,000 square feet?', `About 1,050 sq ft with 5% extra: ${(1050 / SOD.pallet).toFixed(1)} pallets of ${SOD.pallet} sq ft, ${Math.ceil(1050 / SOD.pieces.slab.sqft)} slabs of 16 × 24 in, or ${Math.ceil(1050 / 10)} rolls of 2 × 5 ft.`],
+    ['Should I put topsoil down before sod?', 'Sod roots best into loose, level soil. Where the existing soil is compacted, rocky or low, spread 1 to 2 inches of screened topsoil (or more to fill dips), rake it level and roll it lightly before laying sod. Use the topsoil option to estimate cubic yards.'],
+    ['How soon can you walk or mow on new sod?', 'Water daily for the first one to two weeks so the soil underneath stays moist, and keep foot traffic off. Most sod roots in two to three weeks; mow for the first time once it no longer lifts when you tug a corner.'],
+  ];
+  const body = `
+<h1>Sod Calculator</h1>
+<p class="hgt-lede">How much sod to order for any lawn shape, in square feet, pallets, slabs or rolls, with topsoil and cost. Add as many rectangles, circles and triangles as your yard needs.</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p>Multiply <strong>length × width</strong> of each lawn area in feet, add them up, and order <strong>5–10% extra</strong> for cuts. One <strong>pallet covers about ${SOD.pallet} sq ft</strong> (check with your farm: 400–500 is typical), a 16 × 24 in slab covers 2.67 sq ft and a 2 × 5 ft roll covers 10 sq ft. A 1,000 sq ft lawn needs about 1,050 sq ft, or ${(1050 / SOD.pallet).toFixed(1)} pallets.</p></div>
+${sodCard()}
+<h2>Sod needed for common lawn sizes</h2>
+<p class="hgt-read">Including 5% extra, with ${SOD.pallet} sq ft pallets.</p>
+<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Lawn area</th><th scope="col">Order (sq ft)</th><th scope="col">Pallets</th><th scope="col">Slabs 16 × 24 in</th><th scope="col">Rolls 2 × 5 ft</th></tr></thead><tbody>
+${rows}
+</tbody></table></div>
+<section class="hgt-read"><h2>How to measure and order sod</h2>
+<ol>
+<li><strong>Split the yard into simple shapes:</strong> rectangles, circles (measure across) and triangles. Measure in feet.</li>
+<li><strong>Subtract</strong> flower beds, patios and paths inside those shapes.</li>
+<li><strong>Add 5–10%:</strong> 5% for straight runs, 10% for curves, slopes and lots of trimming around beds.</li>
+<li><strong>Order for one day:</strong> sod is cut to order and should be laid within 24 hours, so have the soil graded, raked and moist before it arrives.</li>
+<li><strong>Lay in a brick pattern</strong> with tight seams, roll it, and water until the soil 3–4 inches down is wet.</li>
+</ol>
+<p>Prefer to seed instead? Seed costs far less per square foot but takes a season to fill in; compare with the <a href="/grass-seed-calculator/">grass seed calculator</a>.</p></section>
+${faqBlock(faqs)}
+${embedCta('sod')}
+${relatedTools(path)}
+<section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2><p>Pallet coverage of 450–500 sq ft and standard 16 × 24 in slab size, per <a href="${SOD_URL}" rel="nofollow">Sod Solutions</a> and typical U.S. sod farm listings; your supplier's figures take priority. Circle areas use π × diameter² ÷ 4. Topsoil volume is area × depth ÷ 12 ÷ 27. Prices are placeholders to edit.</p></section>`;
+  return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, 'Sod Calculator']], schema: [appSchema(path, 'Sod Calculator', description), faqSchema(faqs)], scripts: ['/assets/lawn.js'] }) };
+}
+
+function seedCalcPage() {
+  const path = '/grass-seed-calculator/';
+  const title = 'Grass Seed Calculator: How Much Grass Seed Do I Need?';
+  const description = 'Free grass seed calculator: pounds of seed and the bags to buy for a new lawn or overseeding, by grass type, per 1,000 sq ft or per acre, using extension seeding rates.';
+  const G = SEED.grasses;
+  const rows = Object.values(G).map((g) => `<tr><td>${g.name}</td><td>${g.range} lb</td><td>${g.rate} lb</td><td>${g.over} lb</td><td>${fmtInt(g.rate * 43.56)} lb</td><td>${g.days} days</td></tr>`).join('\n');
+  const faqs = [
+    ['How much grass seed do I need?', `Multiply your lawn area in square feet by the seeding rate per 1,000 sq ft for your grass, then divide by 1,000. For a 5,000 sq ft new lawn of tall fescue at ${G.tf.rate} lb per 1,000 sq ft, that is ${G.tf.rate * 5} lb. Overseeding a thin lawn takes about half as much.`],
+    ['How much grass seed per square foot?', `Very little: tall fescue at ${G.tf.rate} lb per 1,000 sq ft is ${(G.tf.rate / 1000).toFixed(3)} lb (about ${((G.tf.rate / 1000) * 16).toFixed(2)} oz) per square foot, and Kentucky bluegrass at ${G.kbg.rate} lb per 1,000 sq ft is ${(G.kbg.rate / 1000).toFixed(3)} lb per square foot. That is why rates are given per 1,000 sq ft.`],
+    ['How much grass seed per acre?', `An acre is 43,560 sq ft, so multiply the per-1,000 rate by 43.56: about ${fmtInt(G.tf.rate * 43.56)} lb of tall fescue, ${fmtInt(G.prg.rate * 43.56)} lb of perennial ryegrass, ${fmtInt(G.kbg.rate * 43.56)} lb of Kentucky bluegrass or ${fmtInt(G.berm.rate * 43.56)} lb of hulled bermudagrass for a new lawn.`],
+    ['How much grass seed for overseeding?', `Use about half the new-lawn rate: roughly ${G.tf.over} lb of tall fescue, ${G.prg.over} lb of perennial ryegrass or ${G.kbg.over} lb of Kentucky bluegrass per 1,000 sq ft. Mow short and core-aerate or dethatch first so the seed reaches the soil.`],
+    ['Can you put down too much grass seed?', 'Yes. Seeding far above the recommended rate makes seedlings crowd each other, so they grow thin and weak and are more prone to disease. Extra seed does not make a thicker lawn; good seed-to-soil contact and steady moisture do.'],
+    ['When is the best time to plant grass seed?', 'Sow cool-season grasses (tall fescue, Kentucky bluegrass, perennial ryegrass) in late summer to early fall when soil is 50–65°F, or in spring as a second choice. Sow warm-season grasses (bermudagrass, zoysia) in late spring to early summer once soil is above 65°F. Check your local frost dates to plan.'],
+  ];
+  const body = `
+<h1>Grass Seed Calculator</h1>
+<p class="hgt-lede">How many pounds of grass seed to buy, and which bag sizes, for a new lawn or for overseeding, by grass type. Works for any lawn shape, from a few bare patches to several acres.</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p><strong>Seed needed = lawn area (sq ft) ÷ 1,000 × seeding rate.</strong> For a new lawn use about <strong>${G.tf.rate} lb of tall fescue</strong>, ${G.prg.rate} lb of perennial ryegrass or ${G.kbg.rate} lb of Kentucky bluegrass per 1,000 sq ft; for overseeding use about half. A 5,000 sq ft tall fescue lawn needs ${G.tf.rate * 5} lb new or ${G.tf.over * 5} lb to overseed.</p></div>
+${seedCard()}
+<h2>Grass seeding rates by type</h2>
+<p class="hgt-read">Pounds of seed per 1,000 sq ft. The extension range is the University of Tennessee recommendation; the calculator uses the value shown. Your seed bag's label rate takes priority for blends and coated seed.</p>
+<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Grass</th><th scope="col">Extension range</th><th scope="col">New lawn</th><th scope="col">Overseeding</th><th scope="col">Per acre (new)</th><th scope="col">Days to sprout</th></tr></thead><tbody>
+${rows}
+</tbody></table></div>
+<section class="hgt-read"><h2>How to seed a lawn so it fills in</h2>
+<ol>
+<li><strong>Time it right:</strong> late summer to early fall for cool-season grass; late spring for warm-season grass.</li>
+<li><strong>Prepare the soil:</strong> for a new lawn, loosen the top 2–4 inches and rake it smooth. For overseeding, mow short and core-aerate or dethatch so seed touches soil.</li>
+<li><strong>Spread in two passes</strong> at right angles, each with half the seed, for even cover without stripes.</li>
+<li><strong>Rake lightly and roll</strong> so seed sits about ¼ inch deep. A thin layer of straw (about one bale per 1,000 sq ft) holds moisture on bare soil.</li>
+<li><strong>Keep the surface moist</strong> with light watering once or twice a day until seedlings are 2 inches tall, then water deeper and less often.</li>
+</ol>
+<p>Need instant grass on a slope or for a deadline? Price it with the <a href="/sod-calculator/">sod calculator</a>.</p></section>
+${faqBlock(faqs)}
+${embedCta('grass-seed')}
+${relatedTools(path)}
+<section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2><p>Seeding-rate ranges are from <a href="${UT_SEED_URL}" rel="nofollow">University of Tennessee Extension, W160-B</a>; <a href="${UC_SEED_URL}" rel="nofollow">UC IPM</a> lists somewhat higher rates for tall fescue (8–10 lb) and perennial ryegrass (6–9 lb), so the values here sit in the middle to upper part of the Tennessee ranges. Overseeding at about half the new-lawn rate is common practice for thin turf. Days to sprout are typical in good conditions. Bag sizes reflect common retail sizes. Prices are placeholders to edit.</p></section>`;
+  return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, 'Grass Seed Calculator']], schema: [appSchema(path, 'Grass Seed Calculator', description), faqSchema(faqs)], scripts: ['/assets/lawn.js'] }) };
+}
+
+// Embeddable versions: noindex pages whose canonical points at the full tool. The credit link sits in the
+// host page's own HTML (outside the iframe), uses the brand as anchor text and is easy to keep visible.
+const EMBEDS = [
+  { id: 'frost-dates', name: 'Frost date lookup', tool: '/frost-dates/', height: 440, card: () => frostWidget('hgt-zip', true).replace('hgt-card ', ''), script: '/assets/frost.js' },
+  { id: 'concrete-block', name: 'Concrete block calculator', tool: '/concrete-block-calculator/', height: 900, card: () => cmuCard(true), script: '/assets/masonry.js' },
+  { id: 'retaining-wall', name: 'Retaining wall calculator', tool: '/retaining-wall-calculator/', height: 900, card: () => srwCard(true), script: '/assets/masonry.js' },
+  { id: 'sod', name: 'Sod calculator', tool: '/sod-calculator/', height: 820, card: () => sodCard(true), script: '/assets/lawn.js' },
+  { id: 'grass-seed', name: 'Grass seed calculator', tool: '/grass-seed-calculator/', height: 820, card: () => seedCard(true), script: '/assets/lawn.js' },
+];
+const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
+<p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
+const embedFrame = (e) => `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(e.name)} | ${BRAND}</title><meta name="robots" content="noindex">
+<link rel="canonical" href="${SITE}${e.tool}"><style>${CSS}</style>
+<base target="_blank"></head>
+<body class="hgt-embed">
+${e.card()}
+<p class="hgt-embed__by">${esc(e.name)} · <a href="${SITE}${e.tool}" rel="noopener">${BRAND}</a></p>
+<script src="${e.script}" defer></script>
+</body></html>
+`;
 
 // ---------- main ----------
 async function write(path, content) {
@@ -1021,7 +1201,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -1029,7 +1209,7 @@ async function main() {
   await write('/frost-dates/', frostIndex(states, meta));
   await write('/data/', dataPage(meta));
   await write('/embed/', embedPage());
-  await write('/embed/frost-dates/', embedWidget());
+  for (const e of EMBEDS) await write(`/embed/${e.id}/`, embedFrame(e));
   await write('/about/', aboutPage(meta));
   await write('/privacy/', privacyPage());
   await write('/terms/', termsPage());
@@ -1043,7 +1223,7 @@ ${urls.map(([u, p]) => `  <url><loc>${SITE}${u}</loc><lastmod>${meta.built}</las
 `);
   await write('/robots.txt', `User-agent: *
 Allow: /
-Disallow: /embed/frost-dates/
+Disallow: /embed/*/
 
 Sitemap: ${SITE}/sitemap.xml
 `);
@@ -1056,6 +1236,8 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
+- [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
+- [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
 - [Retaining wall calculator](${SITE}/retaining-wall-calculator/): segmental wall and cap blocks with buried courses, base gravel, drainage stone, drain pipe and fabric
 - [Planting calendar by ZIP code](${PLAN_URL}): planting dates for 30 crops from local frost dates
@@ -1081,6 +1263,8 @@ ${zones.map((z) => `- [${z.name}](${SITE}${z.path}): zones ${zoneSpan(z.sum.zone
       { src: '/assets/icon.svg', sizes: 'any', type: 'image/svg+xml' },
     ],
   }, null, 2) + '\n');
+  // IndexNow key file: lets the deploy workflow tell Bing (which feeds ChatGPT search and Copilot) about changed pages.
+  await write(`/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY);
   await write('/CNAME', new URL(SITE).host + '\n');
   await write('/.nojekyll', '');
 

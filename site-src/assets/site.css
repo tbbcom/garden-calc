@@ -186,3 +186,7 @@ table{border-collapse:collapse;width:100%}
 .hgt-secsvg text{font:12px system-ui,sans-serif;fill:#3f3f46}
 .hgt-calc input.hgt-calc__inline{width:4.5em;padding:6px 8px;flex:none}
 .hgt-calc__check{flex-wrap:wrap}
+.hgt-calc__row--shape{grid-template-columns:1.1fr 1fr 1fr auto}
+.hgt-calc__row--shape label[hidden]{display:flex;visibility:hidden}
+.hgt-calc__field[hidden]{display:none}
+@media (max-width:480px){.hgt-calc__row--shape{grid-template-columns:1fr 1fr 44px}.hgt-calc__row--shape label:first-child{grid-column:1/-1}.hgt-calc__row--shape label[hidden]{display:none}}
