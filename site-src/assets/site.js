@@ -50,7 +50,7 @@
     btn.addEventListener('click', function () {
       var src = d.querySelector(btn.getAttribute('data-copy'));
       if (!src) return;
-      if (window.dataLayer) window.dataLayer.push({ event: 'embed_code_copy' });
+      if (window.hgtGA4 && window.gtag) window.gtag('event', 'embed_code_copy'); else if (window.dataLayer) window.dataLayer.push({ event: 'embed_code_copy' });
       var done = function () { btn.textContent = 'Copied!'; setTimeout(function () { btn.textContent = 'Copy code'; }, 2000); };
       if (navigator.clipboard) navigator.clipboard.writeText(src.value).then(done, function () { src.select(); });
       else { src.select(); d.execCommand('copy'); done(); }
