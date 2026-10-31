@@ -24,6 +24,8 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/frost-dates/<state>/` | Town-by-town frost tables for 50 states, with data-derived insights |
 | `/hardiness-zones/` | USDA 2023 hardiness zone by ZIP code, with the zone's temperature range and local frost dates |
 | `/hardiness-zones/<state>/` | Zone share by ZIP code, zones and frost dates by town, and same-zone frost-date spread for 50 states, D.C. and Puerto Rico |
+| `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
+| `/retaining-wall-calculator/` | Segmental wall and cap blocks with buried courses, base gravel, drainage stone, drain pipe and fabric, with height warnings |
 | `/data/` | Free CSV download (CC BY 4.0) for journalists, bloggers and teachers |
 | `/embed/` | One-line embeddable frost-date widget with a credit link |
 | `/about/` | Sources, method and limits |

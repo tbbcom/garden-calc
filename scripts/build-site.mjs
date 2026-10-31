@@ -89,8 +89,8 @@ const LEAF = '<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" heigh
 const NAV = [
   ['/frost-dates/', 'Frost Dates'],
   ['/hardiness-zones/', 'Hardiness Zones'],
+  ['/#calculators', 'Calculators'],
   ['/data/', 'Free Data'],
-  ['/embed/', 'Embed'],
   ['/about/', 'About'],
 ];
 
@@ -187,7 +187,7 @@ ${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=$
     <div>
       <p class="hgt-footer__title">Calculators</p>
       <ul class="hgt-footer__list">
-        ${MAIN_TOOLS.slice(0, 5).map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
+        ${[...CALC_TOOLS, ...MAIN_TOOLS.slice(0, 4)].map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
       </ul>
     </div>
     <div>
@@ -394,7 +394,7 @@ ${faqBlock(faqs)}
 function homePage(meta) {
   const path = '/';
   const title = 'Free Garden Tools and Calculators | Home Garden Lot';
-  const description = `Free garden tools built on public data: frost dates and USDA hardiness zones by ZIP code, a planting calendar, and mulch, soil, gravel and fertilizer calculators.`;
+  const description = `Free garden tools built on public data: frost dates and USDA hardiness zones by ZIP code, concrete block and retaining wall calculators, and a planting calendar.`;
   const card = ([icon, name, url, text], tag = '') => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}${tag ? `<span class="hgt-tool__tag">${tag}</span>` : ''}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`;
   const body = `
 <h1>Free garden tools, built on real data</h1>
@@ -408,6 +408,10 @@ ${card(['🗺️', 'Frost Dates by State', '/frost-dates/#states', 'Town-by-town
 ${card(['📊', 'Free Frost Date Dataset', '/data/', 'Download every station\'s frost dates as CSV for your blog, class or research. Free with attribution.'])}
 ${card(['🧩', 'Embed the Frost Date Tool', '/embed/', 'Add the ZIP-code frost lookup to your own garden club or nursery website in one line.'])}
 </div>
+<h2 id="calculators">Home and hardscape calculators</h2>
+<div class="hgt-grid">
+${CALC_TOOLS.map((t) => card(t, 'New')).join('\n')}
+</div>
 <h2>Garden calculators</h2>
 <div class="hgt-grid">
 ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
@@ -418,7 +422,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -802,6 +806,185 @@ async function loadZones(stations) {
   return { zoneMeta, zoneStates, usCounts };
 }
 
+// ---------- masonry calculators ----------
+// Coverage rates: block face incl. ⅜ in joints (ASTM C90 nominal sizes); mortar yield from Quikrete's
+// 80 lb Type N / Type S bag labels (12–13 standard blocks; 12 used); grout = fully grouted fill of
+// 0.93 / 1.12 / 1.65 cu yd per 100 sq ft for 6, 8 and 12 in walls, expressed per block.
+const CMU = {
+  sizes: {
+    4: { short: '4 × 8 × 16', label: '4 × 8 × 16 in (partition / veneer)', h: 8, l: 16, w: 4, grout: 0 },
+    6: { short: '6 × 8 × 16', label: '6 × 8 × 16 in', h: 8, l: 16, w: 6, grout: 0.223 },
+    8: { short: '8 × 8 × 16', label: '8 × 8 × 16 in (standard)', h: 8, l: 16, w: 8, grout: 0.269 },
+    '8h': { short: '8 × 4 × 16', label: '8 × 4 × 16 in (half-high)', h: 4, l: 16, w: 8, grout: 0.135 },
+    12: { short: '12 × 8 × 16', label: '12 × 8 × 16 in', h: 8, l: 16, w: 12, grout: 0.396 },
+  },
+  blocksPerBag: 12, groutWaste: 0.1, bagYield: 0.6, dowelFt: 2, minFooting: 8, defaultL: 20, defaultH: 4,
+};
+const SRW = {
+  blocks: {
+    small: { short: '4 × 12 in', label: 'Small garden wall block, 4 × 12 × 7 in (about 20 lb)', h: 4, l: 12, d: 7, lb: 20 },
+    standard: { short: '6 × 16 in', label: 'Standard wall block, 6 × 16 × 12 in (about 50 lb)', h: 6, l: 16, d: 12, lb: 50 },
+    large: { short: '8 × 18 in', label: 'Large wall block, 8 × 18 × 12 in (about 75 lb)', h: 8, l: 18, d: 12, lb: 75 },
+  },
+  buryRatio: 0.1, baseIn: 6, baseExtra: 12, drainIn: 12, tonsPerYd: 1.4, fabricRoll: 150, gridFt: 3, permitFt: 4, defaultL: 20, defaultH: 2,
+};
+const QUIKRETE_URL = 'https://www.quikrete.com/productlines/masonmix.asp';
+const CMHA_URL = 'https://www.cmha.org/resource/srw-tec-004/';
+const CALC_TOOLS = [
+  ['🧱', 'Concrete Block Calculator', '/concrete-block-calculator/', 'CMU blocks, mortar bags, core grout, rebar and footing concrete for one wall or several, with cost.'],
+  ['🪨', 'Retaining Wall Calculator', '/retaining-wall-calculator/', 'Wall and cap blocks, base gravel, drainage stone, drain pipe and fabric for a segmental block wall.'],
+];
+const cmuCount = (lFt, hFt, size) => Math.ceil((lFt * 12) / size.l - 1e-9) * Math.ceil((hFt * 12) / size.h - 1e-9);
+const priceInput = (name, label, value) => `<label class="hgt-calc__field"><span>${label}</span><span class="hgt-calc__money"><input type="number" inputmode="decimal" min="0" step="0.01" name="${name}" value="${value}"></span></label>`;
+const wallRows = () => `<fieldset class="hgt-calc__set"><legend>Wall size</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another wall</button></fieldset>`;
+
+function blockCalcPage() {
+  const path = '/concrete-block-calculator/';
+  const title = 'Concrete Block Calculator: CMU Blocks, Mortar & Grout';
+  const description = 'Free concrete block calculator: how many CMU blocks, 80 lb mortar bags, core grout, rebar and footing concrete your wall needs, with cost and a printable list.';
+  const s8 = CMU.sizes[8];
+  const perSq = 144 / (s8.h * s8.l);
+  const ex = cmuCount(10, 8, s8);
+  const card = `<div class="hgt-card hgt-calc" data-hgt-calc="cmu" data-config='${esc(JSON.stringify(CMU))}'>
+<form novalidate>
+${wallRows()}
+<div class="hgt-calc__grid">
+<label class="hgt-calc__field"><span>Block size (W × H × L)</span><select name="size">${Object.entries(CMU.sizes).map(([k, v]) => `<option value="${k}"${k === '8' ? ' selected' : ''}>${v.label}</option>`).join('')}</select></label>
+<label class="hgt-calc__field"><span>Doors and windows (sq ft)</span><input type="number" inputmode="decimal" min="0" step="1" name="openings" placeholder="0"></label>
+<label class="hgt-calc__field"><span>Fill cores with grout</span><select name="grout"><option value="none">No grout</option><option value="rebar" selected>Only cores with rebar</option><option value="full">All cores (fully grouted)</option></select></label>
+<label class="hgt-calc__field"><span>Vertical rebar spacing</span><select name="rebar"><option value="0">No rebar</option><option value="16">16 in</option><option value="24">24 in</option><option value="32">32 in</option><option value="48" selected>48 in</option></select></label>
+<label class="hgt-calc__field"><span>Waste allowance (%)</span><input type="number" inputmode="numeric" min="0" max="30" step="1" name="waste" value="5"></label>
+<label class="hgt-calc__check"><input type="checkbox" name="footing" checked> Include a concrete footing</label>
+</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
+${priceInput('pBlock', 'Per block', 2.5)}${priceInput('pMortar', 'Mortar, 80 lb bag', 10)}${priceInput('pBag', 'Concrete, 80 lb bag', 6.5)}${priceInput('pReady', 'Ready-mix, per cu yd', 180)}${priceInput('pRebar', '#4 rebar, 20 ft', 12)}${priceInput('pWire', 'Ladder wire, 10 ft', 4)}
+</div></details>
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+  const lengths = [8, 10, 12, 16, 20, 24, 30, 40, 50];
+  const heights = [2, 3, 4, 6, 8];
+  const refTable = `<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Wall length</th>${heights.map((h) => `<th scope="col">${h} ft high</th>`).join('')}</tr></thead><tbody>
+${lengths.map((l) => `<tr><td>${l} ft</td>${heights.map((h) => `<td>${fmtInt(cmuCount(l, h, s8))}</td>`).join('')}</tr>`).join('\n')}
+</tbody></table></div>`;
+  const per100 = `<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Block size</th><th scope="col">Blocks per 100 sq ft</th><th scope="col">Mortar (80 lb bags)</th><th scope="col">Grout, fully grouted</th></tr></thead><tbody>
+${Object.values(CMU.sizes).map((v) => { const n = 14400 / (v.h * v.l); return `<tr><td>${v.label}</td><td>${fmtInt(n)}</td><td>${Math.ceil(n / CMU.blocksPerBag)}</td><td>${v.grout ? `${(n * v.grout / 27).toFixed(2)} cu yd` : 'Not usually grouted'}</td></tr>`; }).join('\n')}
+</tbody></table></div>`;
+
+  const faqs = [
+    ['How many concrete blocks do I need per square foot?', `A standard 8 × 8 × 16 in block covers 16 × 8 in of wall including the ⅜ in mortar joint, which is 0.89 sq ft. That works out to ${perSq.toFixed(3)} blocks per square foot, or about ${fmtInt(perSq * 100)} blocks per 100 sq ft, before waste.`],
+    ['How many blocks are in a 10 × 8 ft wall?', `A 10 ft long, 8 ft high wall of standard 8 × 8 × 16 blocks is 8 blocks per course (120 in ÷ 16 in, rounded up to a whole block) times 12 courses (96 in ÷ 8 in), which is ${ex} blocks. Order about ${Math.ceil(ex * 1.05)} with 5% extra for cuts and breakage.`],
+    ['How many blocks does an 80 lb bag of mortar lay?', `Quikrete's 80 lb Mason Mix and Mortar Mix labels give about 12 to 13 standard 8 × 8 × 16 blocks per bag. This calculator uses ${CMU.blocksPerBag} per bag so you don't run short; your rate depends on joint thickness and waste.`],
+    ['How much grout do I need to fill concrete block?', 'A fully grouted 8 in block wall takes about 1.12 cubic yards of grout per 100 sq ft (about 0.27 cu ft per block). A 6 in wall takes about 0.93 and a 12 in wall about 1.65 cu yd per 100 sq ft. Most garden and garage walls only grout the cores that hold rebar.'],
+    ['Should I use Type S or Type N mortar for block?', 'Use Type S for walls below grade, retaining walls, foundations and anything structural, because it is stronger in compression and bending. Type N suits above-grade, non-load-bearing walls and is easier to work. Check your local building code for structural walls.'],
+    ['How big should a concrete block wall footing be?', 'A common rule of thumb is a footing twice as wide as the wall and as deep as the wall is thick, so 16 in wide and 8 in deep for an 8 in block wall, placed below your frost line. Local code, soil and wall height can require more, so confirm with your building department.'],
+  ];
+  const body = `
+<h1>Concrete Block Calculator</h1>
+<p class="hgt-lede">How many CMU blocks, bags of mortar, grout, rebar and footing concrete you need for a block wall, worked out course by course so the count matches what you actually lay.</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p>A standard <strong>8 × 8 × 16 in concrete block covers 0.89 sq ft</strong>, so you need <strong>${perSq.toFixed(3)} blocks per square foot (about ${fmtInt(perSq * 100)} per 100 sq ft)</strong>. Multiply your wall's length × height in feet by ${perSq.toFixed(3)}, add 5% for cuts, and plan on one 80 lb bag of mortar for every ${CMU.blocksPerBag} blocks.</p></div>
+${card}
+<h2>How many blocks for common wall sizes</h2>
+<p class="hgt-read">Standard 8 × 8 × 16 in blocks, counted course by course with cut blocks counted as whole. Add 5–10% for waste.</p>
+${refTable}
+<h2>Blocks, mortar and grout per 100 sq ft</h2>
+${per100}
+<section class="hgt-read"><h2>How to estimate a block wall</h2>
+<ol>
+<li><strong>Measure each wall</strong> in feet. Use the outside length; at corners, count the corner block once on one wall only.</li>
+<li><strong>Count courses:</strong> wall height in inches ÷ 8 (÷ 4 for half-high blocks), rounded up.</li>
+<li><strong>Count blocks per course:</strong> wall length in inches ÷ 16, rounded up. End blocks you cut still use a whole block.</li>
+<li><strong>Subtract openings</strong> for doors and windows at ${perSq.toFixed(3)} blocks per square foot, then add 5% for breakage, or 10% if you have many corners and cuts.</li>
+<li><strong>Add mortar, grout and steel:</strong> one 80 lb mortar bag per ${CMU.blocksPerBag} blocks; grout every core that holds rebar (or all cores for a structural wall); ladder wire every second course.</li>
+</ol>
+<p>Building a garden or landscape wall that holds back soil? Mortared block needs a structural design for that. Dry-stacked segmental blocks are usually easier; use the <a href="/retaining-wall-calculator/">retaining wall calculator</a>.</p></section>
+${faqBlock(faqs)}
+<section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2>
+<p>Block sizes are ASTM C90 nominal sizes (actual faces are ⅜ in smaller to leave room for the joint). Mortar yield is from the 80 lb <a href="${QUIKRETE_URL}" rel="nofollow">Quikrete Mason Mix</a> and Mortar Mix bag labels (12–13 standard blocks per bag). Grout rates are the commonly published fill volumes for fully grouted 6, 8 and 12 in walls, plus 10% waste. Concrete bags are 80 lb at 0.6 cu ft yield. Rebar lengths add 2 ft per bar to lap into the footing. Results are estimates for planning and ordering; structural walls need a design that meets your local building code.</p></section>`;
+  const schema = [
+    { '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name: 'Concrete Block Calculator', url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` } },
+    faqSchema(faqs),
+  ];
+  return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, 'Concrete Block Calculator']], schema, scripts: ['/assets/masonry.js'] }) };
+}
+
+function retainingCalcPage() {
+  const path = '/retaining-wall-calculator/';
+  const title = 'Retaining Wall Calculator: Blocks, Caps, Gravel & Drainage';
+  const description = 'Free retaining wall block calculator: wall and cap blocks, base gravel, drainage stone, drain pipe and fabric for a segmental block wall, with buried courses and cost.';
+  const card = `<div class="hgt-card hgt-calc" data-hgt-calc="srw" data-config='${esc(JSON.stringify(SRW))}'>
+<form novalidate>
+<p class="hgt-calc__hint">Enter the <strong>exposed</strong> height, above finished ground. Buried courses are added for you.</p>
+${wallRows()}
+<div class="hgt-calc__grid">
+<label class="hgt-calc__field"><span>Wall block</span><select name="block">${Object.entries(SRW.blocks).map(([k, v]) => `<option value="${k}"${k === 'standard' ? ' selected' : ''}>${v.label}</option>`).join('')}<option value="custom">Custom size…</option></select></label>
+<label class="hgt-calc__field"><span>Waste allowance (%)</span><input type="number" inputmode="numeric" min="0" max="30" step="1" name="waste" value="5"></label>
+<label class="hgt-calc__check"><input type="checkbox" name="cap" checked> Cap blocks, <input class="hgt-calc__inline" type="number" min="4" max="36" step="1" name="capl" value="12" aria-label="Cap block length in inches"> in long</label>
+<label class="hgt-calc__check"><input type="checkbox" name="pipe" checked> Perforated drain pipe</label>
+</div>
+<div class="hgt-calc__grid" data-custom hidden>
+<label class="hgt-calc__field"><span>Block height (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bh" value="6"></label>
+<label class="hgt-calc__field"><span>Block face length (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bl" value="16"></label>
+<label class="hgt-calc__field"><span>Block depth (in)</span><input type="number" inputmode="decimal" min="1" step="0.25" name="bd" value="12"></label>
+<label class="hgt-calc__field"><span>Weight per block (lb)</span><input type="number" inputmode="decimal" min="0" step="1" name="bw" value="50"></label>
+</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
+${priceInput('pBlock', 'Per wall block', 4)}${priceInput('pCap', 'Per cap block', 5)}${priceInput('pStone', 'Gravel, per cu yd', 55)}${priceInput('pPipe', 'Drain pipe, 10 ft', 12)}${priceInput('pFabric', 'Fabric, 3 × 50 ft roll', 25)}
+</div></details>
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+  // Per 10 ft of wall, using the same rules as the calculator.
+  const per10 = (b, hFt) => {
+    const exp = hFt * 12, bc = Math.max(1, Math.ceil((exp * SRW.buryRatio) / b.h - 1e-9)), c = bc + Math.ceil(exp / b.h - 1e-9);
+    const blocks = Math.ceil(120 / b.l - 1e-9) * c;
+    const hTot = (c * b.h) / 12;
+    const stone = (10 * ((b.d + SRW.baseExtra) / 12) * (SRW.baseIn / 12) + 10 * (SRW.drainIn / 12) * hTot) / 27;
+    return { blocks, stone };
+  };
+  const hs = [1, 2, 3];
+  const ref = `<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr><th scope="col">Block</th>${hs.map((h) => `<th scope="col">${h} ft exposed</th>`).join('')}</tr></thead><tbody>
+${Object.values(SRW.blocks).map((b) => `<tr><td>${b.label.replace(/ \(.*$/, '')}</td>${hs.map((h) => { const r = per10(b, h); return `<td>${r.blocks} blocks · ${r.stone.toFixed(2)} cu yd stone</td>`; }).join('')}</tr>`).join('\n')}
+</tbody></table></div>`;
+  const std = SRW.blocks.standard;
+  const ex = per10(std, 2);
+  const faqs = [
+    ['How many retaining wall blocks do I need?', `Divide the wall length in inches by the block's face length to get blocks per course, then multiply by the number of courses: the exposed height divided by the block height, plus at least one buried course. For a 10 ft wall, 2 ft high, with 6 × 16 in blocks that is 8 blocks × 5 courses = ${ex.blocks} blocks, plus 5% for cuts.`],
+    ['How deep should the gravel base be for a retaining wall?', `Most block makers call for at least ${SRW.baseIn} in of compacted crushed gravel in a trench about ${SRW.baseExtra} in wider than the block is deep, with the first course buried. Bury at least one full course, or one-tenth of the exposed height if that is more.`],
+    ['How much gravel goes behind a retaining wall?', `Fill a zone about ${SRW.drainIn} in wide behind the blocks with clean ¾ in drainage stone for the full height of the wall. For each 10 ft of a 2 ft high wall built with 6 × 16 in blocks, base and drainage stone together come to about ${ex.stone.toFixed(1)} cu yd (about ${(ex.stone * SRW.tonsPerYd).toFixed(1)} tons).`],
+    ['How tall can a block retaining wall be without reinforcement?', `It depends on the block, soil and what sits above the wall, so check the manufacturer's design chart. Many segmental blocks need geogrid above about ${SRW.gridFt} ft. The International Residential Code (R404.4) requires a designed wall when it retains more than ${SRW.permitFt} ft of unbalanced soil, and many towns also require a permit at that height.`],
+    ['Do I need a drain pipe behind a retaining wall?', 'Water pressure is the main reason block walls fail. A 4 in perforated pipe at the base of the drainage stone, sloped to daylight at one end, is recommended for walls over about 2 ft, in clay soil, or where downspouts or slopes send water toward the wall.'],
+  ];
+  const body = `
+<h1>Retaining Wall Calculator</h1>
+<p class="hgt-lede">Wall blocks, caps, base gravel, drainage stone, drain pipe and filter fabric for a dry-stacked segmental block wall, including the buried course most quick calculators forget.</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p><strong>Blocks = (wall length in inches ÷ block length) × (courses above ground + buried courses).</strong> Bury at least one course. Under the wall, lay ${SRW.baseIn} in of compacted gravel; behind it, ${SRW.drainIn} in of clean drainage stone the full height. A 10 ft long, 2 ft high wall of 6 × 16 in blocks needs about ${ex.blocks} blocks and ${ex.stone.toFixed(1)} cu yd of stone.</p></div>
+${card}
+<h2>Blocks and stone per 10 ft of wall</h2>
+<p class="hgt-read">Includes one or more buried courses and the gravel base and drainage zone described above. Multiply by your length in feet ÷ 10, and add 5% for blocks.</p>
+${ref}
+<section class="hgt-read"><h2>How to build it so it lasts</h2>
+<ol>
+<li><strong>Dig the trench</strong> about ${SRW.baseExtra} in wider than the block depth and deep enough for ${SRW.baseIn} in of base plus the buried course.</li>
+<li><strong>Compact the base</strong> in 2–3 in lifts with a plate compactor and level it carefully. The first course decides how straight the whole wall is.</li>
+<li><strong>Lay the first course</strong> level both ways, then backfill in front of it.</li>
+<li><strong>Stack and drain as you go:</strong> lay each course with the joints staggered, fill the cores and the ${SRW.drainIn} in zone behind with drainage stone, and compact the soil behind that every course or two.</li>
+<li><strong>Cap and finish:</strong> glue caps with landscape block adhesive and top the drainage stone with fabric and a few inches of soil so surface water runs off.</li>
+</ol>
+<p>Building a mortared wall instead? Use the <a href="/concrete-block-calculator/">concrete block calculator</a>.</p></section>
+${faqBlock(faqs)}
+<section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2>
+<p>Base, buried-course and drainage-zone dimensions follow common segmental retaining wall practice described by the <a href="${CMHA_URL}" rel="nofollow">Concrete Masonry and Hardscapes Association</a> and block makers' installation guides; your block's own guide takes priority. Stone is converted at ${SRW.tonsPerYd} tons per cubic yard; filter fabric adds 1 ft per wall for overlap. Block sizes and weights are typical of each class; enter your exact block under "Custom size". The height limit cites International Residential Code section R404.4. Results are estimates for planning and ordering, not an engineered design.</p></section>`;
+  const schema = [
+    { '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name: 'Retaining Wall Calculator', url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` } },
+    faqSchema(faqs),
+  ];
+  return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, 'Retaining Wall Calculator']], schema, scripts: ['/assets/masonry.js'] }) };
+}
+
 // ---------- main ----------
 async function write(path, content) {
   const file = join(OUT, path.endsWith('/') ? path + 'index.html' : path);
@@ -846,6 +1029,10 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
+  for (const p of [blockCalcPage(), retainingCalcPage()]) {
+    await write(p.path, p.html);
+    urls.push([p.path, 0.9]);
+  }
   await write('/', homePage(meta));
   await write('/frost-dates/', frostIndex(states, meta));
   await write('/data/', dataPage(meta));
@@ -877,6 +1064,8 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
+- [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
+- [Retaining wall calculator](${SITE}/retaining-wall-calculator/): segmental wall and cap blocks with buried courses, base gravel, drainage stone, drain pipe and fabric
 - [Planting calendar by ZIP code](${PLAN_URL}): planting dates for 30 crops from local frost dates
 - [Garden guides](${MAIN}/): articles on vegetables, lawns, soil and home improvement
 

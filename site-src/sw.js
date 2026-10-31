@@ -1,6 +1,6 @@
 /* Offline support: pages network-first, assets and ZIP data (frost and zones) stale-while-revalidate. */
-var CACHE = 'hgt-v3';
-var SHELL = ['/', '/frost-dates/', '/hardiness-zones/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/zone.js', '/assets/icon.svg'];
+var CACHE = 'hgt-v4';
+var SHELL = ['/', '/frost-dates/', '/hardiness-zones/', '/concrete-block-calculator/', '/retaining-wall-calculator/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/zone.js', '/assets/masonry.js', '/assets/icon.svg'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));
