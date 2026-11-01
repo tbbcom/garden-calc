@@ -24,6 +24,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/frost-dates/<state>/` | Town-by-town frost tables for 50 states, with data-derived insights |
 | `/hardiness-zones/` | USDA 2023 hardiness zone by ZIP code, with the zone's temperature range and local frost dates |
 | `/hardiness-zones/<state>/` | Zone share by ZIP code, zones and frost dates by town, and same-zone frost-date spread for 50 states, D.C. and Puerto Rico |
+| `/stair-calculator/`, `/stair-stringer-calculator/` | Risers, treads, run, stringer length and board, bottom cut, throat and stringer count, with IRC R311.7 and AWC DCA 6 checks and a layout diagram |
+| `/gravel-calculator/`, `/pea-gravel-calculator/`, `/driveway-gravel-calculator/` | Cubic yards, tons and bags by stone type and depth; the driveway page sums base, middle and top layers |
+| `/pool-volume-calculator/`, `/pool-salt-calculator/`, `/pool-shock-calculator/` | Gallons for rectangle, round, oval and kidney pools; salt to target ppm (or % to drain); shock dose by product, including SLAM by CYA |
+| `/paver-calculator/`, `/paver-base-calculator/` | Pavers by size and pattern, compacted base, bedding sand, polymeric sand and edge restraint |
 | `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
 | `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
@@ -44,6 +48,8 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 4. Google Search Console: add a **Domain** property for `homegardenlot.com` (covers the subdomain), then submit `https://tools.homegardenlot.com/sitemap.xml`.
 
 **Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
+
+**Share images:** `node scripts/make-og.mjs` (local, needs Playwright) renders `site-src/assets/og/<slug>.jpg` (each tool's og:image) and Pinterest pins in `site-src/assets/pins/`. Re-run it after adding a tool.
 
 **IndexNow:** after each deploy, the `indexnow` job sends every sitemap URL to IndexNow (Bing and others) using the key file `/<INDEXNOW_KEY>.txt` written by the build. Nothing to set up.
 
