@@ -190,3 +190,10 @@ table{border-collapse:collapse;width:100%}
 .hgt-calc__row--shape label[hidden]{display:flex;visibility:hidden}
 .hgt-calc__field[hidden]{display:none}
 @media (max-width:480px){.hgt-calc__row--shape{grid-template-columns:1fr 1fr 44px}.hgt-calc__row--shape label:first-child{grid-column:1/-1}.hgt-calc__row--shape label[hidden]{display:none}}
+.hgt-calc__pair{display:flex;gap:8px}
+.hgt-calc__pair input{flex:1 1 60%}
+.hgt-calc__pair select{flex:1 1 40%}
+.hgt-stairsvg .step{fill:#e7e5e4;stroke:#57534e;stroke-width:2}
+.hgt-stairsvg .edge{stroke:#a8a29e;stroke-width:2;stroke-dasharray:6 4}
+.hgt-stairsvg text{font:12px system-ui,sans-serif;fill:#3f3f46}
+.hgt-note ul{margin:.4em 0 0;padding-left:1.2em}

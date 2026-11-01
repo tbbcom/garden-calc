@@ -34,6 +34,8 @@ const EFFECTIVE = 'October 29, 2026';
 // EEA, UK and Switzerland: analytics and ad storage stay denied until the visitor consents (Consent Mode v2).
 const CONSENT_REGIONS = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'];
 let CSS = '';
+// Per-page share images made by scripts/make-og.mjs (filled in main() from site-src/assets/og/).
+const OG_IMAGES = {};
 
 const STATES = {
   AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut',
@@ -112,7 +114,7 @@ document.readyState==='complete'?q():addEventListener('load',q);})();</script>
 <link rel="preconnect" href="https://www.googletagmanager.com">`;
 }
 
-function page({ path, title, description, body, crumbs = [], schema = [], scripts = [], noindex = false, active }) {
+function page({ path, title, description, body, crumbs = [], schema = [], scripts = [], noindex = false, active, og = OG_IMAGES[path] || '/assets/og.png' }) {
   const url = SITE + path;
   const crumbHtml = crumbs.length
     ? `<nav class="hgt-crumbs" aria-label="Breadcrumb"><ol><li><a href="/">Tools</a></li>${crumbs.map(([p, n], i) => (i === crumbs.length - 1 ? `<li aria-current="page">${esc(n)}</li>` : `<li><a href="${p}">${esc(n)}</a></li>`)).join('')}</ol></nav>`
@@ -138,7 +140,10 @@ ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" cont
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/assets/og.png">
+<meta property="og:image" content="${SITE}${og}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(title)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#247b49">
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
@@ -189,7 +194,7 @@ ${GTM_ID ? `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=$
     <div>
       <p class="hgt-footer__title">Calculators</p>
       <ul class="hgt-footer__list">
-        ${[...LAWN_TOOLS, ...CALC_TOOLS, ...MAIN_TOOLS.slice(0, 2)].map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
+        ${[...BATCH1_TOOLS, ...LAWN_TOOLS, ...CALC_TOOLS].map(([, n, u]) => `<li><a href="${u}">${n}</a></li>`).join('\n        ')}
       </ul>
     </div>
     <div>
@@ -398,7 +403,7 @@ ${relatedTools(path)}
 function homePage(meta) {
   const path = '/';
   const title = 'Free Garden Tools and Calculators | Home Garden Lot';
-  const description = `Free garden tools built on public data: frost dates and hardiness zones by ZIP code, sod, grass seed, concrete block and retaining wall calculators.`;
+  const description = `Free home and garden calculators: stairs, gravel, pavers, pool volume, salt and shock, sod, grass seed, concrete block, plus frost dates and hardiness zones by ZIP.`;
   const card = ([icon, name, url, text], tag = '') => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}${tag ? `<span class="hgt-tool__tag">${tag}</span>` : ''}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`;
   const body = `
 <h1>Free garden tools, built on real data</h1>
@@ -412,7 +417,15 @@ ${card(['🗺️', 'Frost Dates by State', '/frost-dates/#states', 'Town-by-town
 ${card(['📊', 'Free Frost Date Dataset', '/data/', 'Download every station\'s frost dates as CSV for your blog, class or research. Free with attribution.'])}
 ${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calculator to your garden club, nursery or landscaping site in one line.'])}
 </div>
-<h2 id="calculators">Lawn calculators</h2>
+<h2 id="calculators">Most-used calculators</h2>
+<div class="hgt-grid">
+${BATCH1_TOOLS.map((t) => card(t, 'New')).join('\n')}
+</div>
+<h2>More hardscape and pool calculators</h2>
+<div class="hgt-grid">
+${BATCH1_VARIANTS.map((t) => card(t)).join('\n')}
+</div>
+<h2>Lawn calculators</h2>
 <div class="hgt-grid">
 ${LAWN_TOOLS.map((t) => card(t, 'New')).join('\n')}
 </div>
@@ -430,7 +443,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -1056,10 +1069,19 @@ ${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 1
 const ALL_TOOLS = () => [
   ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
   ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
-  ...LAWN_TOOLS, ...CALC_TOOLS,
+  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
 ];
 // Each tool page links to its siblings so link equity and visitors flow across the cluster.
-const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
+const FAMILY = {
+  '/stair-calculator/': 'stairs', '/stair-stringer-calculator/': 'stairs',
+  '/gravel-calculator/': 'ground', '/pea-gravel-calculator/': 'ground', '/driveway-gravel-calculator/': 'ground', '/paver-calculator/': 'ground', '/paver-base-calculator/': 'ground',
+  '/pool-volume-calculator/': 'pool', '/pool-salt-calculator/': 'pool', '/pool-shock-calculator/': 'pool',
+  '/sod-calculator/': 'lawn', '/grass-seed-calculator/': 'lawn', '/concrete-block-calculator/': 'masonry', '/retaining-wall-calculator/': 'masonry',
+  '/hardiness-zones/': 'climate', '/frost-dates/': 'climate',
+};
+const NEAR = { stairs: ['masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
+const rank = (path) => (t) => { const a = FAMILY[path], b = FAMILY[t[2]]; return a === b ? 0 : (NEAR[a] || []).indexOf(b) >= 0 ? 1 + (NEAR[a] || []).indexOf(b) : 9; };
+const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).sort((x, y) => rank(path)(x) - rank(path)(y)).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
 const embedCta = (slugName) => `<p class="hgt-read hgt-sources">Run a garden club, nursery or landscaping site? <a href="/embed/#${slugName}">Embed this calculator free</a> with one line of code.</p>`;
 const appSchema = (path, name, description) => ({ '@type': 'WebApplication', '@id': `${SITE}${path}#app`, name, url: SITE + path, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any (web browser)', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' }, description, publisher: { '@id': ORG_ID }, isPartOf: { '@id': `${SITE}/#website` } });
 
@@ -1151,6 +1173,13 @@ const EMBEDS = [
   { id: 'retaining-wall', name: 'Retaining wall calculator', tool: '/retaining-wall-calculator/', height: 900, card: () => srwCard(true), script: '/assets/masonry.js' },
   { id: 'sod', name: 'Sod calculator', tool: '/sod-calculator/', height: 820, card: () => sodCard(true), script: '/assets/lawn.js' },
   { id: 'grass-seed', name: 'Grass seed calculator', tool: '/grass-seed-calculator/', height: 820, card: () => seedCard(true), script: '/assets/lawn.js' },
+  { id: 'stairs', name: 'Stair calculator', tool: '/stair-calculator/', height: 900, card: () => stairCard(true), script: '/assets/stairs.js' },
+  { id: 'gravel', name: 'Gravel calculator', tool: '/gravel-calculator/', height: 760, card: () => gravelCard(true), script: '/assets/hardscape.js' },
+  { id: 'driveway', name: 'Driveway gravel calculator', tool: '/driveway-gravel-calculator/', height: 900, card: () => drivewayCard(true), script: '/assets/hardscape.js' },
+  { id: 'paver', name: 'Paver calculator', tool: '/paver-calculator/', height: 900, card: () => paverCard(true), script: '/assets/hardscape.js' },
+  { id: 'pool-volume', name: 'Pool volume calculator', tool: '/pool-volume-calculator/', height: 760, card: () => poolCard('volume', true), script: '/assets/pool.js' },
+  { id: 'pool-salt', name: 'Pool salt calculator', tool: '/pool-salt-calculator/', height: 760, card: () => poolCard('salt', true), script: '/assets/pool.js' },
+  { id: 'pool-shock', name: 'Pool shock calculator', tool: '/pool-shock-calculator/', height: 820, card: () => poolCard('shock', true), script: '/assets/pool.js' },
 ];
 const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
 <p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
@@ -1165,6 +1194,383 @@ ${e.card()}
 <script src="${e.script}" defer></script>
 </body></html>
 `;
+
+// ---------- batch 1: stairs, gravel, pool, pavers ----------
+const TOOLS_UPDATED = '2026-11-01';
+const IRC_STAIR_URL = 'https://codes.iccsafe.org/content/IRC2021P2/chapter-3-building-planning#IRC2021P2_Pt03_Ch03_SecR311.7';
+const DCA6_URL = 'https://awc.org/publications/dca/dca6/';
+const HAYWARD_URL = 'https://hayward.com/aquarite';
+const TFP_URL = 'https://www.troublefreepool.com/';
+const CMHA_HOME = 'https://www.cmha.org/';
+
+const STAIRS = { maxRiser: 7.75, minTread: 10, minWidth: 36, maxFlight: 151, maxSpacing: 18, minThroat: 5, boards: { '2×12': 11.25, '2×10': 9.25 }, lengths: [8, 10, 12, 14, 16, 18, 20] };
+const GRAVEL = {
+  materials: {
+    pea: { short: 'pea gravel', name: 'Pea gravel (⅜ in)', tpy: 1.4 },
+    57: { short: '#57 stone', name: '#57 crushed stone (¾–1 in)', tpy: 1.4 },
+    3: { short: '#3 stone', name: '#3 stone (1–2 in)', tpy: 1.4 },
+    crusher: { short: 'crusher run', name: 'Crusher run / #411 (with fines)', tpy: 1.5, compact: 0.15 },
+    river: { short: 'river rock', name: 'River rock (1–3 in)', tpy: 1.35 },
+    sand: { short: 'sand', name: 'Sand', tpy: 1.35 },
+  },
+  bagCuft: 0.5, defaultL: 20, defaultW: 10,
+};
+const DRIVEWAY = { ...GRAVEL, defaultL: 50, defaultW: 10 };
+const PAVER = {
+  pavers: {
+    brick: { name: '4 × 8 in (holland / brick)', l: 8, w: 4 }, '6x6': { name: '6 × 6 in', l: 6, w: 6 }, '6x9': { name: '6 × 9 in', l: 9, w: 6 },
+    '12x12': { name: '12 × 12 in', l: 12, w: 12 }, '16x16': { name: '16 × 16 in', l: 16, w: 16 }, '24x24': { name: '24 × 24 in', l: 24, w: 24 },
+  },
+  patterns: { stack: { name: 'Running bond or stack', waste: 0.05 }, herring: { name: 'Herringbone', waste: 0.1 }, diag: { name: 'Diagonal (45°)', waste: 0.15 } },
+  baseIn: 4, baseOverhang: 6, compact: 0.2, baseTpy: 1.5, sandIn: 1, bagCuft: 0.5, polyMin: 30, polyMax: 80, restraintFt: 8, defaultL: 12, defaultW: 12,
+};
+const POOL = {
+  galPerCuft: 7.48, round: 5.9, kidney: 3.38, litersPerGal: 3.785, hoseGpm: 9, saltTarget: 3200, slamRatio: 0.4,
+  products: {
+    cal65: { name: 'Cal-hypo shock 65%', strength: 65, bagLb: 1, ca: 0.7 },
+    cal73: { name: 'Cal-hypo shock 73%', strength: 73, bagLb: 1, ca: 0.7 },
+    dichlor: { name: 'Dichlor shock 56%', strength: 56, bagLb: 1, cya: 0.9 },
+    liq125: { name: 'Liquid chlorine 12.5%', strength: 12.5, liquid: true, jugGal: 1 },
+    liq10: { name: 'Liquid chlorine 10%', strength: 10, liquid: true, jugGal: 1 },
+    bleach: { name: 'Plain bleach 8.25%', strength: 8.25, liquid: true, jugGal: 0.95 },
+  },
+};
+const BATCH1_TOOLS = [
+  ['🪜', 'Stair Calculator', '/stair-calculator/', 'Risers, treads, stringer length and code checks for any total rise.'],
+  ['🪨', 'Gravel Calculator', '/gravel-calculator/', 'Cubic yards, tons and bags of gravel by stone type and depth.'],
+  ['🏊', 'Pool Volume Calculator', '/pool-volume-calculator/', 'Gallons for rectangle, round, oval and kidney pools, plus fill time.'],
+  ['🧱', 'Paver Calculator', '/paver-calculator/', 'Pavers, base gravel, bedding sand, polymeric sand and edging.'],
+];
+const BATCH1_VARIANTS = [
+  ['🪚', 'Stair Stringer Calculator', '/stair-stringer-calculator/', 'Cut layout, stringer length, throat depth and how many stringers.'],
+  ['⚪', 'Pea Gravel Calculator', '/pea-gravel-calculator/', 'Pea gravel for paths, patios and play areas in yards, tons and bags.'],
+  ['🚗', 'Driveway Gravel Calculator', '/driveway-gravel-calculator/', 'Tons of stone for each driveway layer: base, middle and top.'],
+  ['🧂', 'Pool Salt Calculator', '/pool-salt-calculator/', 'Pounds and bags of salt for a saltwater pool, or how much to drain.'],
+  ['⚗️', 'Pool Shock Calculator', '/pool-shock-calculator/', 'Shock dose for cal-hypo, dichlor or liquid chlorine, including SLAM.'],
+  ['⛏️', 'Paver Base Calculator', '/paver-base-calculator/', 'Tons of base gravel and bedding sand under a patio or driveway.'],
+];
+
+const field = (label, input) => `<label class="hgt-calc__field"><span>${label}</span>${input}</label>`;
+const numIn = (name, value, step = 'any', extra = '') => `<input type="number" inputmode="decimal" min="0" step="${step}" name="${name}" value="${value}"${extra}>`;
+const selectIn = (name, opts, sel) => `<select name="${name}">${opts.map(([v, t]) => `<option value="${v}"${String(v) === String(sel) ? ' selected' : ''}>${t}</option>`).join('')}</select>`;
+const calcShell = (attr, cfg, inner, embed) => `<div class="hgt-card hgt-calc" ${attr}${embed ? ' data-embed' : ''} data-config='${esc(JSON.stringify(cfg))}'>
+<form novalidate>
+${inner}
+</form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+
+const stairCard = (embed = false, p = {}) => calcShell('data-hgt-stairs', STAIRS, `<div class="hgt-calc__grid">
+${field('Total rise (floor to floor or deck to ground)', `<span class="hgt-calc__pair">${numIn('rise', p.rise || 108, '0.125')}${selectIn('unit', [['in', 'inches'], ['ft', 'feet']], 'in')}</span>`)}
+${field('Max riser height (in)', numIn('maxr', 7.75, '0.125'))}
+${field('Tread depth, run (in)', numIn('tread', p.tread || 10.5, '0.125'))}
+${field('Tread thickness (in)', numIn('thick', p.thick ?? 1, '0.125'))}
+${field('Stair width (in)', numIn('width', 36, '1'))}
+${field('Stringer board', selectIn('board', Object.keys(STAIRS.boards).map((k) => [k, `${k} (${STAIRS.boards[k]} in deep)`]), '2×12'))}
+</div>`, embed);
+
+const gravelPrice = () => `<details class="hgt-calc__prices"><summary>Price (edit to match your supplier)</summary><div class="hgt-calc__grid">
+${field('Price', `<span class="hgt-calc__money">${numIn('price', 45, '0.01')}</span>`)}${field('Priced per', selectIn('unit', [['ton', 'ton'], ['yd', 'cubic yard']], 'ton'))}
+</div></details>`;
+const areaSet = (legend) => `<fieldset class="hgt-calc__set"><legend>${legend}</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another area</button></fieldset>`;
+const matOpts = () => Object.entries(GRAVEL.materials).map(([k, v]) => [k, v.name]);
+const gravelCard = (embed = false, p = {}) => calcShell('data-hgt-hard="gravel"', GRAVEL, `${areaSet('Area to cover')}
+<div class="hgt-calc__grid">
+${field('Material', selectIn('mat', matOpts(), p.mat || '57'))}
+${field('Depth (in)', numIn('depth', p.depth || 3, '0.5'))}
+</div>
+${gravelPrice()}`, embed);
+const drivewayCard = (embed = false) => calcShell('data-hgt-hard="driveway"', DRIVEWAY, `${areaSet('Driveway area')}
+<div class="hgt-calc__grid">
+${[[1, '3', 4, 'Base layer'], [2, '57', 4, 'Middle layer'], [3, 'crusher', 3, 'Top layer']].map(([i, m, d, l]) => `${field(`${l} stone`, selectIn(`m${i}`, matOpts(), m))}${field(`${l} depth (in)`, numIn(`d${i}`, d, '0.5'))}`).join('\n')}
+</div>
+${gravelPrice()}`, embed);
+
+const paverCard = (embed = false, p = {}) => calcShell('data-hgt-hard="paver"', PAVER, `${areaSet('Patio or path area')}
+<div class="hgt-calc__grid">
+${field('Paver size', selectIn('size', [...Object.entries(PAVER.pavers).map(([k, v]) => [k, v.name]), ['custom', 'Custom size…']], p.size || '6x9'))}
+${field('Laying pattern', selectIn('pattern', Object.entries(PAVER.patterns).map(([k, v]) => [k, `${v.name} (+${Math.round(v.waste * 100)}%)`]), 'stack'))}
+${field('Compacted base depth', selectIn('base', [[4, '4 in: patio or path, firm soil'], [6, '6 in: patio on clay or in frost areas'], [8, '8 in: driveway'], [12, '12 in: driveway on poor soil']], p.base || 4))}
+${field('Edge length (ft, blank = estimate)', numIn('per', '', '1', ' placeholder="auto"'))}
+</div>
+<div class="hgt-calc__grid" data-custom hidden>${field('Paver length (in)', numIn('pl', 8, '0.25'))}${field('Paver width (in)', numIn('pw', 4, '0.25'))}</div>
+<details class="hgt-calc__prices"><summary>Prices (edit to match your store)</summary><div class="hgt-calc__grid">
+${priceInput('pPaver', 'Per paver', 1.2)}${priceInput('pBase', 'Base gravel, per ton', 45)}${priceInput('pSand', 'Sand, 0.5 cu ft bag', 6)}${priceInput('pPoly', 'Polymeric sand, 50 lb', 35)}${priceInput('pEdge', 'Edge restraint, 8 ft', 12)}
+</div></details>`, embed);
+
+const poolVolumeFields = (p = {}) => `<div class="hgt-calc__grid">
+${field('Pool shape', selectIn('shape', [['rect', 'Rectangle'], ['round', 'Round'], ['oval', 'Oval'], ['kidney', 'Kidney / freeform'], ['known', 'I know my gallons']], p.shape || 'rect'))}
+<label class="hgt-calc__field" data-for="rect oval kidney"><span>Length (ft)</span>${numIn('len', p.len || 32, '0.5')}</label>
+<label class="hgt-calc__field" data-for="rect oval"><span>Width (ft)</span>${numIn('wid', p.wid || 16, '0.5')}</label>
+<label class="hgt-calc__field" data-for="round" hidden><span>Diameter (ft)</span>${numIn('dia', 24, '0.5')}</label>
+<label class="hgt-calc__field" data-for="kidney" hidden><span>Widest end A (ft)</span>${numIn('ka', 16, '0.5')}</label>
+<label class="hgt-calc__field" data-for="kidney" hidden><span>Narrow end B (ft)</span>${numIn('kb', 12, '0.5')}</label>
+<label class="hgt-calc__field" data-for="rect round oval kidney"><span>Shallow-end water depth (ft)</span>${numIn('shallow', p.shallow || 3.5, '0.25')}</label>
+<label class="hgt-calc__field" data-for="rect round oval kidney"><span>Deep-end water depth (ft)</span>${numIn('deep', p.deep || 6, '0.25')}</label>
+<label class="hgt-calc__field" data-for="known" hidden><span>Pool gallons</span>${numIn('known', 20000, '100')}</label>
+</div>`;
+const poolCard = (kind, embed = false) => {
+  let extra = '';
+  if (kind === 'volume') extra = `<div class="hgt-calc__grid">${field('Hose flow (gal per min)', numIn('gpm', POOL.hoseGpm, '0.5'))}</div>`;
+  if (kind === 'salt') extra = `<div class="hgt-calc__grid">${field('Current salt (ppm)', numIn('cur', 0, '50'))}${field('Target salt (ppm)', numIn('target', POOL.saltTarget, '50'))}${field('Bag size (lb)', selectIn('bag', [[40, '40 lb'], [50, '50 lb'], [25, '25 lb']], 40))}</div>`;
+  if (kind === 'shock') extra = `<div class="hgt-calc__grid">
+${field('Product', selectIn('product', Object.entries(POOL.products).map(([k, v]) => [k, v.name]), 'liq125'))}
+${field('Goal', selectIn('mode', [['raise', 'Routine shock: raise chlorine'], ['slam', 'Algae / SLAM: shock level for my CYA']], 'raise'))}
+<label class="hgt-calc__field" data-mode="raise"><span>Raise free chlorine by (ppm)</span>${numIn('raise', 10, '0.5')}</label>
+<label class="hgt-calc__field" data-mode="slam" hidden><span>Current free chlorine (ppm)</span>${numIn('fc', 2, '0.5')}</label>
+<label class="hgt-calc__field" data-mode="slam" hidden><span>Cyanuric acid, CYA (ppm)</span>${numIn('cya', 40, '5')}</label>
+</div>`;
+  return calcShell(`data-hgt-pool="${kind}"`, POOL, poolVolumeFields(kind === 'volume' ? {} : { shape: 'known' }) + extra, embed);
+};
+
+// One layout for every tool page in this batch: answer → tool → unique reference content → FAQ → links → sources.
+function toolPage({ path, name, title, description, h1, lede, answer, card, sections, faqs, sources, script, embedId }) {
+  const body = `
+<h1>${h1}</h1>
+<p class="hgt-lede">${lede}</p>
+<p class="hgt-meta">Free · No sign-up · Shows the math · Updated ${TOOLS_UPDATED}</p>
+<div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p>${answer}</p></div>
+${card}
+${sections}
+${faqBlock(faqs)}
+${embedId ? embedCta(embedId) : ''}
+${relatedTools(path)}
+<section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2><p>${sources}</p></section>`;
+  const schema = [{ ...appSchema(path, name, description), dateModified: TOOLS_UPDATED }, faqSchema(faqs)];
+  return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, name]], schema, scripts: [script] }) };
+}
+const table = (head, rows) => `<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr>${head.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>
+${rows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('\n')}
+</tbody></table></div>`;
+const inchFrac = (x) => { const s = Math.round(x * 16); const w = Math.floor(s / 16); let r = s % 16, d = 16; while (r && r % 2 === 0) { r /= 2; d /= 2; } return `${w || ''}${r ? `${w ? ' ' : ''}${r}/${d}` : w ? '' : '0'} in`; };
+const stairRow = (rise, tread = 10.5) => { const n = Math.ceil(rise / STAIRS.maxRiser - 1e-9), r = rise / n, run = (n - 1) * tread, len = Math.hypot(rise, run) + Math.hypot(r, tread); return { n, r, run, len }; };
+
+function stairPages() {
+  const ex = stairRow(108);
+  const rows = [24, 30, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144].map((h) => { const s = stairRow(h); return [`${h} in (${(h / 12).toFixed(1).replace('.0', '')} ft)`, s.n, inchFrac(s.r), s.n - 1, `${(s.run / 12).toFixed(1)} ft`, `${(s.len / 12).toFixed(1)} ft`]; });
+  const ref = `<h2>Stair dimensions for common heights</h2><p class="hgt-read">Using the ${STAIRS.maxRiser} in maximum riser and ${10.5} in treads. Treads are one fewer than risers because the top step is the floor or deck.</p>${table(['Total rise', 'Risers', 'Riser height', 'Treads', 'Total run', 'Stringer length'], rows)}`;
+  const code = `<section class="hgt-read"><h2>Residential stair code at a glance (IRC R311.7)</h2>${table(['Rule', 'Limit'], [['Riser height', `${STAIRS.maxRiser} in maximum`], ['Tread depth', `${STAIRS.minTread} in minimum (plus a ¾–1¼ in nosing when under 11 in)`], ['Riser and tread variation', 'No more than ⅜ in between the largest and smallest in a flight'], ['Stair width', `${STAIRS.minWidth} in minimum`], ['Headroom', '6 ft 8 in minimum'], ['Rise of one flight', `${STAIRS.maxFlight} in (12 ft 7 in) maximum, then a landing`], ['Handrail', 'Required with 4 or more risers, 34–38 in above the nosings']])}<p>Local codes can be stricter, and decks follow the deck guide (AWC DCA 6) for stringers. Comfort rule of thumb: <strong>2 × riser + tread ≈ 24–25 in</strong>.</p></section>`;
+  const faqsMain = [
+    ['How do I calculate the number of stairs I need?', `Measure the total rise from the finished lower floor (or ground) to the finished upper floor (or deck surface) in inches. Divide by ${STAIRS.maxRiser} in and round up: that is the number of risers. Divide the total rise by that number for the exact riser height. You need one fewer tread than risers. For 108 in of rise: 108 ÷ 7.75 = 13.9, so 14 risers of ${inchFrac(108 / 14)} and 13 treads.`],
+    ['What is the standard stair rise and run?', `U.S. residential code (IRC) allows risers up to ${STAIRS.maxRiser} in and treads at least ${STAIRS.minTread} in deep. Most comfortable stairs land around a 7 to 7 ½ in riser with a 10 ½ to 11 in tread, which follows the rule 2 × riser + tread = 24 to 25 in.`],
+    ['How long is the total run of a staircase?', 'Total run = number of treads × tread depth. With 13 treads of 10 ½ in, the stairs run 136.5 in, about 11 ft 4 in, measured horizontally from the top nosing to the bottom riser.'],
+    ['How many stringers do I need?', `Space cut stringers no more than ${STAIRS.maxSpacing} in apart for decks (AWC DCA 6), so a 36 in wide stair needs 3 stringers and a 48 in stair needs 4. Interior stairs with thick treads may allow wider spacing; check your code.`],
+    ['When do stairs need a landing?', `When one flight would rise more than ${STAIRS.maxFlight} in (12 ft 7 in), or where a door swings over the stairs. Landings must be at least as wide as the stairs and 36 in deep in the direction of travel.`],
+  ];
+  const faqsStringer = [
+    ['How do you calculate a stair stringer?', 'Find the riser height (total rise ÷ number of risers) and pick a tread depth. The stringer length is the hypotenuse: √(total rise² + total run²), plus one more step diagonal so the bottom bears fully on the ground or pad. Lay out each step with a framing square set to the riser and tread.'],
+    ['What length board do I need for stair stringers?', `Round the stringer length up to the next stock length (8, 10, 12, 14 or 16 ft). For a 108 in rise with 10 ½ in treads the stringer is about ${(ex.len / 12).toFixed(1)} ft, so buy ${STAIRS.lengths.find((l) => l * 12 >= ex.len)} ft 2×12s.`],
+    ['Why do you cut the bottom of a stair stringer shorter?', 'So every step is the same height once treads are on. The treads add their thickness to each step, so the bottom riser on the stringer is cut shorter by one tread thickness. The calculator shows this "bottom cut" for you.'],
+    ['How much wood should remain under a stringer cut?', `Keep at least ${STAIRS.minThroat} in of solid wood (the "throat") between the bottom edge and the inside corner of each cut, as the AWC deck guide requires for cut stringers. A 2×12 usually leaves 5 to 6 in; a 2×10 often does not.`],
+    ['Can I use 2×10 for stair stringers?', `Only if the throat stays at least ${STAIRS.minThroat} in, which with typical risers and treads it does not. 2×12 is the standard choice for cut stringers.`],
+  ];
+  const src = `Code limits from the <a href="${IRC_STAIR_URL}" rel="nofollow">2021 International Residential Code, section R311.7</a>; stringer spacing (${STAIRS.maxSpacing} in) and minimum throat (${STAIRS.minThroat} in) from the <a href="${DCA6_URL}" rel="nofollow">American Wood Council DCA 6 deck guide</a>. Board depths are actual sizes (2×12 = 11 ¼ in). Your local code and inspector have the final say.`;
+  const main = toolPage({
+    path: '/stair-calculator/', name: 'Stair Calculator', script: '/assets/stairs.js', embedId: 'stairs',
+    title: 'Stair Calculator: Rise, Run, Risers & Stringer Length',
+    description: 'Free stair calculator: number of risers and treads, riser height, total run, stringer length and angle, checked against the IRC stair code. Shows the math.',
+    h1: 'Stair Calculator', lede: 'Enter your total rise to get the number of steps, exact riser height, total run, stringer length and how many stringers to cut, with every result checked against the residential stair code.',
+    answer: `<strong>Risers = total rise ÷ ${STAIRS.maxRiser} in, rounded up. Riser height = total rise ÷ risers. Treads = risers − 1.</strong> A 9 ft (108 in) rise needs <strong>14 risers of ${inchFrac(108 / 14)} and 13 treads</strong>; with 10 ½ in treads the stairs run ${(ex.run / 12).toFixed(1)} ft and each stringer is about ${(ex.len / 12).toFixed(1)} ft long.`,
+    card: stairCard(), sections: ref + code, faqs: faqsMain, sources: src,
+  });
+  const stringer = toolPage({
+    path: '/stair-stringer-calculator/', name: 'Stair Stringer Calculator', script: '/assets/stairs.js', embedId: 'stairs',
+    title: 'Stair Stringer Calculator: Layout, Length & Cut List',
+    description: 'Free stair stringer calculator with layout diagram: riser and tread cuts, stringer length and board size, bottom cut, throat depth and number of stringers.',
+    h1: 'Stair Stringer Calculator', lede: 'Lay out and cut stair stringers right the first time: riser and tread marks, the bottom cut for tread thickness, board length to buy, wood left under the cuts and how many stringers you need.',
+    answer: `Set a framing square to the <strong>riser height</strong> and <strong>tread depth</strong> and step it along a 2×12 once per tread. <strong>Stringer length ≈ √(rise² + run²)</strong> plus one step. For a 36 in deck rise: 5 risers of 7 ³⁄₁₆ in, 4 treads of 11 in, a stringer about ${(stairRow(36, 11).len / 12).toFixed(1)} ft long, and 3 stringers for a 36 in wide stair.`,
+    card: stairCard(false, { rise: 36, tread: 11, thick: 1 }),
+    sections: `<section class="hgt-read"><h2>How to lay out and cut a stringer</h2><ol>
+<li><strong>Clamp stair gauges</strong> to a framing square: one at the riser height on the tongue, one at the tread depth on the blade.</li>
+<li><strong>Mark each step</strong> along the crown edge of a straight 2×12, sliding the square so the gauges touch the edge each time.</li>
+<li><strong>Cut the bottom short</strong> by one tread thickness (the "bottom cut" above) so the first step isn't taller than the rest.</li>
+<li><strong>Cut with a circular saw, finish with a handsaw</strong> so you don't over-cut the inside corners and weaken the throat.</li>
+<li><strong>Use the first stringer as a template</strong> for the others, then check it on site before cutting the rest.</li>
+</ol></section>${ref}`, faqs: faqsStringer, sources: src,
+  });
+  return [main, stringer];
+}
+
+function gravelPages() {
+  const M = GRAVEL.materials;
+  const cov = (d) => Math.round(324 / d);
+  const depthRows = [[2, 'Pea gravel on paths over fabric'], [3, 'Paths, patios, play areas, decorative beds'], [4, 'Light-use parking pads, drainage trenches'], [6, 'Driveway base on firm soil'], [12, 'Full three-layer driveway']].map(([d, use]) => [`${d} in`, `${cov(d)} sq ft`, '1.4 tons', use]);
+  const matRows = Object.values(M).map((m) => [m.name, `${m.tpy} tons`, `${fmtInt(m.tpy * 2000)} lb`, `${Math.round(m.tpy * 2000 / 27 * GRAVEL.bagCuft)} lb`]);
+  const src = (extra = '') => `Densities are typical supplier figures for dry material (1.35–1.5 tons per cubic yard); wet, washed or very coarse stone can differ, so check your yard's number. Crusher run adds 15% for compaction. Bags are ${GRAVEL.bagCuft} cu ft. ${extra}Prices are placeholders to edit.`;
+  const sizeRows = (mat, depth) => [[10, 10], [10, 20], [20, 20], [10, 50], [12, 100]].map(([w, l]) => { const yd = w * l * depth / 12 / 27; return [`${w} × ${l} ft`, `${(Math.ceil(yd * 10) / 10).toFixed(1)} cu yd`, `${(Math.ceil(yd * M[mat].tpy * 10) / 10).toFixed(1)} tons`, fmtInt(Math.ceil(yd * 27 / GRAVEL.bagCuft))]; });
+
+  const main = toolPage({
+    path: '/gravel-calculator/', name: 'Gravel Calculator', script: '/assets/hardscape.js', embedId: 'gravel',
+    title: 'Gravel Calculator: Cubic Yards, Tons & Bags by Stone Type',
+    description: 'Free gravel calculator: how many cubic yards, tons or bags of gravel you need for any shape and depth, by stone type (pea gravel, #57, crusher run, river rock).',
+    h1: 'Gravel Calculator', lede: 'How much gravel to order, in cubic yards, tons and bags, for any shape and depth. Pick the stone, because pea gravel, #57, crusher run and river rock weigh differently.',
+    answer: `<strong>Cubic yards = length × width (ft) × depth (in) ÷ 324.</strong> <strong>Tons = cubic yards × about 1.4</strong> for most gravel (1.5 for crusher run). One cubic yard covers <strong>108 sq ft at 3 in deep</strong>, 81 sq ft at 4 in. A 10 × 20 ft area at 3 in needs 1.9 cu yd, about 2.6 tons.`,
+    card: gravelCard(),
+    sections: `<h2>How far a cubic yard of gravel goes</h2>${table(['Depth', 'Coverage per cu yd', 'Weight per cu yd', 'Typical use'], depthRows)}
+<h2>Gravel weight by type</h2>${table(['Stone', 'Tons per cu yd', 'Pounds per cu yd', 'Per ½ cu ft bag'], matRows)}
+<h2>Gravel for common sizes (3 in deep, #57 stone)</h2>${table(['Area', 'Cubic yards', 'Tons', 'Bags'], sizeRows('57', 3))}`,
+    faqs: [
+      ['How do I calculate how much gravel I need?', 'Multiply length × width in feet to get square feet, multiply by the depth in inches, and divide by 324 to get cubic yards. Multiply cubic yards by the stone\'s density (about 1.4 tons per yard) to get tons. Add 5–10% if the ground is uneven.'],
+      ['How many tons of gravel are in a cubic yard?', 'About 1.4 tons (2,800 lb) for most crushed stone and pea gravel, about 1.5 tons for crusher run with fines, and 1.35 tons for river rock. Suppliers sell by the ton or the yard, so ask which.'],
+      ['How much area does a ton of gravel cover?', 'At 3 in deep, a ton of crushed stone (≈ 0.71 cu yd) covers about 77 sq ft; at 2 in it covers about 116 sq ft.'],
+      ['How many bags of gravel equal a yard?', `54 bags of ${GRAVEL.bagCuft} cu ft make one cubic yard. Bags are convenient under about 1 cu yd; beyond that, bulk delivery is usually far cheaper per ton.`],
+      ['How deep should gravel be?', '2–3 in for walkways and decorative beds, 3–4 in for patios and play areas, and 4–6 in or more in layers for driveways. Use landscape fabric underneath to keep gravel from sinking into soil.'],
+    ],
+    sources: src(),
+  });
+
+  const pea = toolPage({
+    path: '/pea-gravel-calculator/', name: 'Pea Gravel Calculator', script: '/assets/hardscape.js', embedId: 'gravel',
+    title: 'Pea Gravel Calculator: Yards, Tons & Bags for Any Area',
+    description: 'Free pea gravel calculator for paths, patios, dog runs and play areas: cubic yards, tons and 0.5 cu ft bags for any shape, with depth guidance and cost.',
+    h1: 'Pea Gravel Calculator', lede: 'How much pea gravel you need for a path, patio, dog run, fire pit area or playground, in cubic yards, tons and bags, with the right depth for each use.',
+    answer: `<strong>Pea gravel (cu yd) = sq ft × depth (in) ÷ 324</strong>, and it weighs about <strong>1.4 tons per cubic yard</strong>. Use 2–3 in for paths and patios and 3 in or more for play areas. A 10 × 10 ft patio at 3 in needs 0.9 cu yd (1.3 tons, or 50 bags of 0.5 cu ft).`,
+    card: gravelCard(false, { mat: 'pea', depth: 3 }),
+    sections: `<h2>Pea gravel depth by use</h2>${table(['Use', 'Depth', 'Coverage per cu yd', 'Tip'], [['Garden path', '2–3 in', '108–162 sq ft', 'Edge it so stones stay put'], ['Patio or fire pit area', '3 in', '108 sq ft', 'Use a stabilizer grid for chairs'], ['Dog run', '3 in', '108 sq ft', 'Rounded stone is easy on paws'], ['Playground', 'Check CPSC guidance', 'n/a', 'Fall zones need loose fill rated for the play structure height'], ['Drainage around foundations', '3–4 in', '81–108 sq ft', 'Over fabric, sloped away from the house']])}
+<h2>Pea gravel for common sizes (3 in deep)</h2>${table(['Area', 'Cubic yards', 'Tons', 'Bags (0.5 cu ft)'], sizeRows('pea', 3))}`,
+    faqs: [
+      ['How much pea gravel do I need?', 'Multiply the area in square feet by the depth in inches and divide by 324 for cubic yards. A 100 sq ft patio at 3 in needs 0.93 cu yd. Pea gravel weighs about 1.4 tons per cubic yard, so that is about 1.3 tons.'],
+      ['How many bags of pea gravel per square foot?', 'At 2 in deep, one 0.5 cu ft bag covers 3 sq ft; at 3 in it covers 2 sq ft. That is why areas over about 50 sq ft are cheaper with bulk delivery.'],
+      ['How deep should pea gravel be for a patio?', 'About 3 in over compacted base and landscape fabric. Deeper pea gravel shifts underfoot; for chairs and tables, a plastic stabilizer grid under 1–2 in of pea gravel stays flatter.'],
+      ['How much does a cubic yard of pea gravel weigh?', 'About 2,800 lb (1.4 tons) dry. Wet or washed pea gravel can weigh a little more.'],
+      ['Is pea gravel good for a dog run?', 'Yes. Rounded pea gravel is comfortable for paws, drains quickly and is easy to rinse. Lay about 3 in over fabric and edge it so it doesn\'t migrate.'],
+    ],
+    sources: src('Playground depths should follow the U.S. Consumer Product Safety Commission Public Playground Safety Handbook for the fall height of your equipment. '),
+  });
+
+  const drive = toolPage({
+    path: '/driveway-gravel-calculator/', name: 'Driveway Gravel Calculator', script: '/assets/hardscape.js', embedId: 'driveway',
+    title: 'Driveway Gravel Calculator: Tons per Layer (Base, Middle, Top)',
+    description: 'Free gravel driveway calculator: tons and cubic yards of stone for each layer (#3 base, #57 middle, crusher run top), plus fabric and cost, for any driveway size.',
+    h1: 'Driveway Gravel Calculator', lede: 'A gravel driveway is built in layers, and each layer is a different stone. Get the tons and cubic yards for the base, middle and top layers in one go.',
+    answer: `A typical gravel driveway is <strong>about 11–12 in of stone in three layers</strong>: 4 in of large #3 stone, 4 in of #57, and 3–4 in of crusher run on top. A 10 × 50 ft driveway with 4 + 4 + 3 in needs roughly <strong>${(() => { let t = 0; [[3, 4], [57, 4], ['crusher', 3]].forEach(([m, d]) => { const mm = M[m]; t += 500 * d / 12 * (1 + (mm.compact || 0)) / 27 * mm.tpy; }); return t.toFixed(0); })()} tons</strong> of stone in total.`,
+    card: drivewayCard(),
+    sections: `<h2>Driveway layers explained</h2>${table(['Layer', 'Stone', 'Depth', 'Job'], [['Base', '#3 stone (1–2 in)', '4–6 in', 'Spreads the load and lets water drain'], ['Middle', '#57 stone (¾–1 in)', '4 in', 'Locks into the base and fills gaps'], ['Top', 'Crusher run / #411 with fines', '2–4 in', 'Packs into a smooth, hard driving surface']])}
+<h2>Total stone for common driveway sizes (4 + 4 + 3 in)</h2>${table(['Driveway', 'Tons', 'Cubic yards'], [[10, 30], [10, 50], [12, 50], [12, 100], [20, 40]].map(([w, l]) => { let t = 0, y = 0; [[3, 4], [57, 4], ['crusher', 3]].forEach(([m, d]) => { const mm = M[m]; const yd = w * l * d / 12 * (1 + (mm.compact || 0)) / 27; y += yd; t += yd * mm.tpy; }); return [`${w} × ${l} ft`, t.toFixed(1), y.toFixed(1)]; }))}
+<p class="hgt-read">Ordering more than about 13 tons? That is usually more than one tandem dump-truck load; ask your supplier about delivery minimums and split loads.</p>`,
+    faqs: [
+      ['How much gravel do I need for a driveway?', 'Multiply length × width in feet by the depth of each layer in inches, divide by 324 for cubic yards, and multiply by about 1.4 tons per yard (1.5 for crusher run). Add the layers. A 10 × 50 ft driveway at 11 in total needs roughly 23–25 tons.'],
+      ['What is the best gravel for a driveway?', 'Angular crushed stone, not rounded pea gravel or river rock, because angular stones lock together. Use large #3 stone at the bottom, #57 in the middle and crusher run (#411) with fines on top.'],
+      ['How deep should a gravel driveway be?', 'About 8–12 in of stone in total over compacted subgrade and woven geotextile fabric. Soft or clay soils need the deeper end; a refresh of an existing driveway may only need 2–3 in on top.'],
+      ['How many tons of gravel does a dump truck hold?', 'A tandem-axle dump truck typically carries about 10–15 tons, and a single-axle truck about 5–7 tons. Your supplier will tell you their load sizes and minimums.'],
+      ['Do I need fabric under a gravel driveway?', 'It is strongly recommended. Woven geotextile keeps the base stone from sinking into soft soil, so the driveway needs far less topping up over the years.'],
+    ],
+    sources: src(),
+  });
+  return [main, pea, drive];
+}
+
+function poolPages() {
+  const g = (l, w, d) => l * w * d * POOL.galPerCuft;
+  const rectRows = [[12, 24], [14, 28], [16, 32], [18, 36], [20, 40]].map(([w, l]) => [`${w} × ${l} ft`, fmtInt(Math.round(g(l, w, 4.5) / 100) * 100), fmtInt(Math.round(g(l, w, 4.5) * POOL.litersPerGal / 100) * 100)]);
+  const roundRows = [12, 15, 18, 21, 24, 27, 30].map((d) => [`${d} ft round`, fmtInt(Math.round(d * d * 4 * POOL.round / 100) * 100), fmtInt(Math.round(d * d * 4.5 * POOL.round / 100) * 100)]);
+  const saltRows = [5000, 10000, 15000, 20000, 25000, 30000, 40000].map((gal) => { const lb = gal * 8.34 * POOL.saltTarget / 1e6; return [fmtInt(gal), fmtInt(Math.round(lb)), Math.ceil(lb / 40)]; });
+  const shockRows = Object.values(POOL.products).map((p) => { const a = p.liquid ? 10000 * 10 / (p.strength * 10000) : 10000 * 8.34 * 10 / (1e6 * p.strength / 100); return [p.name, p.liquid ? `${a.toFixed(2)} gal` : `${a.toFixed(2)} lb`, p.cya ? `+${(10 * p.cya).toFixed(0)} ppm CYA` : p.ca ? `+${(10 * p.ca).toFixed(0)} ppm calcium` : 'Adds a little salt only']; });
+  const volSrc = `Volume formulas use 7.48 gallons per cubic foot; round and oval pools use π/4 × 7.48 ≈ ${POOL.round}; kidney pools use the industry approximation (A + B) × length × depth × ${POOL.kidney}. Real pools with steps, benches and sloped floors vary by a few percent.`;
+
+  const vol = toolPage({
+    path: '/pool-volume-calculator/', name: 'Pool Volume Calculator', script: '/assets/pool.js', embedId: 'pool-volume',
+    title: 'Pool Volume Calculator: How Many Gallons Is My Pool?',
+    description: 'Free pool volume calculator: gallons and liters for rectangle, round, oval and kidney pools with shallow and deep ends, plus fill time, salt and shock doses.',
+    h1: 'Pool Volume Calculator', lede: 'How many gallons your pool holds, for rectangle, round, oval and kidney shapes with a shallow and deep end, plus how long it takes to fill and the salt and shock doses that go with it.',
+    answer: `<strong>Rectangle: length × width × average depth × 7.48. Round: diameter² × average depth × ${POOL.round}. Oval: length × width × average depth × ${POOL.round}.</strong> Average depth = (shallow + deep) ÷ 2. A 16 × 32 ft pool, 3.5 to 6 ft deep, holds about <strong>${fmtInt(Math.round(g(32, 16, 4.75) / 100) * 100)} gallons</strong>; a 24 ft round above-ground pool with 4 ft of water holds about ${fmtInt(Math.round(24 * 24 * 4 * POOL.round / 100) * 100)}.`,
+    card: poolCard('volume'),
+    sections: `<h2>Gallons in common in-ground pools (4.5 ft average depth)</h2>${table(['Size', 'Gallons', 'Liters'], rectRows)}
+<h2>Gallons in round above-ground pools</h2>${table(['Pool', '48 in water depth', '54 in water depth'], roundRows)}`,
+    faqs: [
+      ['How do I calculate how many gallons are in my pool?', `Measure length, width and the water depth at the shallow and deep ends in feet. Average the depths, then multiply length × width × average depth × 7.48 for a rectangle, or diameter² × depth × ${POOL.round} for a round pool.`],
+      ['How many gallons is a 24 ft round pool?', `With 4 ft of water, about ${fmtInt(Math.round(24 * 24 * 4 * POOL.round / 100) * 100)} gallons; with 4.5 ft, about ${fmtInt(Math.round(24 * 24 * 4.5 * POOL.round / 100) * 100)} gallons.`],
+      ['How many gallons is a 16 × 32 pool?', `About ${fmtInt(Math.round(g(32, 16, 4.75) / 100) * 100)} gallons with a 3.5 ft shallow end and 6 ft deep end (4.75 ft average), or about ${fmtInt(Math.round(g(32, 16, 4.5) / 100) * 100)} at a 4.5 ft average.`],
+      ['How long does it take to fill a pool with a garden hose?', `A garden hose delivers roughly ${POOL.hoseGpm} gallons per minute, about 540 gallons an hour, so a 20,000 gallon pool takes around 37 hours. Time a 5 gallon bucket to measure your hose's real flow.`],
+      ['Why does pool volume matter?', 'Every chemical dose, from chlorine and shock to salt, pH and alkalinity adjusters, is calculated per gallon. Getting the volume right is the first step to balanced water.'],
+    ],
+    sources: volSrc,
+  });
+
+  const salt = toolPage({
+    path: '/pool-salt-calculator/', name: 'Pool Salt Calculator', script: '/assets/pool.js', embedId: 'pool-salt',
+    title: 'Pool Salt Calculator: How Much Salt to Add (lb & Bags)',
+    description: 'Free pool salt calculator: pounds and 40 lb bags of salt to reach your salt chlorine generator\'s target ppm, or how much water to drain if salt is too high.',
+    h1: 'Pool Salt Calculator', lede: 'How many pounds and bags of salt to add to reach your chlorine generator\'s target, from a fresh fill or a low test reading, and how much water to replace if the salt is too high.',
+    answer: `<strong>Salt (lb) = gallons × 8.34 × (target ppm − current ppm) ÷ 1,000,000.</strong> Raising 10,000 gallons by 100 ppm takes about 8.3 lb. Starting a 20,000 gallon pool from 0 to ${fmtInt(POOL.saltTarget)} ppm takes about <strong>${fmtInt(Math.round(20000 * 8.34 * POOL.saltTarget / 1e6))} lb (${Math.ceil(20000 * 8.34 * POOL.saltTarget / 1e6 / 40)} bags of 40 lb)</strong>.`,
+    card: poolCard('salt'),
+    sections: `<h2>Salt needed for a new salt pool (0 → ${fmtInt(POOL.saltTarget)} ppm)</h2>${table(['Pool gallons', 'Salt (lb)', '40 lb bags'], saltRows)}
+<section class="hgt-read"><h2>How to add salt</h2><ol><li>Test salt with strips or a meter; generator readouts drift.</li><li>Turn the generator off, run the pump, and pour salt around the deep end.</li><li>Brush undissolved salt toward the drain; wait 24 hours, then retest.</li><li>Add the last quarter only after the retest, because salt is easy to add and hard to remove.</li></ol></section>`,
+    faqs: [
+      ['How much salt do I need for my pool?', `Multiply gallons × 8.34 × the ppm you need to add, then divide by 1,000,000. Most chlorine generators want about 2,700–3,400 ppm, with ${fmtInt(POOL.saltTarget)} a common ideal. A new 15,000 gallon pool needs about ${fmtInt(Math.round(15000 * 8.34 * POOL.saltTarget / 1e6))} lb.`],
+      ['How many bags of salt for a 20,000 gallon pool?', `About ${Math.ceil(20000 * 8.34 * POOL.saltTarget / 1e6 / 40)} bags of 40 lb to go from 0 to ${fmtInt(POOL.saltTarget)} ppm. To raise it by 500 ppm, about 83 lb, or 3 bags.`],
+      ['What happens if there is too much salt in the pool?', 'Very high salt can trigger a generator\'s high-salt shutdown and taste noticeably salty. Salt does not evaporate, so the only fix is to drain part of the water and refill; the calculator shows what percentage to replace.'],
+      ['What kind of salt should I use?', 'At least 99% pure sodium chloride sold for pools, without anti-caking agents or iodine. Pool salt dissolves quickly and doesn\'t stain.'],
+      ['How often do you add salt to a pool?', 'Only when testing shows it is low, typically after heavy rain, backwashing or splash-out. Salt isn\'t used up by chlorination, so a well-kept pool may need only a few bags a season.'],
+    ],
+    sources: `Formula: 1 gallon of water weighs 8.34 lb, and ppm is parts per million by weight. Target ranges follow salt chlorine generator manuals, such as <a href="${HAYWARD_URL}" rel="nofollow">Hayward AquaRite</a> (2,700–3,400 ppm, ideal ${fmtInt(POOL.saltTarget)}); always use your generator's range. ${volSrc}`,
+  });
+
+  const shock = toolPage({
+    path: '/pool-shock-calculator/', name: 'Pool Shock Calculator', script: '/assets/pool.js', embedId: 'pool-shock',
+    title: 'Pool Shock Calculator: Cal-Hypo, Dichlor & Liquid Chlorine',
+    description: 'Free pool shock calculator: how much cal-hypo, dichlor, liquid chlorine or bleach to raise free chlorine, including the SLAM shock level for your CYA.',
+    h1: 'Pool Shock Calculator', lede: 'How much shock to add for your pool size and product, for a routine boost or to clear algae at the right shock level for your stabilizer (CYA), with what each product adds to your water.',
+    answer: `To raise free chlorine by 10 ppm in 10,000 gallons you need about <strong>1.3 lb of 65% cal-hypo, 1.5 lb of dichlor, or 0.8 gal of 12.5% liquid chlorine</strong>. For algae, hold free chlorine at about <strong>40% of your CYA</strong> (16 ppm at 40 ppm CYA) until the water clears.`,
+    card: poolCard('shock'),
+    sections: `<h2>Shock dose per 10,000 gallons (+10 ppm free chlorine)</h2>${table(['Product', 'Amount', 'Side effect'], shockRows)}
+<section class="hgt-read"><h2>Choosing a shock</h2><ul><li><strong>Liquid chlorine</strong> adds no stabilizer or calcium, so it's the cleanest choice for regular shocking.</li><li><strong>Cal-hypo</strong> stores well but raises calcium hardness; avoid it in hard-water areas.</li><li><strong>Dichlor</strong> dissolves fast but raises CYA by about 0.9 ppm for every 1 ppm of chlorine, which makes later shocks weaker.</li><li>Shock at dusk, with the pump running, and keep swimmers out until free chlorine falls below about 10 ppm.</li></ul></section>`,
+    faqs: [
+      ['How much shock do I need for my pool?', 'For a routine shock, raise free chlorine by about 10 ppm. In 10,000 gallons that takes about 1.3 lb of 65% cal-hypo or 0.8 gallon of 12.5% liquid chlorine. Scale it to your volume: twice the water, twice the shock.'],
+      ['How much liquid chlorine to shock a pool?', 'About 0.8 gallon of 12.5% liquid chlorine per 10,000 gallons raises free chlorine by 10 ppm. For a 20,000 gallon pool that is about 1.6 gallons.'],
+      ['What is the SLAM method?', 'SLAM (Shock Level And Maintain) means raising free chlorine to a shock level tied to your stabilizer, about 40% of CYA, and holding it there with repeated doses until the water is clear, chlorine holds overnight and the water tests clear for combined chlorine. It is popularized by the Trouble Free Pool community.'],
+      ['How many bags of shock per gallon of water?', 'One 1 lb bag of 65% cal-hypo raises 10,000 gallons by about 7.8 ppm. Product labels often say "1 bag per 10,000 gallons", which is a light shock; algae needs more.'],
+      ['How long after shocking can you swim?', 'When free chlorine is back below about 10 ppm, typically the next day for a routine shock. During SLAM, stay out while chlorine is held at shock level.'],
+    ],
+    sources: `Doses use available chlorine by weight for dry products and trade percentage (weight per volume) for liquids: 12.5% liquid supplies 125,000 mg/L. CYA and calcium side effects and the FC/CYA shock ratio follow <a href="${TFP_URL}" rel="nofollow">Trouble Free Pool</a> guidance. Always read the product label and add chemicals separately, never mixed. ${volSrc}`,
+  });
+  return [vol, salt, shock];
+}
+
+function paverPages() {
+  const P = PAVER;
+  const perSq = Object.values(P.pavers).map((p) => [p.name, (144 / (p.l * p.w)).toFixed(2), fmtInt(Math.ceil(100 * 144 / (p.l * p.w) * 1.05))]);
+  const baseRows = [[100, 4], [144, 4], [200, 4], [300, 6], [400, 6], [500, 8]].map(([a, d]) => { const per = 4 * Math.sqrt(a); const yd = (a + per * 0.5) * d / 12 * 1.2 / 27; const sand = Math.ceil(a / 12 / 0.5); return [`${a} sq ft`, `${d} in`, `${(yd * P.baseTpy).toFixed(1)} tons`, `${sand} bags`]; });
+  const src = `Base and sand depths follow interlocking concrete paver practice published by the <a href="${CMHA_HOME}" rel="nofollow">Concrete Masonry and Hardscapes Association</a> (formerly ICPI): 4–6 in of compacted aggregate for patios and walkways, 8–12 in for driveways, 1 in of screeded bedding sand. The base extends ${P.baseOverhang} in past the edges and adds ${P.compact * 100}% for compaction; base gravel is ${P.baseTpy} tons per cu yd. Polymeric sand coverage varies with joint width and paver shape; read your bag. Prices are placeholders to edit.`;
+  const main = toolPage({
+    path: '/paver-calculator/', name: 'Paver Calculator', script: '/assets/hardscape.js', embedId: 'paver',
+    title: 'Paver Calculator: Pavers, Base Gravel, Sand & Edging',
+    description: 'Free paver calculator: how many pavers for your patio or walkway by size and pattern, plus base gravel, bedding sand, polymeric sand, edge restraint and cost.',
+    h1: 'Paver Calculator', lede: 'Everything to order for a paver patio, walkway or driveway: pavers by size and pattern, compacted base gravel, bedding sand, polymeric joint sand and edge restraint, for any shape.',
+    answer: `<strong>Pavers = area (sq ft) ÷ one paver's area (sq ft), plus 5% (10–15% for herringbone or diagonal).</strong> 4 × 8 in pavers need 4.5 per sq ft; 6 × 9 in need 2.67; 12 × 12 in need 1. A 12 × 12 ft patio takes ${Math.ceil(144 / (54 / 144) * 1.05)} pavers of 6 × 9 in, about ${((144 + 48 * 0.5) * 4 / 12 * 1.2 / 27 * P.baseTpy).toFixed(1)} tons of base at 4 in and ${Math.ceil(144 / 12 / 0.5)} bags of bedding sand.`,
+    card: paverCard(),
+    sections: `<h2>Pavers per square foot by size</h2>${table(['Paver', 'Per sq ft', 'Per 100 sq ft (+5%)'], perSq)}
+<h2>Waste allowance by pattern</h2>${table(['Pattern', 'Extra to order', 'Why'], Object.values(P.patterns).map((p) => [p.name, `${p.waste * 100}%`, p.waste > 0.1 ? 'Every edge paver is cut at an angle' : p.waste > 0.05 ? 'More cuts along the borders' : 'Cuts only at the ends of rows']))}`,
+    faqs: [
+      ['How many pavers do I need?', 'Divide your patio area in square feet by the area of one paver in square feet (length × width in inches ÷ 144), then add 5% for cuts, or 10–15% for herringbone or diagonal patterns.'],
+      ['How many pavers per square foot?', '4.5 for 4 × 8 in brick pavers, 4 for 6 × 6 in, 2.67 for 6 × 9 in, 1 for 12 × 12 in, 0.56 for 16 × 16 in and 0.25 for 24 × 24 in.'],
+      ['How much base do I need under pavers?', 'About 4 in of compacted crushed stone for patios and walkways on firm soil, 6 in on clay or in cold climates, and 8–12 in for driveways, with 1 in of sand on top. See the paver base calculator for tons.'],
+      ['How much polymeric sand do I need?', 'A 50 lb bag typically fills the joints of about 30–80 sq ft, depending on joint width and paver size: narrow joints between large pavers use far less than wide joints between tumbled bricks.'],
+      ['How much do pavers cost for a 12 × 12 patio?', 'Enter your local paver and material prices in the calculator. Materials for 144 sq ft are usually a few hundred dollars; professional installation adds labor for excavation, base compaction and cutting.'],
+    ],
+    sources: src,
+  });
+  const base = toolPage({
+    path: '/paver-base-calculator/', name: 'Paver Base Calculator', script: '/assets/hardscape.js', embedId: 'paver',
+    title: 'Paver Base Calculator: Gravel & Sand Under Pavers (Tons)',
+    description: 'Free paver base calculator: tons of compacted base gravel and bags of bedding sand under a patio, walkway or driveway, with the right depth for your soil and use.',
+    h1: 'Paver Base Calculator', lede: 'How much base gravel and bedding sand to put under pavers, with the right depth for patios, walkways and driveways, compaction included, plus the pavers themselves if you need them.',
+    answer: `Use <strong>4 in of compacted base for patios and walkways</strong> (6 in on clay or in frost areas), <strong>8–12 in for driveways</strong>, and <strong>1 in of bedding sand</strong>. Base tons ≈ (area + 6 in beyond the edges) × depth ÷ 12 × 1.2 for compaction ÷ 27 × ${P.baseTpy}. A 12 × 12 ft patio at 4 in needs about ${((144 + 48 * 0.5) * 4 / 12 * 1.2 / 27 * P.baseTpy).toFixed(1)} tons of base and ${Math.ceil(144 / 12 / 0.5)} bags of sand.`,
+    card: paverCard(false, { base: 4 }),
+    sections: `<h2>Base and sand for common patio sizes</h2>${table(['Area', 'Base depth', 'Base gravel', 'Bedding sand (0.5 cu ft)'], baseRows)}
+<section class="hgt-read"><h2>Building a base that won't sink</h2><ol><li>Dig out the base depth + 1 in of sand + the paver thickness, and extend the dig 6 in past the edges.</li><li>Compact the soil, lay geotextile fabric on soft or clay soils.</li><li>Spread base in 2–3 in lifts and compact each with a plate compactor, sloping ⅛–¼ in per foot away from the house.</li><li>Screed 1 in of concrete sand over pipes; don't compact it before laying pavers.</li></ol></section>`,
+    faqs: [
+      ['How much base do I need for pavers?', `Multiply the area (plus 6 in past the edges) by the base depth in feet and add about 20% for compaction. For a 12 × 12 ft patio at 4 in that is about ${((144 + 24) * 4 / 12 * 1.2 / 27).toFixed(1)} cu yd, roughly ${((144 + 24) * 4 / 12 * 1.2 / 27 * PAVER.baseTpy).toFixed(1)} tons of crushed stone.`],
+      ['How thick should paver base be?', '4 in compacted for walkways and patios on stable soil, 6 in on clay or where the ground freezes hard, and 8–12 in for driveways.'],
+      ['How much sand goes under pavers?', 'A consistent 1 in screeded layer of coarse concrete sand. More than that lets pavers rock and rut. One 0.5 cu ft bag covers about 6 sq ft at 1 in.'],
+      ['What is the best base material for pavers?', 'Crushed angular stone with fines (sold as paver base, ¾ in minus, crusher run or road base), which compacts hard. Avoid pea gravel or round stone under pavers.'],
+      ['Can I put pavers directly on dirt?', 'Not for a lasting patio. Without a compacted base, pavers settle unevenly and heave with frost. Small stepping stones in a garden are the exception.'],
+    ],
+    sources: src,
+  });
+  return [main, base];
+}
 
 // ---------- main ----------
 async function write(path, content) {
@@ -1181,6 +1587,9 @@ async function main() {
   CSS = (await readFile('site-src/assets/site.css', 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s*\n\s*/g, '').replace(/\s*([{};,>])\s*/g, '$1');
   const byState = {};
   for (const s of stations) (byState[s.st] ||= []).push(s);
+  for (const f of await readdir('site-src/assets/og').catch(() => [])) {
+    if (f.endsWith('.jpg')) OG_IMAGES[`/${f.replace(/\.jpg$/, '')}/`] = `/assets/og/${f}`;
+  }
   const { zoneMeta, zoneStates, usCounts } = await loadZones(stations);
   const meta = { ...fmeta, byState, csvBytes: csv.length, zoneMeta, zoneStates };
 
@@ -1210,7 +1619,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -1245,6 +1654,7 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
+${[...BATCH1_TOOLS, ...BATCH1_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
 - [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
 - [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
