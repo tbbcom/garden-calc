@@ -51,6 +51,6 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 
 **Share images:** `node scripts/make-og.mjs` (local, needs Playwright) renders `site-src/assets/og/<slug>.jpg` (each tool's og:image) and Pinterest pins in `site-src/assets/pins/`. Re-run it after adding a tool.
 
-**IndexNow:** after each deploy, the `indexnow` job sends every sitemap URL to IndexNow (Bing and others) using the key file `/<INDEXNOW_KEY>.txt` written by the build. Nothing to set up.
+**IndexNow:** each build writes `/page-hashes.json` (a content hash per page). The deploy compares it with the live copy and, after the Cloudflare purge, sends only the changed URLs to IndexNow (Bing, Yandex, Seznam, Naver) using the key file `/<INDEXNOW_KEY>.txt`. Nothing to set up. Google doesn't use IndexNow; it reads the sitemap in Search Console.
 
 **Local preview:** `node scripts/build-site.mjs && cd _site && python3 -m http.server`
