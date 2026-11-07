@@ -30,6 +30,8 @@ const GTM_ID = /^GTM-[A-Z0-9]{4,12}$/.test(GTM_RAW) ? GTM_RAW : '';
 const GA4_ID = /^G-[A-Z0-9]{6,14}$/.test(GTM_RAW) ? GTM_RAW : '';
 if (GTM_RAW && !GTM_ID && !GA4_ID) console.warn(`::warning::GTM_ID "${GTM_RAW}" is neither GTM-XXXXXXX nor G-XXXXXXXXXX, so no analytics was added`);
 console.log(GTM_ID ? `Google Tag Manager: ${GTM_ID}` : GA4_ID ? `Google Analytics 4 (direct): ${GA4_ID}` : 'Analytics: not configured');
+// Pinterest website claim: the code from Pinterest → Settings → Claimed accounts → Website (HTML tag), set as the PINTEREST_VERIFY repository variable.
+const PINTEREST_VERIFY = /^[a-f0-9]{16,64}$/i.test((process.env.PINTEREST_VERIFY || '').trim()) ? process.env.PINTEREST_VERIFY.trim() : '';
 const EFFECTIVE = 'October 29, 2026';
 // EEA, UK and Switzerland: analytics and ad storage stay denied until the visitor consents (Consent Mode v2).
 const CONSENT_REGIONS = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 'IS', 'LI', 'NO', 'GB', 'CH'];
@@ -146,6 +148,7 @@ ${noindex ? '<meta name="robots" content="noindex">' : '<meta name="robots" cont
 <meta property="og:image:alt" content="${esc(title)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#247b49">
+${PINTEREST_VERIFY ? `<meta name="p:domain_verify" content="${PINTEREST_VERIFY}">` : ''}
 <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/icon-192.png">
 <link rel="manifest" href="/manifest.webmanifest">
@@ -403,7 +406,7 @@ ${relatedTools(path)}
 function homePage(meta) {
   const path = '/';
   const title = 'Free Garden Tools and Calculators | Home Garden Lot';
-  const description = `Free home and garden calculators: stairs, gravel, pavers, pool volume, salt and shock, sod, grass seed, concrete block, plus frost dates and hardiness zones by ZIP.`;
+  const description = `Free home and garden calculators: deck, fence, stairs, tile, drywall, gravel, pavers, pool, sod and grass seed, plus frost dates and hardiness zones by ZIP.`;
   const card = ([icon, name, url, text], tag = '') => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}${tag ? `<span class="hgt-tool__tag">${tag}</span>` : ''}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`;
   const body = `
 <h1>Free garden tools, built on real data</h1>
@@ -420,6 +423,10 @@ ${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calcu
 <h2 id="calculators">Most-used calculators</h2>
 <div class="hgt-grid">
 ${BATCH1_TOOLS.map((t) => card(t, 'New')).join('\n')}
+</div>
+<h2>Deck, fence, tile and drywall calculators</h2>
+<div class="hgt-grid">
+${[...BATCH2_TOOLS, ...BATCH2_VARIANTS].map((t) => card(t, 'New')).join('\n')}
 </div>
 <h2>More hardscape and pool calculators</h2>
 <div class="hgt-grid">
@@ -443,7 +450,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -1069,7 +1076,7 @@ ${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 1
 const ALL_TOOLS = () => [
   ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
   ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
-  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
+  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
 ];
 // Each tool page links to its siblings so link equity and visitors flow across the cluster.
 const FAMILY = {
@@ -1078,8 +1085,9 @@ const FAMILY = {
   '/pool-volume-calculator/': 'pool', '/pool-salt-calculator/': 'pool', '/pool-shock-calculator/': 'pool',
   '/sod-calculator/': 'lawn', '/grass-seed-calculator/': 'lawn', '/concrete-block-calculator/': 'masonry', '/retaining-wall-calculator/': 'masonry',
   '/hardiness-zones/': 'climate', '/frost-dates/': 'climate',
+  '/deck-calculator/': 'stairs', '/fence-calculator/': 'fence', '/fence-post-concrete-calculator/': 'fence', '/tile-calculator/': 'interior', '/shower-tile-calculator/': 'interior', '/drywall-calculator/': 'interior',
 };
-const NEAR = { stairs: ['masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
+const NEAR = { fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
 const rank = (path) => (t) => { const a = FAMILY[path], b = FAMILY[t[2]]; return a === b ? 0 : (NEAR[a] || []).indexOf(b) >= 0 ? 1 + (NEAR[a] || []).indexOf(b) : 9; };
 const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).sort((x, y) => rank(path)(x) - rank(path)(y)).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
 const embedCta = (slugName) => `<p class="hgt-read hgt-sources">Run a garden club, nursery or landscaping site? <a href="/embed/#${slugName}">Embed this calculator free</a> with one line of code.</p>`;
@@ -1180,6 +1188,12 @@ const EMBEDS = [
   { id: 'pool-volume', name: 'Pool volume calculator', tool: '/pool-volume-calculator/', height: 760, card: () => poolCard('volume', true), script: '/assets/pool.js' },
   { id: 'pool-salt', name: 'Pool salt calculator', tool: '/pool-salt-calculator/', height: 760, card: () => poolCard('salt', true), script: '/assets/pool.js' },
   { id: 'pool-shock', name: 'Pool shock calculator', tool: '/pool-shock-calculator/', height: 820, card: () => poolCard('shock', true), script: '/assets/pool.js' },
+  { id: 'fence', name: 'Fence calculator', tool: '/fence-calculator/', height: 860, card: () => fenceCard(true), script: '/assets/carpentry.js' },
+  { id: 'fence-post', name: 'Fence post concrete calculator', tool: '/fence-post-concrete-calculator/', height: 700, card: () => postCard(true), script: '/assets/carpentry.js' },
+  { id: 'deck', name: 'Deck calculator', tool: '/deck-calculator/', height: 900, card: () => deckCard(true), script: '/assets/carpentry.js' },
+  { id: 'tile', name: 'Tile calculator', tool: '/tile-calculator/', height: 900, card: () => tileCard(true), script: '/assets/interior.js' },
+  { id: 'shower-tile', name: 'Shower tile calculator', tool: '/shower-tile-calculator/', height: 900, card: () => showerCard(true), script: '/assets/interior.js' },
+  { id: 'drywall', name: 'Drywall calculator', tool: '/drywall-calculator/', height: 900, card: () => drywallCard(true), script: '/assets/interior.js' },
 ];
 const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
 <p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
@@ -1196,7 +1210,7 @@ ${e.card()}
 `;
 
 // ---------- batch 1: stairs, gravel, pool, pavers ----------
-const TOOLS_UPDATED = '2026-11-01';
+const TOOLS_UPDATED = '2026-11-07';
 const IRC_STAIR_URL = 'https://codes.iccsafe.org/content/IRC2021P2/chapter-3-building-planning#IRC2021P2_Pt03_Ch03_SecR311.7';
 const DCA6_URL = 'https://awc.org/publications/dca/dca6/';
 const HAYWARD_URL = 'https://hayward.com/aquarite';
@@ -1572,6 +1586,307 @@ function paverPages() {
   return [main, base];
 }
 
+// ---------- batch 2: fence, deck, tile, drywall ----------
+const CONCRETE_BAGS = [{ name: '50 lb fast-setting', yield: 0.375 }, { name: '80 lb concrete', yield: 0.6 }, { name: '60 lb concrete', yield: 0.45 }];
+const FENCE = {
+  styles: { privacy: { name: 'Wood privacy (pickets touching)', gap: 0 }, picket: { name: 'Spaced picket (2½ in gaps)', gap: 2.5 }, panels: { name: 'Pre-built 8 ft panels', gap: null, panel: 8 } },
+  picketW: 5.5, waste: 0.05, minDepth: 24, postLengths: [8, 10, 12], holeDia: 10, postIn: 3.5, bags: CONCRETE_BAGS,
+};
+const POSTS = {
+  posts: { '4x4': { name: '4×4 post', size: 3.5 }, '6x6': { name: '6×6 post', size: 5.5 }, round4: { name: '4 in round post', size: 4, round: true }, none: { name: 'Sonotube or footing (no post)', size: 0 } },
+  bags: CONCRETE_BAGS, concreteWaste: 0.1,
+};
+const DECK = {
+  boards: { comp: { name: 'composite (5½ in)', w: 5.5 }, wood54: { name: '5/4 × 6 wood', w: 5.5 }, wood26: { name: '2 × 6 wood', w: 5.5 } },
+  gap: 0.1875, waste: 0.1, lumber: [8, 10, 12, 14, 16, 18, 20], footDia: 12, footDepth: 36, bags: CONCRETE_BAGS,
+};
+const TILE = {
+  tiles: {
+    '12x12': { name: '12 × 12 in', l: 12, w: 12 }, '12x24': { name: '12 × 24 in', l: 24, w: 12 }, '6x24': { name: '6 × 24 in plank', l: 24, w: 6 }, '3x6': { name: '3 × 6 in subway', l: 6, w: 3 },
+    '4x4': { name: '4 × 4 in', l: 4, w: 4 }, '18x18': { name: '18 × 18 in', l: 18, w: 18 }, '24x24': { name: '24 × 24 in', l: 24, w: 24 }, '2x2': { name: '2 × 2 in mosaic', l: 2, w: 2 },
+  },
+  patterns: { straight: { name: 'Straight or stacked', waste: 0.1 }, offset: { name: 'Brick offset', waste: 0.1 }, diag: { name: 'Diagonal', waste: 0.15 }, herring: { name: 'Herringbone', waste: 0.15 } },
+  trowels: [{ upTo: 8, name: '¼ × ¼ in square', cover: 95 }, { upTo: 15, name: '¼ × ⅜ in square', cover: 63 }, { upTo: 99, name: '½ × ½ in square', cover: 42 }],
+  groutDensity: 0.07, groutWaste: 0.15, groutBag: 25, defaultRow: [10, 12], wallWaste: 0.15, floorWaste: 0.15,
+};
+const DRYWALL = {
+  sheets: { '4x8': { name: '4 × 8 ft', sqft: 32 }, '4x10': { name: '4 × 10 ft', sqft: 40 }, '4x12': { name: '4 × 12 ft', sqft: 48 } },
+  door: 21, window: 15, screwsPerSqft: 1, screwsPerLb: 300, mudLbPerSqft: 0.138, pailLb: 61.7, tapePerSqft: 0.37, defaultRow: [12, 12, 8],
+};
+const BATCH2_TOOLS = [
+  ['🪵', 'Deck Calculator', '/deck-calculator/', 'Deck boards, joists, hangers, screws or clips and footing concrete.'],
+  ['🚧', 'Fence Calculator', '/fence-calculator/', 'Posts, rails, pickets or panels and post concrete for any fence.'],
+  ['🔲', 'Tile Calculator', '/tile-calculator/', 'Tiles, boxes, grout and thinset for floors and walls.'],
+  ['🧰', 'Drywall Calculator', '/drywall-calculator/', 'Sheets, screws, joint compound and tape for any room.'],
+];
+const BATCH2_VARIANTS = [
+  ['🕳️', 'Fence Post Concrete Calculator', '/fence-post-concrete-calculator/', 'Bags of concrete per post hole or Sonotube footing.'],
+  ['🚿', 'Shower Tile Calculator', '/shower-tile-calculator/', 'Wall and floor tile, grout, thinset and waterproofing for a shower.'],
+];
+
+const priceGrid = (title, items) => `<details class="hgt-calc__prices"><summary>${title}</summary><div class="hgt-calc__grid">${items.map(([n, l, v]) => priceInput(n, l, v)).join('')}</div></details>`;
+const fenceCard = (embed = false) => calcShell('data-hgt-carp="fence"', FENCE, `<div class="hgt-calc__grid">
+${field('Total fence length (ft)', numIn('len', 100, '1'))}
+${field('Fence height', selectIn('height', [[4, '4 ft'], [5, '5 ft'], [6, '6 ft'], [8, '8 ft']], 6))}
+${field('Style', selectIn('style', Object.entries(FENCE.styles).map(([k, v]) => [k, v.name]), 'privacy'))}
+${field('Post spacing', selectIn('spacing', [[6, '6 ft'], [8, '8 ft']], 8))}
+${field('Separate runs (corners count as new runs)', numIn('runs', 1, '1'))}
+${field('Gates', numIn('gates', 1, '1'))}
+${field('Post hole depth (in, blank = auto)', numIn('depth', '', '1', ' placeholder="auto"'))}
+</div>
+${priceGrid('Prices (edit to match your store)', [['pPost', '4×4 post', 14], ['pRail', '2×4 rail, 8 ft', 5], ['pPicket', 'Picket', 3], ['pPanel', 'Panel, 8 ft', 75], ['pBag', 'Concrete bag', 7]])}`, embed);
+const postCard = (embed = false) => calcShell('data-hgt-carp="post"', POSTS, `<div class="hgt-calc__grid">
+${field('Number of holes', numIn('count', 10, '1'))}
+${field('Post', selectIn('post', Object.entries(POSTS.posts).map(([k, v]) => [k, v.name]), '4x4'))}
+${field('Hole or tube diameter', selectIn('dia', [6, 8, 10, 12, 14, 16, 18, 24].map((d) => [d, `${d} in`]), 10))}
+${field('Hole depth (in)', numIn('depth', 30, '1'))}
+</div>`, embed);
+const deckCard = (embed = false) => calcShell('data-hgt-carp="deck"', DECK, `<div class="hgt-calc__grid">
+${field('Deck width along the house (ft)', numIn('width', 16, '0.5'))}
+${field('Deck depth out from the house (ft)', numIn('proj', 12, '0.5'))}
+${field('Decking', selectIn('board', Object.entries(DECK.boards).map(([k, v]) => [k, v.name]), 'comp'))}
+${field('Board length', selectIn('blen', [[12, '12 ft'], [16, '16 ft'], [20, '20 ft']], 16))}
+${field('Joist spacing', selectIn('jspace', [[16, '16 in on center'], [12, '12 in (diagonal or some composites)']], 16))}
+${field('Fasteners', selectIn('fasten', [['screws', 'Deck screws (face)'], ['clips', 'Hidden clips']], 'screws'))}
+${field('Beam post spacing', selectIn('pspace', [[4, '4 ft'], [6, '6 ft'], [8, '8 ft']], 6))}
+<label class="hgt-calc__check"><input type="checkbox" name="ledger" checked> Attached to the house (ledger)</label>
+</div>
+${priceGrid('Prices (edit to match your store)', [['pBoard', 'Deck board', 30], ['pJoist', 'Joist', 22], ['pBag', 'Concrete bag', 7]])}`, embed);
+const tileSelect = (prefix, sel) => `${field(prefix === 'f' ? 'Floor tile' : prefix === 'w' ? 'Wall tile' : 'Tile size', selectIn(`${prefix}size`, [...Object.entries(TILE.tiles).map(([k, v]) => [k, v.name]), ['custom', 'Custom size…']], sel))}
+<label class="hgt-calc__field" data-custom="${prefix}size" hidden><span>Tile length (in)</span>${numIn(`${prefix}l`, 8, '0.25')}</label>
+<label class="hgt-calc__field" data-custom="${prefix}size" hidden><span>Tile width (in)</span>${numIn(`${prefix}w`, 8, '0.25')}</label>`;
+const jointThick = () => `${field('Grout joint', selectIn('joint', [[0.0625, '1/16 in'], [0.125, '1/8 in'], [0.1875, '3/16 in'], [0.25, '1/4 in']], 0.125))}
+${field('Tile thickness', selectIn('thick', [[0.25, '1/4 in'], [0.3125, '5/16 in'], [0.375, '3/8 in'], [0.5, '1/2 in']], 0.375))}`;
+const rowSet = (legend) => `<fieldset class="hgt-calc__set"><legend>${legend}</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another</button></fieldset>`;
+const tileCard = (embed = false) => calcShell('data-hgt-int="tile"', TILE, `${rowSet('Floor or wall area')}
+<div class="hgt-calc__grid">
+${tileSelect('', '12x24')}
+${field('Pattern', selectIn('pattern', Object.entries(TILE.patterns).map(([k, v]) => [k, `${v.name} (+${Math.round(v.waste * 100)}%)`]), 'straight'))}
+${jointThick()}
+${field('Exclude (cabinets, tub) sq ft', numIn('sub', '', '1', ' placeholder="0"'))}
+${field('Sq ft per box', numIn('box', 10, '0.1'))}
+</div>
+${priceGrid('Prices (edit to match your store)', [['pSqft', 'Tile per sq ft', 3], ['pGrout', 'Grout, 25 lb bag', 25], ['pThin', 'Thinset, 50 lb bag', 30]])}`, embed);
+const showerCard = (embed = false) => calcShell('data-hgt-int="shower"', TILE, `<div class="hgt-calc__grid">
+${field('Shower width, back wall (in)', numIn('width', 60, '1'))}
+${field('Shower depth, side walls (in)', numIn('depth', 32, '1'))}
+${field('Tile height on walls (in)', numIn('wallh', 96, '1'))}
+${field('Niche or window to skip (sq ft)', numIn('niche', 0, '0.5'))}
+${tileSelect('w', '3x6')}
+${tileSelect('f', '2x2')}
+${jointThick()}
+<label class="hgt-calc__check"><input type="checkbox" name="floor" checked> Tile the shower floor</label>
+</div>`, embed);
+const drywallCard = (embed = false) => calcShell('data-hgt-int="drywall"', DRYWALL, `${rowSet('Rooms')}
+<div class="hgt-calc__grid">
+${field('Sheet size', selectIn('sheet', Object.entries(DRYWALL.sheets).map(([k, v]) => [k, v.name]), '4x8'))}
+${field('Doors', numIn('doors', 1, '1'))}
+${field('Windows', numIn('windows', 1, '1'))}
+${field('Waste allowance (%)', numIn('waste', 10, '1'))}
+<label class="hgt-calc__check"><input type="checkbox" name="ceiling" checked> Include ceilings</label>
+</div>
+${priceGrid('Prices (edit to match your store)', [['pSheet', 'Sheet', 16], ['pMud', 'Compound, 4.5 gal', 22], ['pTape', 'Tape, 250 ft roll', 5]])}`, embed);
+
+const holeCuft = (dia, depth, post = 0, round = false) => Math.max(0, Math.PI * (dia / 2) ** 2 * depth - (post ? (round ? Math.PI * (post / 2) ** 2 : post * post) * depth : 0)) / 1728;
+const fenceRow = (L, H = 6, gap = 0) => { const sections = Math.ceil(L / 8 - 1e-9); const posts = sections + 1; const pickets = Math.ceil(L * 12 / (5.5 + gap) * 1.05); const rails = sections * (H > 5 ? 3 : 2); const depth = Math.max(24, Math.ceil(H * 12 / 3)); const bags = Math.ceil(holeCuft(10, depth, 3.5) * posts / 0.375 - 1e-9); return { posts, pickets, rails, bags }; };
+const deckRow = (W, D) => { const rows = Math.ceil(D * 12 / 5.6875 - 1e-9); const boards = Math.ceil(rows * W * 1.1 / 16 - 1e-9); const joists = Math.ceil(W * 12 / 16 - 1e-9) + 1; return { rows, boards, joists, screws: Math.ceil(rows * joists * 2 * 1.05) }; };
+const tilePer = (t, j = 0.125) => 144 / ((t.l + j) * (t.w + j));
+const drywallRow = (L, W, H = 8, sheet = 32) => { const a = 2 * (L + W) * H + L * W - 21 - 15; return { area: a, sheets: Math.ceil(a * 1.1 / sheet - 1e-9) }; };
+
+function batch2Pages() {
+  const pages = [];
+  const f6 = fenceRow(100);
+  pages.push(toolPage({
+    path: '/fence-calculator/', name: 'Fence Calculator', script: '/assets/carpentry.js', embedId: 'fence',
+    title: 'Fence Calculator: Posts, Rails, Pickets & Post Concrete',
+    description: 'Free fence calculator: how many posts, rails, pickets or panels and bags of post concrete for a wood privacy or picket fence, with gates, corners and cost.',
+    h1: 'Fence Calculator', lede: 'Everything to buy for a wood fence: posts and their length, rails, pickets or ready-made panels, and the concrete to set the posts, for any length, height, corners and gates.',
+    answer: `<strong>Posts = fence length ÷ post spacing (8 ft), rounded up, + 1 per run + 1 per gate.</strong> A 6 ft privacy fence uses 3 rails per section and about 2.1 pickets (5½ in) per foot. <strong>100 ft of 6 ft privacy fence</strong> with one gate needs about ${f6.posts + 1} posts, ${f6.rails} rails, ${f6.pickets} pickets and ${Math.ceil(holeCuft(10, 24, 3.5) * (f6.posts + 1) / 0.375 - 1e-9)} bags of 50 lb fast-setting concrete.`,
+    card: fenceCard(),
+    sections: `<h2>Fence materials for common lengths (6 ft privacy, 8 ft spacing)</h2>${table(['Fence length', 'Posts', 'Rails', 'Pickets', 'Fast-set bags'], [50, 100, 150, 200, 300].map((L) => { const r = fenceRow(L); return [`${L} ft`, r.posts, r.rails, fmtInt(r.pickets), r.bags]; }))}
+<p class="hgt-read">Add one post per gate and one per extra run or corner. Post holes 10 in wide, 24 in deep (deeper below your frost line), with 6 in of gravel underneath.</p>
+<h2>Post length by fence height</h2>${table(['Fence height', 'In the ground', 'Post to buy'], [[4, 24], [5, 24], [6, 24], [8, 32]].map(([h, d]) => [`${h} ft`, `${d} in`, `${FENCE.postLengths.find((l) => l >= h + d / 12)} ft`]))}`,
+    faqs: [
+      ['How many fence posts do I need?', 'Divide the fence length by the post spacing (usually 8 ft, or 6 ft in windy areas), round up, then add one for the end post of each run and one extra for every gate. 100 ft at 8 ft spacing is 13 posts, plus gate posts.'],
+      ['How many pickets do I need for a privacy fence?', `Pickets are 5½ in wide, so a solid privacy fence takes about 2.2 per foot: 12 in ÷ 5.5 in. For 100 ft that is ${Math.ceil(1200 / 5.5)} pickets, plus 5% for splits and cuts.`],
+      ['How deep should fence posts be?', 'At least 2 ft, or about one-third of the post\'s length, and below the frost line in cold climates. A 6 ft fence usually uses 8 ft posts with 2 ft in the ground; an 8 ft fence needs 10–11 ft posts.'],
+      ['How many bags of concrete per fence post?', 'For a 4×4 post in a 10 in hole 24 in deep, about 1.9 cu ft of hole minus the post, roughly 2 to 3 bags of 50 lb fast-setting concrete or 2 bags of 80 lb mix. Use the fence post concrete calculator for other sizes.'],
+      ['How many rails does a fence need?', 'Two rails per section for fences up to 5 ft, three for 6 ft and taller, so pickets don\'t warp in the middle.'],
+    ],
+    sources: `Spacing, depth and rail counts follow common residential fence practice; check local codes, HOA rules and property lines before digging, and call 811 to mark utilities. Concrete yields from 50 lb fast-setting (0.375 cu ft), 80 lb (0.6 cu ft) and 60 lb (0.45 cu ft) bag labels. Prices are placeholders to edit.`,
+  }));
+  pages.push(toolPage({
+    path: '/fence-post-concrete-calculator/', name: 'Fence Post Concrete Calculator', script: '/assets/carpentry.js', embedId: 'fence-post',
+    title: 'Fence Post Concrete Calculator: Bags per Hole & Sonotube',
+    description: 'Free post hole concrete calculator: bags of 50 lb fast-setting, 60 lb or 80 lb concrete per fence post hole or Sonotube footing, for any hole size and depth.',
+    h1: 'Fence Post Concrete Calculator', lede: 'How many bags of concrete to set fence posts, deck posts or mailbox posts, or to fill a Sonotube footing, for any hole diameter and depth.',
+    answer: `<strong>Concrete = π × (hole diameter ÷ 2)² × depth − the post's volume.</strong> A 4×4 post in a 10 in hole, 24 in deep, takes about ${holeCuft(10, 24, 3.5).toFixed(2)} cu ft: <strong>${Math.ceil(holeCuft(10, 24, 3.5) / 0.375 - 1e-9)} bags of 50 lb fast-setting</strong> or ${Math.ceil(holeCuft(10, 24, 3.5) / 0.6 - 1e-9)} of 80 lb concrete per post. A 12 in Sonotube 48 in deep takes ${holeCuft(12, 48).toFixed(1)} cu ft (${Math.ceil(holeCuft(12, 48) / 0.6 - 1e-9)} × 80 lb bags).`,
+    card: postCard(),
+    sections: `<h2>Bags per hole for a 4×4 post</h2>${table(['Hole', '24 in deep', '30 in deep', '36 in deep'], [8, 10, 12].map((d) => [`${d} in wide`, ...[24, 30, 36].map((h) => { const c = holeCuft(d, h, 3.5); return `${Math.ceil(c / 0.375 - 1e-9)} × 50 lb fast-set or ${Math.ceil(c / 0.6 - 1e-9)} × 80 lb`; })]))}
+<h2>Sonotube footings (no post)</h2>${table(['Tube', '36 in deep', '48 in deep'], [8, 10, 12, 16, 18].map((d) => [`${d} in`, ...[36, 48].map((h) => { const c = holeCuft(d, h); return `${c.toFixed(2)} cu ft · ${Math.ceil(c / 0.6 - 1e-9)} × 80 lb`; })]))}`,
+    faqs: [
+      ['How many bags of concrete do I need per fence post?', 'For a 4×4 post in a 10 in hole 24 in deep, about 2 bags of 80 lb concrete or 3 bags of 50 lb fast-setting concrete. A 6×6 post in a 12 in hole 36 in deep takes about 3 bags of 80 lb.'],
+      ['How big should a fence post hole be?', 'About three times the post\'s width: 10–12 in across for a 4×4 and 12–14 in for a 6×6, and at least 24 in deep, or below the frost line.'],
+      ['How many bags of concrete for a Sonotube?', `A 12 in tube 48 in deep holds about ${holeCuft(12, 48).toFixed(1)} cu ft, which is ${Math.ceil(holeCuft(12, 48) / 0.6 - 1e-9)} bags of 80 lb or ${Math.ceil(holeCuft(12, 48) / 0.45 - 1e-9)} bags of 60 lb concrete. Multiply diameter² × depth × 0.000454 for cubic feet.`],
+      ['Is fast-setting concrete good for fence posts?', 'Yes. You pour the dry mix into the hole and add water, and it sets in 20–40 minutes, so posts can be braced and the fence built the same day. Use regular mix for structural deck footings.'],
+      ['Should I put gravel at the bottom of a post hole?', 'A few inches of gravel under the post helps water drain away from the end grain, which slows rot. Include it in your hole depth.'],
+    ],
+    sources: `Hole volume is a cylinder (π r² h) minus the post; 4×4 posts are 3½ in square and 6×6 posts 5½ in. Bag yields: 50 lb fast-setting 0.375 cu ft, 60 lb 0.45 cu ft and 80 lb 0.6 cu ft, per common bag labels, with ${Math.round(POSTS.concreteWaste * 100)}% added for spills. Footings for decks and structures must follow your local code.`,
+  }));
+  const d12 = deckRow(16, 12);
+  pages.push(toolPage({
+    path: '/deck-calculator/', name: 'Deck Calculator', script: '/assets/carpentry.js', embedId: 'deck',
+    title: 'Deck Calculator: Boards, Joists, Screws & Footings',
+    description: 'Free deck calculator: how many deck boards, joists, joist hangers, screws or hidden clips and footing concrete for any deck size, composite or wood.',
+    h1: 'Deck Calculator', lede: 'The materials list for a deck: deck boards by length, joists, rim and ledger, hangers, screws or hidden clips, beam posts and footing concrete, for composite or wood decking.',
+    answer: `<strong>Rows of boards = deck depth (in) ÷ (5½ in board + 3/16 in gap); boards = rows × deck width × 1.1 ÷ board length. Joists = width (in) ÷ 16 + 1.</strong> A 16 × 12 ft deck needs ${d12.rows} rows, about <strong>${d12.boards} boards of 16 ft</strong>, ${d12.joists} joists and about ${fmtInt(d12.screws)} deck screws.`,
+    card: deckCard(),
+    sections: `<h2>Boards and joists for common deck sizes</h2><p class="hgt-read">16 ft boards with 10% extra, joists 16 in on center.</p>${table(['Deck', 'Square feet', 'Deck boards', 'Joists', 'Screws'], [[10, 10], [12, 12], [16, 12], [20, 12], [16, 16], [20, 20]].map(([w, d]) => { const r = deckRow(w, d); return [`${w} × ${d} ft`, w * d, r.boards, r.joists, fmtInt(r.screws)]; }))}
+<section class="hgt-read"><h2>Before you buy framing</h2><ul><li>Joist and beam sizes depend on span, species and load. Size them from the span tables in the American Wood Council's DCA 6 deck guide or your local code.</li><li>Composite boards often require 12 in joist spacing for diagonal decking or stairs; check the maker's installation guide.</li><li>Footings must reach below the frost line, and ledgers need through-bolts or structural screws into the house rim joist, never nails.</li><li>Building stairs off the deck? Use the <a href="/stair-calculator/">stair calculator</a>.</li></ul></section>`,
+    faqs: [
+      ['How many deck boards do I need?', 'Divide the deck depth in inches by the board width plus gap (5½ in + 3/16 in for most boards) to get the number of rows, multiply by the deck width in feet for linear feet, add 10% and divide by the board length.'],
+      ['How many joists do I need for a deck?', 'Deck width in inches ÷ joist spacing (usually 16 in), plus one. A 16 ft wide deck needs 13 joists at 16 in on center, or 17 at 12 in.'],
+      ['How many screws do I need for a deck?', 'Two screws per board at every joist. For a 16 × 12 ft deck with 26 rows and 13 joists, that is about 680 screws plus a few extra. A 5 lb box of 2½ in deck screws usually holds around 350–400.'],
+      ['What is the gap between deck boards?', 'About 3/16 in for most wood and composite boards, enough for water to drain. Composite makers specify their own gaps for end-to-end joints and temperature; follow the installation guide.'],
+      ['How deep should deck footings be?', 'Below your local frost line and at least 12 in deep in warm climates. Footing size depends on the load each post carries; the AWC DCA 6 guide and local code give the minimums.'],
+    ],
+    sources: `Board layout assumes 5½ in wide boards with a 3/16 in gap and 10% waste. Joist spacing, ledger, footing and framing guidance points to the <a href="${DCA6_URL}" rel="nofollow">American Wood Council DCA 6 deck guide</a>; this calculator does not size joists or beams. Footings are ${DECK.footDia} in × ${DECK.footDepth} in by default. Prices are placeholders to edit.`,
+  }));
+  const T = TILE.tiles;
+  pages.push(toolPage({
+    path: '/tile-calculator/', name: 'Tile Calculator', script: '/assets/interior.js', embedId: 'tile',
+    title: 'Tile Calculator: Tiles, Boxes, Grout & Thinset Needed',
+    description: 'Free tile calculator: how many tiles and boxes for a floor or wall, by tile size, pattern and grout joint, plus grout and thinset mortar bags and cost.',
+    h1: 'Tile Calculator', lede: 'How many tiles and boxes to buy for a floor, wall or backsplash, with the right waste for your pattern, plus grout pounds and bags of thinset by trowel size.',
+    answer: `<strong>Tiles = area (sq ft) × 144 ÷ ((tile length + joint) × (tile width + joint)), plus 10% (15% for diagonal or herringbone).</strong> With ⅛ in joints, 12 × 24 in tiles need ${tilePer(T['12x24']).toFixed(2)} per sq ft and 12 × 12 in need ${tilePer(T['12x12']).toFixed(2)}. A 10 × 12 ft floor in 12 × 24 in tile takes about <strong>${Math.ceil(120 * tilePer(T['12x24']) * 1.1)} tiles</strong>.`,
+    card: tileCard(),
+    sections: `<h2>Tiles per square foot by size (⅛ in joints)</h2>${table(['Tile', 'Per sq ft', 'Per 100 sq ft (+10%)', 'Trowel'], Object.values(T).map((t) => [t.name, tilePer(t).toFixed(2), fmtInt(Math.ceil(100 * tilePer(t) * 1.1)), (TILE.trowels.find((x) => Math.max(t.l, t.w) <= x.upTo) || TILE.trowels[2]).name]))}
+<h2>Waste by pattern</h2>${table(['Pattern', 'Extra to order'], Object.values(TILE.patterns).map((p) => [p.name, `${p.waste * 100}%`]))}
+<p class="hgt-read">Buy all boxes from the same lot (shade) number and keep a few spare tiles for repairs.</p>`,
+    faqs: [
+      ['How do I calculate how many tiles I need?', 'Find the area in square feet (length × width), divide by the area of one tile including its grout joint, and add 10% for cuts, or 15% for diagonal and herringbone layouts. Then divide by the square feet per box.'],
+      ['How many 12 × 24 tiles do I need for 100 sq ft?', `About ${Math.ceil(100 * tilePer(T['12x24']))} tiles before waste, or ${Math.ceil(100 * tilePer(T['12x24']) * 1.1)} with 10% extra. Each 12 × 24 tile covers 2 sq ft.`],
+      ['How much grout do I need?', 'It depends on tile size, joint width and tile thickness: small tiles and wide joints use far more. 100 sq ft of 12 × 12 tile with ⅛ in joints takes about 8–10 lb; the same area of 2 × 2 mosaic takes several times that.'],
+      ['How much thinset do I need?', 'A 50 lb bag covers about 90–100 sq ft with a ¼ × ¼ in trowel, 60–65 sq ft with ¼ × ⅜ in, and 40–45 sq ft with ½ × ½ in. Larger tiles need the bigger notch.'],
+      ['Should I use sanded or unsanded grout?', 'Unsanded for joints narrower than ⅛ in and for polished stone or glass that sand could scratch; sanded for joints ⅛ in and wider.'],
+    ],
+    sources: `Tile counts include the grout joint in each tile's footprint. Grout volume = (tile length + width) × joint × depth ÷ (length × width) per unit area, at about ${TILE.groutDensity} lb per cubic inch plus ${Math.round(TILE.groutWaste * 100)}%. Thinset coverage per 50 lb bag reflects typical manufacturer data for each trowel notch; check your bag. Prices are placeholders to edit.`,
+  }));
+  const sh = (w, d, h = 96) => ({ wall: (w + 2 * d) * h / 144, floor: w * d / 144 });
+  pages.push(toolPage({
+    path: '/shower-tile-calculator/', name: 'Shower Tile Calculator', script: '/assets/interior.js', embedId: 'shower-tile',
+    title: 'Shower Tile Calculator: Wall & Floor Tile, Grout, Membrane',
+    description: 'Free shower tile calculator: wall and floor tile for a 3-wall shower by tile size, plus grout, thinset and waterproofing membrane, with niche cut-outs.',
+    h1: 'Shower Tile Calculator', lede: 'Tile for the three walls and floor of an alcove shower, in different tile sizes for walls and floor, plus grout, thinset and waterproofing membrane.',
+    answer: `<strong>Wall area = (back wall width + 2 × side wall depth) × tile height ÷ 144</strong> (all in inches). A 60 × 32 in shower tiled 96 in high has about <strong>${sh(60, 32).wall.toFixed(0)} sq ft of wall</strong> and ${sh(60, 32).floor.toFixed(1)} sq ft of floor: about ${Math.ceil(sh(60, 32).wall * tilePer(T['3x6']) * 1.15)} subway tiles (3 × 6 in) with 15% extra.`,
+    card: showerCard(),
+    sections: `<h2>Tile area for common shower sizes (96 in high)</h2>${table(['Shower', 'Wall sq ft', 'Floor sq ft', '3 × 6 subway (+15%)', '12 × 24 (+15%)'], [[36, 36], [48, 36], [60, 32], [60, 36], [72, 36]].map(([w, d]) => { const a = sh(w, d); return [`${w} × ${d} in`, a.wall.toFixed(0), a.floor.toFixed(1), fmtInt(Math.ceil(a.wall * tilePer(T['3x6']) * 1.15)), fmtInt(Math.ceil(a.wall * tilePer(T['12x24']) * 1.15))]; }))}
+<section class="hgt-read"><h2>Shower tile tips</h2><ul><li>Waterproof first: a sheet or liquid membrane over cement board or foam board, including the curb and niche.</li><li>Floor tiles of 2 × 2 in mosaic follow the slope to the drain; large floor tiles need a linear drain.</li><li>Order 15% extra for showers: niches, valve cut-outs and the curb eat tile.</li></ul></section>`,
+    faqs: [
+      ['How much tile do I need for a shower?', `Add the back wall width and twice the side wall depth, multiply by the tile height, and divide by 144 for square feet. For a 60 × 32 in shower tiled to 96 in, that is about ${sh(60, 32).wall.toFixed(0)} sq ft of wall plus ${sh(60, 32).floor.toFixed(1)} sq ft of floor. Order 15% extra.`],
+      ['How high should shower tile go?', 'At least 6 in above the shower head, and many people tile to the ceiling (often 96 in) for a cleaner look and easier cleaning.'],
+      ['How many subway tiles for a shower?', `A 3 × 6 in subway tile with ⅛ in joints covers about 0.13 sq ft, so roughly ${tilePer(T['3x6']).toFixed(1)} tiles per sq ft. An ${sh(60, 32).wall.toFixed(0)} sq ft shower surround takes about ${Math.ceil(sh(60, 32).wall * tilePer(T['3x6']) * 1.15)} with 15% extra.`],
+      ['What size tile is best for a shower floor?', 'Small tiles such as 2 × 2 in mosaics bend to the slope toward a center drain and give better grip. Large-format tile on a shower floor needs a linear drain and a single-plane slope.'],
+      ['Do I need to waterproof before tiling a shower?', 'Yes. Grout and tile are not waterproof. Use a waterproofing membrane over the backer board on walls, floor, curb and niche, and follow the system\'s instructions for seams and corners.'],
+    ],
+    sources: `Areas are calculated in inches for an alcove (three-wall) shower. Tile counts use the same method as the tile calculator with 15% waste; thinset by trowel size and grout by joint volume. Membrane adds 10% for overlaps. Follow your waterproofing system's instructions.`,
+  }));
+  const r12 = drywallRow(12, 12);
+  pages.push(toolPage({
+    path: '/drywall-calculator/', name: 'Drywall Calculator', script: '/assets/interior.js', embedId: 'drywall',
+    title: 'Drywall Calculator: Sheets, Screws, Mud & Tape for Any Room',
+    description: 'Free drywall calculator: how many 4×8, 4×10 or 4×12 sheets, screws, joint compound and tape for walls and ceilings, minus doors and windows, with cost.',
+    h1: 'Drywall Calculator', lede: 'How many sheets of drywall to buy for one room or a whole house, walls and ceilings, minus doors and windows, plus screws, joint compound and tape.',
+    answer: `<strong>Wall area = 2 × (length + width) × height; add ceiling (length × width); subtract about 21 sq ft per door and 15 per window; add 10%; divide by 32 for 4 × 8 sheets.</strong> A 12 × 12 ft room with 8 ft walls, a ceiling, one door and one window has ${r12.area} sq ft and needs <strong>${r12.sheets} sheets of 4 × 8</strong>.`,
+    card: drywallCard(),
+    sections: `<h2>Drywall sheets for common rooms (8 ft walls, ceiling, 1 door, 1 window)</h2>${table(['Room', 'Sq ft of board', '4 × 8 sheets', '4 × 12 sheets'], [[10, 10], [10, 12], [12, 12], [12, 14], [14, 16], [16, 20]].map(([l, w]) => { const a = drywallRow(l, w), b = drywallRow(l, w, 8, 48); return [`${l} × ${w} ft`, a.area, a.sheets, b.sheets]; }))}
+<section class="hgt-read"><h2>Which sheet size?</h2><ul><li><strong>4 × 8</strong>: easiest to carry and the only size many trucks and stairs allow.</li><li><strong>4 × 12</strong>: fewer butt joints on long walls and ceilings, so less taping, but two people to hang.</li><li><strong>½ in</strong> for walls, <strong>⅝ in</strong> or sag-resistant ½ in for ceilings, moisture-resistant board in bathrooms.</li></ul></section>`,
+    faqs: [
+      ['How do I calculate how much drywall I need?', 'Add up wall areas (perimeter × height) and ceiling areas (length × width), subtract doors (about 21 sq ft each) and windows (about 15 sq ft each), add 10% for waste, and divide by the sheet area: 32 sq ft for 4 × 8, 48 for 4 × 12.'],
+      ['How many sheets of drywall for a 12 × 12 room?', `About ${r12.sheets} sheets of 4 × 8 for walls and ceiling with 8 ft walls, one door and one window, or ${drywallRow(12, 12, 8, 48).sheets} sheets of 4 × 12.`],
+      ['How many drywall screws do I need?', 'Roughly one screw per square foot of board: about 32 per 4 × 8 sheet with studs 16 in on center. A 1 lb box of 1¼ in screws holds roughly 300.'],
+      ['How much joint compound do I need?', 'About 0.14 lb of ready-mixed compound per square foot for taping and three coats, so one 4.5 gallon pail (about 62 lb) covers roughly 450 sq ft of board.'],
+      ['How much drywall tape do I need?', 'About 0.37 ft of tape per square foot of board, roughly 370 ft per 1,000 sq ft. A 250 ft roll covers about 675 sq ft.'],
+    ],
+    sources: `Openings use typical sizes: 3 × 7 ft doors (21 sq ft) and 3 × 5 ft windows (15 sq ft). Screws, compound and tape use common estimating figures (about 1 screw, ${DRYWALL.mudLbPerSqft} lb of ready-mixed compound and ${DRYWALL.tapePerSqft} ft of tape per sq ft of board). Use thicker or special board where your code requires it (garages, ceilings, fire separations). Prices are placeholders to edit.`,
+  }));
+  return pages;
+}
+
+// ---------- Pinterest: one pin per tool, one RSS feed per board ----------
+// Pinterest's "auto-publish from RSS" maps each feed to one board (up to 5 feeds per account),
+// so tools are grouped into 5 boards and each feed item carries its pin image.
+const PIN_BOARDS = [
+  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/hardiness-zones/', '/frost-dates/'] },
+  { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/'] },
+  { id: 'pool-care', name: 'Pool Care Calculators', desc: 'Pool volume, salt and shock doses made simple, with free calculators and charts for every pool size.', tools: ['/pool-volume-calculator/', '/pool-salt-calculator/', '/pool-shock-calculator/'] },
+  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/'] },
+  { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset and drywall to buy, with free calculators for floors, showers and rooms.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/'] },
+];
+// Each pin: a question people search on Pinterest, a small chart from the same formulas as the page, and a description.
+function pinData() {
+  const T = TILE.tiles, G = GRAVEL.materials;
+  const yd = (sq, d) => sq * d / 324;
+  const P = {
+    '/stair-calculator/': ['How many stairs do I need?', ['Total rise', 'Risers', 'Riser'], [36, 48, 72, 96, 108, 120].map((h) => { const s = stairRow(h); return [`${h} in`, String(s.n), inchFrac(s.r)]; })],
+    '/stair-stringer-calculator/': ['How long is a stair stringer?', ['Total rise', 'Treads', 'Stringer'], [24, 36, 48, 72, 96].map((h) => { const s = stairRow(h, 11); return [`${h} in`, String(s.n - 1), `${(s.len / 12).toFixed(1)} ft`]; })],
+    '/gravel-calculator/': ['How far does a yard of gravel go?', ['Depth', 'Covers', 'Weighs'], [2, 3, 4, 6].map((d) => [`${d} in`, `${Math.round(324 / d)} sq ft`, '1.4 tons'])],
+    '/pea-gravel-calculator/': ['How much pea gravel do I need?', ['Area (3 in deep)', 'Cu yd', 'Bags'], [[10, 10], [10, 20], [20, 20], [4, 50]].map(([a, b]) => [`${a} × ${b} ft`, (Math.ceil(yd(a * b, 3) * 10) / 10).toFixed(1), String(Math.ceil(yd(a * b, 3) * 54))])],
+    '/driveway-gravel-calculator/': ['How much gravel for a driveway?', ['Driveway', 'Tons', 'Layers'], [[10, 30], [10, 50], [12, 50], [12, 100]].map(([w, l]) => { let t = 0; [[3, 4], [57, 4], ['crusher', 3]].forEach(([m, d]) => { const mm = G[m]; t += w * l * d / 12 * (1 + (mm.compact || 0)) / 27 * mm.tpy; }); return [`${w} × ${l} ft`, t.toFixed(0), '4 + 4 + 3 in']; })],
+    '/pool-volume-calculator/': ['How many gallons is my pool?', ['Pool', 'Depth', 'Gallons'], [['16 × 32 ft', 32, 16, 4.5], ['18 × 36 ft', 36, 18, 4.5], ['20 × 40 ft', 40, 20, 4.5]].map(([n, l, w, d]) => [n, `${d} ft avg`, fmtInt(Math.round(l * w * d * 7.48 / 100) * 100)]).concat([18, 24].map((d) => [`${d} ft round`, '4 ft', fmtInt(Math.round(d * d * 4 * POOL.round / 100) * 100)]))],
+    '/pool-salt-calculator/': ['How much salt for my pool?', ['Gallons', 'Salt (lb)', '40 lb bags'], [10000, 15000, 20000, 25000, 30000].map((g) => { const lb = g * 8.34 * POOL.saltTarget / 1e6; return [fmtInt(g), fmtInt(Math.round(lb)), String(Math.ceil(lb / 40))]; })],
+    '/pool-shock-calculator/': ['How much shock per 10,000 gal?', ['Product', 'For +10 ppm'], Object.values(POOL.products).slice(0, 5).map((p) => [p.name.replace(' shock', ''), p.liquid ? `${(10 / p.strength).toFixed(2)} gal` : `${(83.4 / p.strength).toFixed(2)} lb`])],
+    '/paver-calculator/': ['How many pavers per square foot?', ['Paver', 'Per sq ft', 'Per 100 sq ft'], Object.values(PAVER.pavers).slice(0, 5).map((p) => [p.name.replace(/ \(.*$/, ''), (144 / (p.l * p.w)).toFixed(2), fmtInt(Math.ceil(14400 / (p.l * p.w) * 1.05))])],
+    '/paver-base-calculator/': ['How much base under pavers?', ['Use', 'Base', 'Sand'], [['Walkway', '4 in', '1 in'], ['Patio', '4–6 in', '1 in'], ['Patio on clay', '6 in', '1 in'], ['Driveway', '8–12 in', '1 in']]],
+    '/sod-calculator/': ['How much sod do I need?', ['Lawn', 'Pallets', 'Slabs'], [500, 1000, 2000, 5000].map((a) => [`${fmtInt(a)} sq ft`, (a * 1.05 / SOD.pallet).toFixed(1), fmtInt(Math.ceil(a * 1.05 / 2.67))])],
+    '/grass-seed-calculator/': ['How much grass seed per 1,000 sq ft?', ['Grass', 'New lawn', 'Overseed'], Object.values(SEED.grasses).map((g) => [g.name.replace(/ \(.*$/, ''), `${g.rate} lb`, `${g.over} lb`])],
+    '/concrete-block-calculator/': ['How many concrete blocks do I need?', ['Wall', '4 ft high', '8 ft high'], [10, 20, 30, 40].map((l) => [`${l} ft long`, String(cmuCount(l, 4, CMU.sizes[8])), String(cmuCount(l, 8, CMU.sizes[8]))])],
+    '/retaining-wall-calculator/': ['Retaining wall blocks per 10 ft', ['Height', '6×16 blocks', 'Stone'], [1, 2, 3].map((h) => { const b = SRW.blocks.standard, exp = h * 12, bc = Math.max(1, Math.ceil(exp * SRW.buryRatio / b.h - 1e-9)), c = bc + Math.ceil(exp / b.h - 1e-9); const st = (10 * ((b.d + SRW.baseExtra) / 12) * (SRW.baseIn / 12) + 10 * (SRW.drainIn / 12) * (c * b.h / 12)) / 27; return [`${h} ft`, String(Math.ceil(120 / b.l) * c), `${st.toFixed(1)} cu yd`]; })],
+    '/hardiness-zones/': ['What do hardiness zones mean?', ['Zone', 'Coldest winter night'], ['4a', '5b', '6a', '7b', '8a', '9b'].map((z) => [z, zoneRange(z)])],
+    '/frost-dates/': ['When is the last frost?', ['Region', 'Typical last frost'], [['Gulf Coast & Florida', 'Feb–March'], ['Mid-South', 'Late March–April'], ['Midwest & Northeast', 'April–May'], ['Northern states', 'May–June']]],
+    '/deck-calculator/': ['How many deck boards do I need?', ['Deck', 'Boards (16 ft)', 'Joists'], [[12, 12], [16, 12], [20, 12], [16, 16]].map(([w, d]) => { const r = deckRow(w, d); return [`${w} × ${d} ft`, String(r.boards), String(r.joists)]; })],
+    '/fence-calculator/': ['How many fence pickets do I need?', ['Fence', 'Posts', 'Pickets'], [50, 100, 150, 200].map((L) => { const r = fenceRow(L); return [`${L} ft`, String(r.posts), fmtInt(r.pickets)]; })],
+    '/fence-post-concrete-calculator/': ['Concrete bags per fence post', ['Hole', '50 lb fast-set', '80 lb'], [[8, 24], [10, 24], [10, 30], [12, 36]].map(([d, h]) => { const c = holeCuft(d, h, 3.5); return [`${d} × ${h} in`, String(Math.ceil(c / 0.375 - 1e-9)), String(Math.ceil(c / 0.6 - 1e-9))]; })],
+    '/tile-calculator/': ['How many tiles per square foot?', ['Tile', 'Per sq ft', 'Per 100 sq ft'], ['12x12', '12x24', '6x24', '3x6', '24x24'].map((k) => [T[k].name.replace(/ (plank|subway)$/, ''), tilePer(T[k]).toFixed(2), fmtInt(Math.ceil(100 * tilePer(T[k]) * 1.1))])],
+    '/shower-tile-calculator/': ['How much tile for a shower?', ['Shower', 'Wall sq ft', 'Floor sq ft'], [[36, 36], [48, 36], [60, 32], [60, 36]].map(([w, d]) => [`${w} × ${d} in`, ((w + 2 * d) * 96 / 144).toFixed(0), (w * d / 144).toFixed(1)])],
+    '/drywall-calculator/': ['How many sheets of drywall?', ['Room', '4×8 sheets', '4×12'], [[10, 10], [12, 12], [12, 14], [14, 16]].map(([l, w]) => [`${l} × ${w} ft`, String(drywallRow(l, w).sheets), String(drywallRow(l, w, 8, 48).sheets)])],
+  };
+  const tools = ALL_TOOLS();
+  return PIN_BOARDS.flatMap((b) => b.tools.map((path) => {
+    const t = tools.find((x) => x[2] === path);
+    const [q, head, rows] = P[path];
+    return { slug: path.replace(/\//g, ''), path, board: b.id, icon: t[0], name: t[1], text: t[3], q, head, rows };
+  }));
+}
+
+function pinterestFeed(board, pins, meta) {
+  const items = pins.filter((p) => p.board === board.id);
+  const x = (s) => esc(s);
+  const pub = new Date(`${TOOLS_UPDATED}T12:00:00Z`).toUTCString();
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+<title>${x(board.name)} | ${BRAND}</title>
+<link>${SITE}/</link>
+<atom:link href="${SITE}/feeds/pinterest-${board.id}.xml" rel="self" type="application/rss+xml"/>
+<description>${x(board.desc)}</description>
+<language>en-us</language>
+<lastBuildDate>${pub}</lastBuildDate>
+${items.map((p) => `<item>
+<title>${x(`${p.q} Free ${p.name}`)}</title>
+<link>${SITE}${p.path}?utm_source=pinterest&amp;utm_medium=social&amp;utm_campaign=${board.id}</link>
+<guid isPermaLink="false">${SITE}${p.path}#pin-${TOOLS_UPDATED}</guid>
+<pubDate>${pub}</pubDate>
+<description>${x(`${p.q} ${p.text} Free ${p.name.toLowerCase()} from ${BRAND}: no sign-up, shows the math, works on your phone.`)}</description>
+<enclosure url="${SITE}/assets/pins/${p.slug}.jpg" type="image/jpeg" length="${meta.pinBytes[p.slug] || 0}"/>
+<media:content url="${SITE}/assets/pins/${p.slug}.jpg" medium="image" type="image/jpeg" width="1000" height="1500"/>
+</item>`).join('\n')}
+</channel>
+</rss>
+`;
+}
+
 // ---------- main ----------
 async function write(path, content) {
   const file = join(OUT, path.endsWith('/') ? path + 'index.html' : path);
@@ -1619,7 +1934,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -1654,7 +1969,7 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
-${[...BATCH1_TOOLS, ...BATCH1_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
+${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
 - [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
 - [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
@@ -1682,6 +1997,12 @@ ${zones.map((z) => `- [${z.name}](${SITE}${z.path}): zones ${zoneSpan(z.sum.zone
       { src: '/assets/icon.svg', sizes: 'any', type: 'image/svg+xml' },
     ],
   }, null, 2) + '\n');
+  // Pinterest: pin data for scripts/make-og.mjs, and one RSS feed per board (Settings → Bulk create Pins → Auto-publish).
+  const pins = pinData();
+  await write('/pins.json', JSON.stringify(pins));
+  const pinBytes = {};
+  for (const p of pins) { try { pinBytes[p.slug] = (await readFile(`site-src/assets/pins/${p.slug}.jpg`)).length; } catch { /* run scripts/make-og.mjs */ } }
+  for (const board of PIN_BOARDS) await write(`/feeds/pinterest-${board.id}.xml`, pinterestFeed(board, pins.filter((p) => pinBytes[p.slug]), { pinBytes }));
   // IndexNow key file: lets the deploy workflow tell Bing (which feeds ChatGPT search and Copilot) about changed pages.
   await write(`/${INDEXNOW_KEY}.txt`, INDEXNOW_KEY);
   await write('/CNAME', new URL(SITE).host + '\n');

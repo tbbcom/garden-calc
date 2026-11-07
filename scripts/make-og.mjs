@@ -1,37 +1,18 @@
 #!/usr/bin/env node
 // Renders share images into site-src/assets/: og/<slug>.jpg (1200×630, used as og:image by build-site.mjs)
 // and pins/<slug>.jpg (1000×1500 Pinterest pins with a reference chart). Run locally after adding a tool:
-//   node scripts/make-og.mjs        (needs Playwright with Chromium installed)
+//   node scripts/build-site.mjs && node scripts/make-og.mjs && node scripts/build-site.mjs
+// (needs Playwright with Chromium; the second build picks up the new images for og:image and the Pinterest feeds)
 import { mkdir } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
 
-const TOOLS = [
-  ['stair-calculator', '🪜', 'Stair Calculator', 'Risers = rise ÷ 7¾ in, rounded up'],
-  ['stair-stringer-calculator', '🪚', 'Stair Stringer Calculator', 'Layout, length, bottom cut & throat'],
-  ['gravel-calculator', '🪨', 'Gravel Calculator', 'Cu yd = sq ft × depth (in) ÷ 324'],
-  ['pea-gravel-calculator', '⚪', 'Pea Gravel Calculator', '1 cu yd covers 108 sq ft at 3 in'],
-  ['driveway-gravel-calculator', '🚗', 'Driveway Gravel Calculator', 'Tons for base, middle & top layers'],
-  ['pool-volume-calculator', '🏊', 'Pool Volume Calculator', 'Gallons = L × W × avg depth × 7.48'],
-  ['pool-salt-calculator', '🧂', 'Pool Salt Calculator', 'lb = gal × 8.34 × ppm ÷ 1,000,000'],
-  ['pool-shock-calculator', '⚗️', 'Pool Shock Calculator', 'Cal-hypo, dichlor, liquid & SLAM'],
-  ['paver-calculator', '🧱', 'Paver Calculator', 'Pavers, base, sand & edging'],
-  ['paver-base-calculator', '⛏️', 'Paver Base Calculator', '4 in patio · 8–12 in driveway'],
-  ['sod-calculator', '🌾', 'Sod Calculator', 'Pallets, slabs, rolls & cost'],
-  ['grass-seed-calculator', '🌱', 'Grass Seed Calculator', 'lb per 1,000 sq ft by grass type'],
-  ['concrete-block-calculator', '🧱', 'Concrete Block Calculator', '1.125 blocks per sq ft (8×8×16)'],
-  ['retaining-wall-calculator', '🪨', 'Retaining Wall Calculator', 'Blocks, caps, base & drainage'],
-  ['hardiness-zones', '🌡️', 'Hardiness Zone by ZIP', 'USDA 2023 map + your frost dates'],
-  ['frost-dates', '❄️', 'Frost Dates by ZIP', 'NOAA 1991–2020 normals'],
-];
-const PINS = {
-  'stair-calculator': ['How many stairs do I need?', ['Total rise', 'Risers', 'Riser'], [['36 in', '5', '7 3/16 in'], ['48 in', '7', '6 7/8 in'], ['72 in', '10', '7 3/16 in'], ['96 in', '13', '7 3/8 in'], ['108 in', '14', '7 11/16 in'], ['120 in', '16', '7 1/2 in']]],
-  'gravel-calculator': ['How far does a yard of gravel go?', ['Depth', 'Covers', 'Weighs'], [['2 in', '162 sq ft', '1.4 tons'], ['3 in', '108 sq ft', '1.4 tons'], ['4 in', '81 sq ft', '1.4 tons'], ['6 in', '54 sq ft', '1.4 tons']]],
-  'pool-volume-calculator': ['How many gallons is my pool?', ['Pool', 'Depth', 'Gallons'], [['16 × 32 ft', '4.5 ft avg', '17,200'], ['18 × 36 ft', '4.5 ft avg', '21,800'], ['20 × 40 ft', '4.5 ft avg', '26,900'], ['18 ft round', '4 ft', '7,600'], ['24 ft round', '4 ft', '13,600']]],
-  'paver-calculator': ['How many pavers per square foot?', ['Paver', 'Per sq ft', 'Per 100 sq ft'], [['4 × 8 in', '4.50', '473'], ['6 × 6 in', '4.00', '420'], ['6 × 9 in', '2.67', '280'], ['12 × 12 in', '1.00', '105'], ['16 × 16 in', '0.56', '60']]],
-};
+// Tool names, icons and pin charts come from _site/pins.json, written by build-site.mjs.
+const PINS = JSON.parse(readFileSync('_site/pins.json', 'utf8'));
+const TOOLS = PINS.map((p) => [p.slug, p.icon, p.name, p.text]);
 
 const css = `*{box-sizing:border-box;margin:0}body{font-family:Inter,system-ui,"Segoe UI",Roboto,Arial,sans-serif;background:#142c1e;color:#fff}
 .card{position:relative;overflow:hidden;background:linear-gradient(135deg,#1b5e37 0%,#142c1e 70%)}
@@ -67,13 +48,13 @@ async function main() {
     await page.setContent(og(t));
     await page.screenshot({ path: `site-src/assets/og/${t[0]}.jpg`, type: 'jpeg', quality: 82 });
   }
-  for (const [slug, data] of Object.entries(PINS)) {
+  for (const p of PINS) {
     await page.setViewportSize({ width: 1000, height: 1500 });
-    await page.setContent(pin(slug, data));
-    await page.screenshot({ path: `site-src/assets/pins/${slug}.jpg`, type: 'jpeg', quality: 85 });
+    await page.setContent(pin(p.slug, [p.q, p.head, p.rows]));
+    await page.screenshot({ path: `site-src/assets/pins/${p.slug}.jpg`, type: 'jpeg', quality: 85 });
   }
   await browser.close();
-  console.log(`Wrote ${TOOLS.length} share images and ${Object.keys(PINS).length} pins`);
+  console.log(`Wrote ${TOOLS.length} share images and ${PINS.length} pins`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

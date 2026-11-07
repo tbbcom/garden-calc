@@ -45,6 +45,7 @@ jobs:
         run: node scripts/build-site.mjs
         env:
           GTM_ID: ${{ vars.GTM_ID || secrets.GTM_ID }}
+          PINTEREST_VERIFY: ${{ vars.PINTEREST_VERIFY }}
 
       - name: Find changed pages
         id: changed
