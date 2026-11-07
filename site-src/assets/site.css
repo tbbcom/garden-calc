@@ -199,3 +199,6 @@ table{border-collapse:collapse;width:100%}
 .hgt-note ul{margin:.4em 0 0;padding-left:1.2em}
 .hgt-calc__row--3{grid-template-columns:1fr 1fr 1fr auto}
 @media (max-width:480px){.hgt-calc__row--3{grid-template-columns:1fr 1fr 44px}.hgt-calc__row--3 label:first-child{grid-column:1/-1}}
+.hgt-calc__row--m{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.hgt-calc__row--m label{flex:1 1 110px;min-width:0}
+.hgt-calc__row--m .hgt-calc__del{flex:0 0 44px}

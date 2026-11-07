@@ -32,6 +32,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/fence-calculator/`, `/fence-post-concrete-calculator/` | Posts (with length), rails, pickets or panels and post concrete; bags per hole or Sonotube for 50/60/80 lb mixes |
 | `/tile-calculator/`, `/shower-tile-calculator/` | Tiles and boxes by size, joint and pattern, grout, thinset by trowel; shower walls + floor and membrane |
 | `/drywall-calculator/` | Sheets for rooms (walls + ceilings minus doors/windows), screws, joint compound and tape |
+| `/square-footage-calculator/`, `/countertop-square-footage-calculator/` | Area for any shape in feet + inches (sq ft, sq yd, m², acres, cost); countertop sections in inches with backsplash |
+| `/cubic-yard-calculator/`, `/cubic-yards-to-tons-calculator/` | Cubic yards, tons and bags by material for any shape and depth; tons ↔ yards converter |
+| `/board-foot-calculator/`, `/log-board-foot-calculator/` | Board feet for a lumber list; log scale by Doyle, Scribner and International ¼ in |
+| `/potting-soil-calculator/`, `/raised-bed-soil-calculator/` | Potting mix for pots, planters and grow bags; raised bed soil split by mix with filler and settling |
 | `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
 | `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
@@ -59,11 +63,11 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 
 | Feed | Board | Tools |
 |---|---|---|
-| `/feeds/pinterest-lawn-garden.xml` | Lawn & Garden Calculators | grass seed, sod, hardiness zones, frost dates |
-| `/feeds/pinterest-patio-gravel.xml` | Patio, Paver & Gravel Projects | gravel, pea gravel, driveway, pavers, paver base, retaining wall |
+| `/feeds/pinterest-lawn-garden.xml` | Lawn & Garden Calculators | grass seed, sod, raised bed soil, potting soil, hardiness zones, frost dates |
+| `/feeds/pinterest-patio-gravel.xml` | Patio, Paver & Gravel Projects | gravel, pea gravel, driveway, pavers, paver base, retaining wall, cubic yards, yards ↔ tons |
 | `/feeds/pinterest-pool-care.xml` | Pool Care Calculators | pool volume, salt, shock |
-| `/feeds/pinterest-diy-building.xml` | DIY Deck, Fence & Stair Building | deck, fence, fence post concrete, stairs, stringers, concrete block |
-| `/feeds/pinterest-diy-interior.xml` | DIY Tile & Drywall Projects | tile, shower tile, drywall |
+| `/feeds/pinterest-diy-building.xml` | DIY Deck, Fence & Stair Building | deck, fence, fence post concrete, stairs, stringers, concrete block, board feet, log scale |
+| `/feeds/pinterest-diy-interior.xml` | DIY Tile & Drywall Projects | tile, shower tile, drywall, square footage, countertops |
 
 Set up once: claim `tools.homegardenlot.com` in Pinterest (Settings → Claimed accounts → Websites → HTML tag; put the code in the `PINTEREST_VERIFY` repository variable and re-run **Deploy tool site**), create the 5 boards, then Settings → Bulk create Pins → Auto-publish → connect each feed to its board. To send a fresh round of pins later, change `TOOLS_UPDATED` in `scripts/build-site.mjs` (the date is part of each item's guid) and re-run `scripts/make-og.mjs` if the charts changed.
 
