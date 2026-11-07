@@ -424,6 +424,10 @@ ${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calcu
 <div class="hgt-grid">
 ${BATCH1_TOOLS.map((t) => card(t, 'New')).join('\n')}
 </div>
+<h2>Measuring and soil calculators</h2>
+<div class="hgt-grid">
+${[...BATCH3_TOOLS, ...BATCH3_VARIANTS].map((t) => card(t, 'New')).join('\n')}
+</div>
 <h2>Deck, fence, tile and drywall calculators</h2>
 <div class="hgt-grid">
 ${[...BATCH2_TOOLS, ...BATCH2_VARIANTS].map((t) => card(t, 'New')).join('\n')}
@@ -450,7 +454,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -1076,7 +1080,7 @@ ${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 1
 const ALL_TOOLS = () => [
   ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
   ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
-  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
+  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
 ];
 // Each tool page links to its siblings so link equity and visitors flow across the cluster.
 const FAMILY = {
@@ -1085,6 +1089,7 @@ const FAMILY = {
   '/pool-volume-calculator/': 'pool', '/pool-salt-calculator/': 'pool', '/pool-shock-calculator/': 'pool',
   '/sod-calculator/': 'lawn', '/grass-seed-calculator/': 'lawn', '/concrete-block-calculator/': 'masonry', '/retaining-wall-calculator/': 'masonry',
   '/hardiness-zones/': 'climate', '/frost-dates/': 'climate',
+  '/square-footage-calculator/': 'interior', '/countertop-square-footage-calculator/': 'interior', '/cubic-yard-calculator/': 'ground', '/cubic-yards-to-tons-calculator/': 'ground', '/board-foot-calculator/': 'stairs', '/log-board-foot-calculator/': 'stairs', '/potting-soil-calculator/': 'lawn', '/raised-bed-soil-calculator/': 'lawn',
   '/deck-calculator/': 'stairs', '/fence-calculator/': 'fence', '/fence-post-concrete-calculator/': 'fence', '/tile-calculator/': 'interior', '/shower-tile-calculator/': 'interior', '/drywall-calculator/': 'interior',
 };
 const NEAR = { fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
@@ -1194,6 +1199,14 @@ const EMBEDS = [
   { id: 'tile', name: 'Tile calculator', tool: '/tile-calculator/', height: 900, card: () => tileCard(true), script: '/assets/interior.js' },
   { id: 'shower-tile', name: 'Shower tile calculator', tool: '/shower-tile-calculator/', height: 900, card: () => showerCard(true), script: '/assets/interior.js' },
   { id: 'drywall', name: 'Drywall calculator', tool: '/drywall-calculator/', height: 900, card: () => drywallCard(true), script: '/assets/interior.js' },
+  { id: 'square-footage', name: 'Square footage calculator', tool: '/square-footage-calculator/', height: 760, card: () => sqftCard(true), script: '/assets/measure.js' },
+  { id: 'countertop', name: 'Countertop square footage calculator', tool: '/countertop-square-footage-calculator/', height: 700, card: () => counterCard(true), script: '/assets/measure.js' },
+  { id: 'cubic-yard', name: 'Cubic yard calculator', tool: '/cubic-yard-calculator/', height: 760, card: () => cuydCard(true), script: '/assets/measure.js' },
+  { id: 'yards-tons', name: 'Cubic yards to tons calculator', tool: '/cubic-yards-to-tons-calculator/', height: 560, card: () => tonsCard(true), script: '/assets/measure.js' },
+  { id: 'board-foot', name: 'Board foot calculator', tool: '/board-foot-calculator/', height: 700, card: () => bfCard(true), script: '/assets/measure.js' },
+  { id: 'log', name: 'Log board foot calculator', tool: '/log-board-foot-calculator/', height: 700, card: () => logCard(true), script: '/assets/measure.js' },
+  { id: 'potting-soil', name: 'Potting soil calculator', tool: '/potting-soil-calculator/', height: 700, card: () => potCard(true), script: '/assets/measure.js' },
+  { id: 'raised-bed', name: 'Raised bed soil calculator', tool: '/raised-bed-soil-calculator/', height: 820, card: () => bedCard(true), script: '/assets/measure.js' },
 ];
 const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
 <p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
@@ -1814,15 +1827,270 @@ function batch2Pages() {
   return pages;
 }
 
+// ---------- batch 3: square footage, cubic yards, board feet, soil ----------
+const ftIn = (k, label, v, vi) => [{ k, label: `${label} (ft)`, v }, { k: `${k}i`, label: '+ in', v: vi }];
+const MATERIALS = {
+  ...Object.fromEntries(Object.entries(GRAVEL.materials).map(([k, m]) => [k, { short: m.short, name: m.name, tpy: m.tpy }])),
+  topsoil: { short: 'topsoil', name: 'Topsoil (dry)', tpy: 1.1 },
+  fill: { short: 'fill dirt', name: 'Fill dirt', tpy: 1.2 },
+  compost: { short: 'compost', name: 'Compost', tpy: 0.5 },
+  mulch: { short: 'mulch', name: 'Wood mulch', tpy: 0.3 },
+  concrete: { short: 'concrete', name: 'Concrete (wet)', tpy: 2 },
+};
+const SQFT = { rows: { label: 'Area', shapes: {
+  r: { name: 'Rectangle', cols: [...ftIn('a', 'Length', 12, 0), ...ftIn('b', 'Width', 10, 0), { k: 'q', label: 'Qty', v: 1 }] },
+  c: { name: 'Circle', cols: [...ftIn('a', 'Diameter', 10, 0), { k: 'q', label: 'Qty', v: 1 }] },
+  t: { name: 'Triangle', cols: [...ftIn('a', 'Base', 10, 0), ...ftIn('b', 'Height', 8, 0), { k: 'q', label: 'Qty', v: 1 }] },
+} } };
+const COUNTER = { rows: { label: 'Section', cols: [{ k: 'a', label: 'Length (in)', v: 96 }, { k: 'b', label: 'Depth (in)', v: 25.5 }, { k: 'q', label: 'Qty', v: 1 }] } };
+const CUYD = { materials: MATERIALS, rows: { label: 'Area', shapes: {
+  r: { name: 'Rectangle', cols: [{ k: 'a', label: 'Length (ft)', v: 10 }, { k: 'b', label: 'Width (ft)', v: 10 }, { k: 'c', label: 'Depth (in)', v: 4 }, { k: 'q', label: 'Qty', v: 1 }] },
+  c: { name: 'Circle', cols: [{ k: 'a', label: 'Diameter (ft)', v: 10 }, { k: 'c', label: 'Depth (in)', v: 4 }, { k: 'q', label: 'Qty', v: 1 }] },
+  t: { name: 'Triangle', cols: [{ k: 'a', label: 'Base (ft)', v: 10 }, { k: 'b', label: 'Height (ft)', v: 8 }, { k: 'c', label: 'Depth (in)', v: 4 }, { k: 'q', label: 'Qty', v: 1 }] },
+} } };
+const TONS = { materials: MATERIALS };
+const BF = { rows: { label: 'Lumber', cols: [{ k: 'a', label: 'Thickness (in)', v: 1 }, { k: 'b', label: 'Width (in)', v: 6 }, { k: 'c', label: 'Length (ft)', v: 8 }, { k: 'q', label: 'Pieces', v: 10 }] } };
+const LOG_RULES = { doyle: 'Doyle', scribner: 'Scribner', intl: 'International ¼ in' };
+const LOG = { rules: LOG_RULES, rows: { label: 'Logs', cols: [{ k: 'a', label: 'Small-end diameter (in)', v: 16 }, { k: 'c', label: 'Length (ft)', v: 16 }, { k: 'q', label: 'Logs', v: 1 }] } };
+const POT = { rows: { label: 'Container', shapes: {
+  p: { name: 'Round pot', cols: [{ k: 'a', label: 'Top diameter (in)', v: 12 }, { k: 'c', label: 'Height (in)', v: 11 }, { k: 'q', label: 'Qty', v: 4 }] },
+  b: { name: 'Planter box', cols: [{ k: 'a', label: 'Length (in)', v: 36 }, { k: 'b', label: 'Width (in)', v: 10 }, { k: 'c', label: 'Depth (in)', v: 10 }, { k: 'q', label: 'Qty', v: 1 }] },
+  g: { name: 'Grow bag', cols: [{ k: 'a', label: 'Gallons', v: 5 }, { k: 'q', label: 'Qty', v: 1 }] },
+} } };
+const BED = {
+  settle: 0.1,
+  mixes: {
+    topsoil: { name: 'Topsoil-based 60/30/10', parts: [{ name: 'Topsoil or garden soil', share: 0.6, bag: 0.75 }, { name: 'Compost', share: 0.3, bag: 1 }, { name: 'Perlite or fine pine bark', share: 0.1, bag: 2 }] },
+    mel: { name: 'Square-foot "Mel\'s Mix" (⅓ each)', parts: [{ name: 'Blended compost', share: 1 / 3, bag: 1 }, { name: 'Peat moss or coco coir', share: 1 / 3, bag: 3 }, { name: 'Coarse vermiculite', share: 1 / 3, bag: 4 }] },
+    bagged: { name: 'Bagged raised bed mix only', parts: [{ name: 'Raised bed soil', share: 1, bag: 1.5 }] },
+  },
+  rows: { label: 'Bed', shapes: {
+    r: { name: 'Rectangle', cols: [{ k: 'a', label: 'Length (ft)', v: 8 }, { k: 'b', label: 'Width (ft)', v: 4 }, { k: 'c', label: 'Depth (in)', v: 12 }, { k: 'q', label: 'Qty', v: 1 }] },
+    c: { name: 'Round', cols: [{ k: 'a', label: 'Diameter (ft)', v: 4 }, { k: 'c', label: 'Depth (in)', v: 12 }, { k: 'q', label: 'Qty', v: 1 }] },
+  } },
+};
+const BATCH3_TOOLS = [
+  ['📐', 'Square Footage Calculator', '/square-footage-calculator/', 'Square feet for any shape in feet and inches, plus sq yd, m², acres and cost.'],
+  ['📦', 'Cubic Yard Calculator', '/cubic-yard-calculator/', 'Cubic yards, tons and bags for soil, gravel, mulch, sand or concrete.'],
+  ['🪓', 'Board Foot Calculator', '/board-foot-calculator/', 'Board feet, linear feet and cost for a lumber list.'],
+  ['🛏️', 'Raised Bed Soil Calculator', '/raised-bed-soil-calculator/', 'Soil and mix ingredients for raised beds, in cu ft, yards and bags.'],
+];
+const BATCH3_VARIANTS = [
+  ['🍳', 'Countertop Square Footage Calculator', '/countertop-square-footage-calculator/', 'Countertop and backsplash square feet and cost from inches.'],
+  ['⚖️', 'Cubic Yards to Tons Calculator', '/cubic-yards-to-tons-calculator/', 'Convert yards and tons for gravel, soil, sand, mulch and concrete.'],
+  ['🌲', 'Log Board Foot Calculator', '/log-board-foot-calculator/', 'Board feet in logs by Doyle, Scribner and International ¼ in.'],
+  ['🪴', 'Potting Soil Calculator', '/potting-soil-calculator/', 'Quarts and bags of potting mix for pots, planters and grow bags.'],
+];
+
+const rowsSet = (legend) => `<fieldset class="hgt-calc__set"><legend>${legend}</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another</button></fieldset>`;
+const priceOnly = (label, v) => `<details class="hgt-calc__prices"><summary>Price (optional)</summary><div class="hgt-calc__grid">${priceInput('price', label, v)}</div></details>`;
+const matSelect = (sel) => field('Material', selectIn('mat', Object.entries(MATERIALS).map(([k, m]) => [k, `${m.name} · ${m.tpy} t/yd`]), sel));
+const mShell = (kind, cfg, inner, embed) => calcShell(`data-hgt-measure="${kind}"`, cfg, inner, embed);
+const sqftCard = (embed = false) => mShell('sqft', SQFT, `${rowsSet('Areas (add rooms or parts of an L-shape)')}
+<div class="hgt-calc__grid">${field('Exclude (sq ft)', numIn('sub', '', '1', ' placeholder="0"'))}</div>
+${priceOnly('Price per sq ft', 0)}`, embed);
+const counterCard = (embed = false) => mShell('counter', COUNTER, `${rowsSet('Countertop sections (inches)')}
+<div class="hgt-calc__grid">
+<label class="hgt-calc__check"><input type="checkbox" name="splash" checked> Add backsplash</label>
+${field('Backsplash height (in)', numIn('splashh', 4, '0.5'))}
+</div>
+${priceOnly('Installed price per sq ft', 60)}`, embed);
+const cuydCard = (embed = false) => mShell('cuyd', CUYD, `${rowsSet('Areas')}
+<div class="hgt-calc__grid">${matSelect('topsoil')}${field('Priced per', selectIn('unit', [['yd', 'cubic yard'], ['ton', 'ton']], 'yd'))}</div>
+${priceOnly('Price', 0)}`, embed);
+const tonsCard = (embed = false) => mShell('tons', TONS, `<div class="hgt-calc__grid">
+${field('Convert', selectIn('dir', [['tons', 'Tons → cubic yards'], ['yd', 'Cubic yards → tons']], 'tons'))}
+${field('Amount', numIn('amount', 10, '0.1'))}
+${matSelect('57')}
+</div>`, embed);
+const bfCard = (embed = false) => mShell('bf', BF, `${rowsSet('Lumber list')}
+${priceOnly('Price per board foot', 0)}`, embed);
+const logCard = (embed = false) => mShell('log', LOG, `${rowsSet('Logs')}
+<div class="hgt-calc__grid">${field('Log rule', selectIn('rule', Object.entries(LOG_RULES), 'doyle'))}</div>
+${priceOnly('Price per board foot', 0)}`, embed);
+const potCard = (embed = false) => mShell('pot', POT, rowsSet('Containers'), embed);
+const bedCard = (embed = false) => mShell('bed', BED, `${rowsSet('Raised beds')}
+<div class="hgt-calc__grid">
+${field('Soil mix', selectIn('mix', Object.entries(BED.mixes).map(([k, m]) => [k, m.name]), 'topsoil'))}
+${field('Filler at the bottom', selectIn('fill', [[0, 'None (all soil)'], [4, '4 in of logs or branches'], [6, '6 in'], [12, '12 in (deep beds)']], 0))}
+</div>`, embed);
+
+// Same formulas as measure.js, for the reference tables.
+const potCuIn = (d, h) => { const R = d / 2, rb = R * 0.8, hh = Math.max(0, h - 1); return Math.PI * hh / 3 * (R * R + R * rb + rb * rb); };
+const logBf = (rule, d, L) => {
+  if (rule === 'doyle') return Math.max(0, (d - 4) ** 2 * L / 16);
+  if (rule === 'scribner') return Math.max(0, (0.79 * d * d - 2 * d - 4) * L / 16);
+  let bf = 0; const full = Math.floor(L / 4), rest = L - full * 4;
+  for (let i = 0; i < full; i++) { const di = d + 0.5 * i; bf += 0.22 * di * di - 0.71 * di; }
+  if (rest) { const dr = d + 0.5 * full; bf += (0.22 * dr * dr - 0.71 * dr) * rest / 4; }
+  return Math.max(0, bf * 0.905);
+};
+const bedCuft = (l, w, d) => l * w * d / 12 * (1 + BED.settle);
+
+function batch3Pages() {
+  const pages = [];
+  pages.push(toolPage({
+    path: '/square-footage-calculator/', name: 'Square Footage Calculator', script: '/assets/measure.js', embedId: 'square-footage',
+    title: 'Square Footage Calculator: Feet & Inches, Any Shape, Cost',
+    description: 'Free square footage calculator: area in sq ft for rooms, L-shapes, circles and triangles in feet and inches, converted to sq yd, m² and acres, with cost.',
+    h1: 'Square Footage Calculator', lede: 'Square feet for a room, a whole house, a yard or an odd shape. Enter feet and inches, add as many areas as you need, and get square yards, square meters, acres and cost at once.',
+    answer: '<strong>Square feet = length × width</strong> (in feet). Convert inches by dividing by 12: a room 12 ft 6 in × 10 ft 3 in is 12.5 × 10.25 = <strong>128.1 sq ft</strong>. For an L-shape, split it into rectangles and add them. Circles: π × (diameter ÷ 2)². Divide by 9 for square yards, or by 43,560 for acres.',
+    card: sqftCard(),
+    sections: `<h2>Square footage of common room sizes</h2>${table(['Room', 'Square feet', 'Square yards', 'Square meters'], [[10, 10], [10, 12], [12, 12], [12, 14], [14, 16], [16, 20], [20, 20]].map(([a, b]) => [`${a} × ${b} ft`, a * b, (a * b / 9).toFixed(1), (a * b * 0.09290304).toFixed(1)]))}
+<h2>Area conversions</h2>${table(['From', 'To', 'Multiply by'], [['Square feet', 'Square yards', '÷ 9'], ['Square feet', 'Square meters', '× 0.0929'], ['Square feet', 'Acres', '÷ 43,560'], ['Square inches', 'Square feet', '÷ 144'], ['Square meters', 'Square feet', '× 10.764'], ['Acres', 'Square feet', '× 43,560']])}`,
+    faqs: [
+      ['How do I calculate square footage?', 'Measure the length and width in feet and multiply them. For measurements in feet and inches, turn the inches into a decimal of a foot (divide by 12) first. For irregular rooms, split the space into rectangles, triangles or circles, find each area and add them up.'],
+      ['How do I calculate the square footage of an L-shaped room?', 'Split the L into two rectangles, measure each one, multiply length × width for each, and add the two results. Add each part as a separate area in the calculator.'],
+      ['How many square feet is a 12 × 12 room?', '144 square feet, which is 16 square yards or about 13.4 square meters.'],
+      ['How do I convert square feet to square yards?', 'Divide by 9, because a square yard is 3 ft × 3 ft. 270 sq ft ÷ 9 = 30 sq yd. Carpet and some sod are sold by the square yard.'],
+      ['How many square feet are in an acre?', '43,560 square feet. A half acre is 21,780 sq ft and a quarter acre is 10,890 sq ft.'],
+    ],
+    sources: 'Standard geometry: rectangles length × width, triangles base × height ÷ 2, circles π × radius². Conversions: 1 sq yd = 9 sq ft, 1 sq ft = 0.09290304 m² (exact), 1 acre = 43,560 sq ft.',
+  }));
+  pages.push(toolPage({
+    path: '/countertop-square-footage-calculator/', name: 'Countertop Square Footage Calculator', script: '/assets/measure.js', embedId: 'countertop',
+    title: 'Countertop Square Footage Calculator (with Backsplash)',
+    description: 'Free countertop square footage calculator: measure each section in inches, add islands and a backsplash, and get the square feet and cost for quartz, granite or laminate.',
+    h1: 'Countertop Square Footage Calculator', lede: 'Square feet of countertop for quotes and slab orders: measure each section in inches, add the island and backsplash, and see the cost at your installed price per square foot.',
+    answer: '<strong>Countertop sq ft = length (in) × depth (in) ÷ 144</strong> for each section. A standard counter is <strong>25½ in deep</strong>, so every 10 ft (120 in) run is 21.25 sq ft; a 4 in backsplash adds 3.3 sq ft per 10 ft. Measure L-shapes as two sections with the corner counted once.',
+    card: counterCard(),
+    sections: `<h2>Square feet for common countertop runs (25½ in deep)</h2>${table(['Run length', 'Counter', '+ 4 in backsplash'], [60, 72, 96, 120, 144, 180].map((l) => [`${l} in (${(l / 12).toFixed(1).replace('.0', '')} ft)`, `${(l * 25.5 / 144).toFixed(1)} sq ft`, `${(l * 29.5 / 144).toFixed(1)} sq ft`]))}
+<h2>Common island sizes</h2>${table(['Island', 'Square feet'], [[48, 36], [72, 36], [84, 42], [96, 42], [108, 48]].map(([l, d]) => [`${l} × ${d} in`, (l * d / 144).toFixed(1)]))}`,
+    faqs: [
+      ['How do you measure countertops for square footage?', 'Measure each straight section\'s length and depth in inches along the back wall, multiply length × depth and divide by 144. For an L or U shape, measure one leg to the wall and the other leg from the edge of the first, so the corner isn\'t counted twice.'],
+      ['What is the standard countertop depth?', 'About 25½ in for base cabinets (24 in cabinets plus a 1½ in overhang). Islands are often 36–42 in deep, or more with seating.'],
+      ['Do you include the sink cut-out in square footage?', 'No. Fabricators price the full slab area including sink and cooktop cut-outs, and often charge extra for each cut-out.'],
+      ['How much backsplash square footage do I need?', 'Multiply the length of counter against the wall by the backsplash height. A standard 4 in backsplash adds 1 sq ft for every 36 in of wall; a full-height tile backsplash is usually 18 in high.'],
+      ['How many square feet is a kitchen countertop?', 'Most kitchens have 30–50 sq ft of countertop, plus 10–30 sq ft for an island.'],
+    ],
+    sources: 'Area = length × depth ÷ 144 (square inches per square foot). Standard depths reflect common U.S. base cabinet dimensions. Installed prices vary widely by material, edge and region; enter quotes from your fabricator.',
+  }));
+  const M = MATERIALS;
+  pages.push(toolPage({
+    path: '/cubic-yard-calculator/', name: 'Cubic Yard Calculator', script: '/assets/measure.js', embedId: 'cubic-yard',
+    title: 'Cubic Yard Calculator: Yards, Tons & Bags for Any Material',
+    description: 'Free cubic yard calculator: cubic yards, tons and bags of soil, gravel, mulch, sand or concrete for any shape and depth, with the math shown and cost.',
+    h1: 'Cubic Yard Calculator', lede: 'Cubic yards for any landscaping or concrete job, from length, width and depth, plus the weight in tons and how many bags that is, for soil, gravel, mulch, sand, compost or concrete.',
+    answer: '<strong>Cubic yards = length (ft) × width (ft) × depth (in) ÷ 324.</strong> Or multiply all three dimensions in feet and divide by 27. A 10 × 10 ft area 4 in deep is <strong>1.23 cubic yards</strong>. One cubic yard covers 324 sq ft at 1 in, 108 sq ft at 3 in and 81 sq ft at 4 in.',
+    card: cuydCard(),
+    sections: `<h2>Cubic yards for common areas</h2>${table(['Area', '2 in deep', '3 in deep', '4 in deep', '6 in deep'], [[10, 10], [10, 20], [20, 20], [12, 24], [20, 50]].map(([a, b]) => [`${a} × ${b} ft`, ...[2, 3, 4, 6].map((d) => (a * b * d / 324).toFixed(2))]))}
+<h2>What a cubic yard weighs</h2>${table(['Material', 'Tons per cu yd', 'Pounds'], Object.values(M).map((m) => [m.name, m.tpy, fmtInt(m.tpy * 2000)]))}
+<p class="hgt-read">Weights are typical dry figures; wet soil, sand and mulch weigh more. A cubic yard is 27 cubic feet, or about 13 bags of 2 cu ft.</p>`,
+    faqs: [
+      ['How do I calculate cubic yards?', 'Multiply length × width × depth, all in feet, and divide by 27. If depth is in inches, multiply length × width in feet by the depth in inches and divide by 324. 20 × 10 ft at 3 in: 20 × 10 × 3 ÷ 324 = 1.85 cubic yards.'],
+      ['How many square feet does a cubic yard cover?', '324 sq ft at 1 in deep, 162 sq ft at 2 in, 108 sq ft at 3 in, 81 sq ft at 4 in and 54 sq ft at 6 in.'],
+      ['How many bags are in a cubic yard?', '27 cubic feet make a yard: 13.5 bags of 2 cu ft, 18 bags of 1.5 cu ft or 54 bags of 0.5 cu ft.'],
+      ['How many tons is a cubic yard?', 'It depends on the material: about 1.4 tons for gravel, 1.1 tons for dry topsoil, 0.3 tons for wood mulch and 2 tons for wet concrete.'],
+      ['How much does a cubic yard of dirt weigh?', 'About 2,200 lb (1.1 tons) for dry topsoil, and up to around 3,000 lb when wet or full of clay.'],
+    ],
+    sources: 'Volume: 1 cubic yard = 27 cubic feet = 0.7646 m³. Material weights are typical supplier figures and vary with moisture and grade; ask your yard for theirs when ordering by the ton. Concrete is about 4,000 lb per cubic yard when fresh.',
+  }));
+  pages.push(toolPage({
+    path: '/cubic-yards-to-tons-calculator/', name: 'Cubic Yards to Tons Calculator', script: '/assets/measure.js', embedId: 'yards-tons',
+    title: 'Cubic Yards to Tons Calculator (and Tons to Yards)',
+    description: 'Free converter for cubic yards to tons and tons to cubic yards for gravel, crushed stone, sand, topsoil, fill dirt, mulch, compost and concrete.',
+    h1: 'Cubic Yards to Tons Calculator', lede: 'Suppliers sell by the ton or the yard. Convert between them for the exact material you are buying, with typical weights for gravel, stone, sand, soil, mulch and concrete.',
+    answer: `<strong>Tons = cubic yards × density; cubic yards = tons ÷ density.</strong> Gravel and crushed stone weigh about <strong>1.4 tons per cubic yard</strong>, so 10 tons of #57 stone is about 7.1 cubic yards. Topsoil is about 1.1 tons per yard and wood mulch about 0.3.`,
+    card: tonsCard(),
+    sections: `<h2>Conversion chart</h2>${table(['Material', '1 cu yd =', '1 ton =', '10 tons ='], Object.values(M).map((m) => [m.name, `${m.tpy} tons`, `${(1 / m.tpy).toFixed(2)} cu yd`, `${(10 / m.tpy).toFixed(1)} cu yd`]))}`,
+    faqs: [
+      ['How many tons are in a cubic yard of gravel?', 'About 1.4 tons (2,800 lb) for most gravel and crushed stone, and about 1.5 tons for crusher run with fines.'],
+      ['How many cubic yards are in a ton of gravel?', 'About 0.71 cubic yards. 10 tons of gravel is about 7 cubic yards.'],
+      ['How many cubic yards in a ton of topsoil?', 'About 0.9 cubic yards of dry topsoil per ton. Wet soil is heavier, so a ton covers less.'],
+      ['How many tons is a cubic yard of sand?', 'About 1.35 tons dry; wet sand can weigh 1.5 tons or more per yard.'],
+      ['Why do suppliers sell by the ton?', 'Their trucks are weighed on a scale, so tons are easier to measure than volume. Convert your volume to tons with the density for that material and order a little extra.'],
+    ],
+    sources: 'Densities are typical dry figures used by landscape and aggregate suppliers; your supplier\'s scale tickets and density take priority.',
+  }));
+  const bfRows = [[1, 4, 8], [1, 6, 8], [1, 8, 8], [1, 12, 8], [2, 4, 8], [2, 6, 8], [2, 8, 12], [2, 10, 12], [2, 12, 16], [4, 4, 8], [6, 6, 8]].map(([t, w, l]) => [`${t} × ${w} × ${l} ft`, (t * w * l / 12).toFixed(2)]);
+  pages.push(toolPage({
+    path: '/board-foot-calculator/', name: 'Board Foot Calculator', script: '/assets/measure.js', embedId: 'board-foot',
+    title: 'Board Foot Calculator: Lumber Board Feet, Linear Feet & Cost',
+    description: 'Free board foot calculator: board feet for a whole lumber list from thickness, width and length, plus linear feet, cubic feet and cost per board foot.',
+    h1: 'Board Foot Calculator', lede: 'Board feet for one board or a whole cut list: thickness and width in inches, length in feet, with linear feet, cubic feet and cost when you buy hardwood by the board foot.',
+    answer: '<strong>Board feet = thickness (in) × width (in) × length (ft) ÷ 12.</strong> One board foot is 1 in × 12 in × 1 ft (144 cubic inches). A 1 × 6 that is 8 ft long is <strong>4 board feet</strong>; a 2 × 4 × 8 is 5.33. Hardwood uses quarters: 4/4 = 1 in, 8/4 = 2 in.',
+    card: bfCard(),
+    sections: `<h2>Board feet in common lumber sizes</h2><p class="hgt-read">Nominal sizes, as lumber yards calculate board feet.</p>${table(['Board', 'Board feet'], bfRows)}
+<h2>Hardwood thickness (quarter system)</h2>${table(['Quarters', 'Rough thickness', 'Typical surfaced'], [['4/4', '1 in', '¾–13/16 in'], ['5/4', '1¼ in', '1–1 1/16 in'], ['6/4', '1½ in', '1¼ in'], ['8/4', '2 in', '1¾ in'], ['12/4', '3 in', '2¾ in']])}`,
+    faqs: [
+      ['How do you calculate board feet?', 'Multiply thickness in inches × width in inches × length in feet, then divide by 12. If the length is in inches, divide by 144 instead. Multiply by the number of boards for a total.'],
+      ['How many board feet is a 2 × 4 × 8?', '5.33 board feet: 2 × 4 × 8 ÷ 12. Board feet use nominal dimensions for softwood lumber, even though a 2 × 4 actually measures 1½ × 3½ in.'],
+      ['What is a board foot?', 'A volume of wood equal to a board 1 in thick, 12 in wide and 1 ft long (144 cubic inches). 12 board feet equal one cubic foot.'],
+      ['What is the difference between board feet and linear feet?', 'Linear feet measure length only; board feet measure volume. A 1 × 6 board 10 ft long is 10 linear feet but 5 board feet.'],
+      ['How do I price hardwood by the board foot?', 'Hardwood yards price rough lumber per board foot by species and grade. Add up the board feet of your cut list, add 20–30% for defects and milling waste, and multiply by the price.'],
+    ],
+    sources: 'Board foot definition: 144 cubic inches (1 in × 12 in × 12 in). Softwood dimension lumber is calculated on nominal size; hardwood on rough quarter thickness. Surfaced thicknesses are typical for S2S hardwood.',
+  }));
+  const logRows = [10, 12, 14, 16, 18, 20, 24, 28].map((d) => [`${d} in`, ...['doyle', 'scribner', 'intl'].map((r) => fmtInt(Math.round(logBf(r, d, 16))))]);
+  pages.push(toolPage({
+    path: '/log-board-foot-calculator/', name: 'Log Board Foot Calculator', script: '/assets/measure.js', embedId: 'log',
+    title: 'Log Board Foot Calculator: Doyle, Scribner & International',
+    description: 'Free log scale calculator: board feet in a log or a load of logs from small-end diameter and length, by the Doyle, Scribner and International ¼ in log rules.',
+    h1: 'Log Board Foot Calculator', lede: 'How many board feet of lumber a log will scale, from its small-end diameter and length, by all three common U.S. log rules side by side, for timber sales, sawmilling and firewood logs.',
+    answer: `<strong>Doyle: (diameter − 4)² × length ÷ 16.</strong> Scribner and International ¼ in rules give more for small logs. A 16 in × 16 ft log scales <strong>${Math.round(logBf('doyle', 16, 16))} bd ft (Doyle)</strong>, ${Math.round(logBf('scribner', 16, 16))} (Scribner) and ${Math.round(logBf('intl', 16, 16))} (International ¼ in). Measure the diameter inside the bark at the small end.`,
+    card: logCard(),
+    sections: `<h2>Board feet in a 16 ft log</h2>${table(['Small-end diameter', 'Doyle', 'Scribner', 'International ¼ in'], logRows)}
+<section class="hgt-read"><h2>Which log rule?</h2><ul><li><strong>Doyle</strong>: common in the South and East; underestimates small logs, so sellers of small timber get less.</li><li><strong>Scribner</strong>: common in the West; closer to actual sawn yield for mid-size logs.</li><li><strong>International ¼ in</strong>: the most accurate for real mill yield and the standard for many state and federal timber sales.</li></ul><p>Ask which rule a buyer uses before comparing offers.</p></section>`,
+    faqs: [
+      ['How do you calculate board feet in a log?', 'Measure the diameter inside the bark at the small end in inches and the length in feet, then apply a log rule. With Doyle: (diameter − 4)² × length ÷ 16. A 20 in × 12 ft log is (16)² × 12 ÷ 16 = 192 bd ft.'],
+      ['Why do log rules give different answers?', 'Each rule makes different assumptions about saw kerf, slabs and taper. Doyle subtracts a large allowance, so small logs scale low; International ¼ in models sawing more closely.'],
+      ['How many board feet in a 16 inch log?', `A 16 in log 16 ft long scales about ${Math.round(logBf('doyle', 16, 16))} bd ft by Doyle, ${Math.round(logBf('scribner', 16, 16))} by Scribner and ${Math.round(logBf('intl', 16, 16))} by International ¼ in.`],
+      ['Where do I measure log diameter?', 'At the small end, inside the bark, across the average diameter. Lengths usually include 3–6 in of trim allowance that isn\'t scaled.'],
+      ['How many board feet in a tree?', 'Scale each log from the tree separately (usually 8–16 ft lengths up to a merchantable top diameter) and add them up. Foresters use volume tables based on diameter at breast height and merchantable height.'],
+    ],
+    sources: 'Doyle rule: (D − 4)² × L ÷ 16. Scribner: the common formula approximation (0.79D² − 2D − 4) × L ÷ 16. International ¼ in: 0.22D² − 0.71D per 4 ft section, diameter increasing ½ in per section for taper, × 0.905 for a ¼ in saw kerf. These are standard forestry formulas; official scaling follows your state\'s rules.',
+  }));
+  const pots = [6, 8, 10, 12, 14, 16, 20].map((d) => { const h = Math.round(d * 0.9); const ci = potCuIn(d, h); return [`${d} in round (≈${h} in tall)`, (ci / 1728 * 25.714).toFixed(1), (ci / 231).toFixed(2), (ci / 1728).toFixed(2)]; });
+  pages.push(toolPage({
+    path: '/potting-soil-calculator/', name: 'Potting Soil Calculator', script: '/assets/measure.js', embedId: 'potting-soil',
+    title: 'Potting Soil Calculator: Quarts & Bags for Pots and Planters',
+    description: 'Free potting soil calculator: quarts, gallons and bags of potting mix for round pots, planter boxes and grow bags, with tapered pots and a 1 in rim allowance.',
+    h1: 'Potting Soil Calculator', lede: 'How much potting mix to buy for a set of pots, window boxes, planters or fabric grow bags, in quarts, gallons and the bag sizes stores sell.',
+    answer: `<strong>A 12 in pot holds about ${Math.round(potCuIn(12, 11) / 1728 * 25.714)} quarts of potting mix; a 5 gallon grow bag about ${Math.round(5 * 231 * 0.9 / 1728 * 25.714)} quarts.</strong> One cubic foot of potting mix is about 25.7 dry quarts. For a planter box: length × width × depth (in) ÷ 1,728 = cubic feet. Leave about 1 in below the rim for watering.`,
+    card: potCard(),
+    sections: `<h2>Potting mix for common pot sizes</h2>${table(['Pot', 'Quarts', 'Gallons', 'Cubic feet'], pots)}
+<h2>Grow bags</h2>${table(['Grow bag', 'Quarts (filled to 90%)', 'Cubic feet'], [1, 3, 5, 7, 10, 15, 20, 25].map((g) => [`${g} gal`, (g * 231 * 0.9 / 1728 * 25.714).toFixed(1), (g * 231 * 0.9 / 1728).toFixed(2)]))}
+<p class="hgt-read">Nursery "gallon" pots hold less than a true gallon (a #1 pot is roughly ¾ gal), so measure the pot instead of trusting the label.</p>`,
+    faqs: [
+      ['How much potting soil do I need for a 12 inch pot?', `About ${Math.round(potCuIn(12, 11) / 1728 * 25.714)} quarts (${(potCuIn(12, 11) / 1728).toFixed(2)} cu ft) for a typical tapered 12 in pot about 11 in tall, filled to 1 in below the rim. Straight-sided or deeper pots need more.`],
+      ['How many quarts are in a cubic foot of potting soil?', 'About 25.7 dry quarts. A 2 cu ft bag holds about 51 quarts, and a 1.5 cu ft bag about 39 quarts.'],
+      ['How much soil for a 5 gallon grow bag?', 'About 15 quarts (0.6 cu ft) when filled to about 90%, which leaves room for watering and settling.'],
+      ['How do I calculate soil for a planter box?', 'Multiply length × width × soil depth in inches and divide by 1,728 for cubic feet, then multiply by 25.7 for quarts. A 36 × 10 × 9 in box needs about 1.9 cu ft, or 48 quarts.'],
+      ['Can I use garden soil in pots?', 'Not on its own: it compacts and drains poorly in containers. Use a peat- or coir-based potting mix, and add perlite for drainage-hungry plants such as succulents and herbs.'],
+    ],
+    sources: 'Round pots are treated as tapered (base 80% of the rim diameter) and filled to 1 in below the rim; planters to 1 in below the top; grow bags to 90%. 1 cu ft = 1,728 cu in = 25.714 U.S. dry quarts; 1 gallon = 231 cu in.',
+  }));
+  pages.push(toolPage({
+    path: '/raised-bed-soil-calculator/', name: 'Raised Bed Soil Calculator', script: '/assets/measure.js', embedId: 'raised-bed',
+    title: 'Raised Bed Soil Calculator: Cubic Feet, Yards, Bags & Mix',
+    description: 'Free raised bed soil calculator: cubic feet, cubic yards and bags of soil for one or many beds, split into a topsoil/compost mix or Mel\'s Mix, with filler and settling.',
+    h1: 'Raised Bed Soil Calculator', lede: 'How much soil to fill your raised beds, and how much of each ingredient for the mix you choose, in bags or bulk yards, with an option to save soil with logs or branches at the bottom.',
+    answer: `<strong>Soil (cu ft) = length (ft) × width (ft) × depth (in) ÷ 12, plus about 10% for settling.</strong> A <strong>4 × 8 ft bed 12 in deep needs about ${bedCuft(8, 4, 12).toFixed(0)} cu ft</strong> (${(bedCuft(8, 4, 12) / 27).toFixed(1)} cu yd), or ${Math.ceil(bedCuft(8, 4, 12) / 1.5)} bags of 1.5 cu ft. Several beds? Bulk delivery is usually cheaper above about 1 cubic yard.`,
+    card: bedCard(),
+    sections: `<h2>Soil for common raised bed sizes (+10% settling)</h2>${table(['Bed', 'Depth', 'Cubic feet', 'Cubic yards', '1.5 cu ft bags'], [[4, 4, 6], [4, 4, 12], [3, 6, 12], [4, 8, 6], [4, 8, 12], [4, 8, 18], [2, 8, 12]].map(([w, l, d]) => { const v = bedCuft(l, w, d); return [`${w} × ${l} ft`, `${d} in`, v.toFixed(1), (v / 27).toFixed(2), Math.ceil(v / 1.5)]; }))}
+<h2>Raised bed soil mixes</h2>${table(['Mix', 'Recipe', 'Good for'], [['Topsoil-based', '60% topsoil, 30% compost, 10% perlite or fine bark', 'Deep beds and budgets; holds moisture'], ['Mel\'s Mix', '⅓ compost (blended), ⅓ peat or coir, ⅓ coarse vermiculite', 'Square-foot gardens 6 in deep'], ['Bagged raised bed mix', 'Ready to use', 'Small beds and convenience']])}`,
+    faqs: [
+      ['How much soil do I need for a 4 × 8 raised bed?', `About ${bedCuft(8, 4, 12).toFixed(0)} cubic feet for a bed 12 in deep, including 10% for settling: that is ${(bedCuft(8, 4, 12) / 27).toFixed(1)} cubic yards or ${Math.ceil(bedCuft(8, 4, 12) / 1.5)} bags of 1.5 cu ft. At 6 in deep it takes about ${bedCuft(8, 4, 6).toFixed(0)} cu ft.`],
+      ['How deep should a raised bed be?', '6 in works for lettuce, herbs and shallow-rooted crops over loosened ground; 10–12 in suits most vegetables; 18–24 in helps carrots, potatoes and beds on hard or paved ground.'],
+      ['What is the best soil mix for raised beds?', 'A blend of about 60% screened topsoil, 30% compost and 10% perlite or fine pine bark drains well and holds nutrients. Square-foot gardeners use Mel\'s Mix: equal parts compost, peat or coir, and coarse vermiculite.'],
+      ['Can I put logs or branches in the bottom of a raised bed?', 'Yes, in deep beds. Logs, branches and leaves at the bottom (a hugelkultur-style base) save soil and hold moisture as they break down. Expect the surface to sink a little each year and top it up with compost.'],
+      ['Is it cheaper to buy soil in bags or bulk?', 'Bags win for one small bed. Above about 1 cubic yard (27 cu ft), bulk delivery from a landscape supplier usually costs much less per cubic foot, even with a delivery fee.'],
+    ],
+    sources: `Volume = length × width × depth; ${Math.round(BED.settle * 100)}% is added because fresh soil settles. Mix ratios are common gardening recipes; Mel's Mix is from the Square Foot Gardening method. Bag sizes reflect typical retail sizes (topsoil 0.75 cu ft, compost 1 cu ft, raised bed mix 1.5 cu ft).`,
+  }));
+  return pages;
+}
+
 // ---------- Pinterest: one pin per tool, one RSS feed per board ----------
 // Pinterest's "auto-publish from RSS" maps each feed to one board (up to 5 feeds per account),
 // so tools are grouped into 5 boards and each feed item carries its pin image.
 const PIN_BOARDS = [
-  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/hardiness-zones/', '/frost-dates/'] },
-  { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/'] },
+  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, raised bed and potting soil, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/raised-bed-soil-calculator/', '/potting-soil-calculator/', '/hardiness-zones/', '/frost-dates/'] },
+  { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/', '/cubic-yard-calculator/', '/cubic-yards-to-tons-calculator/'] },
   { id: 'pool-care', name: 'Pool Care Calculators', desc: 'Pool volume, salt and shock doses made simple, with free calculators and charts for every pool size.', tools: ['/pool-volume-calculator/', '/pool-salt-calculator/', '/pool-shock-calculator/'] },
-  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/'] },
-  { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset and drywall to buy, with free calculators for floors, showers and rooms.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/'] },
+  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/', '/board-foot-calculator/', '/log-board-foot-calculator/'] },
+  { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset and drywall to buy, plus square footage of rooms and countertops, with free calculators.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/', '/square-footage-calculator/', '/countertop-square-footage-calculator/'] },
 ];
 // Each pin: a question people search on Pinterest, a small chart from the same formulas as the page, and a description.
 function pinData() {
@@ -1850,6 +2118,14 @@ function pinData() {
     '/fence-post-concrete-calculator/': ['Concrete bags per fence post', ['Hole', '50 lb fast-set', '80 lb'], [[8, 24], [10, 24], [10, 30], [12, 36]].map(([d, h]) => { const c = holeCuft(d, h, 3.5); return [`${d} × ${h} in`, String(Math.ceil(c / 0.375 - 1e-9)), String(Math.ceil(c / 0.6 - 1e-9))]; })],
     '/tile-calculator/': ['How many tiles per square foot?', ['Tile', 'Per sq ft', 'Per 100 sq ft'], ['12x12', '12x24', '6x24', '3x6', '24x24'].map((k) => [T[k].name.replace(/ (plank|subway)$/, ''), tilePer(T[k]).toFixed(2), fmtInt(Math.ceil(100 * tilePer(T[k]) * 1.1))])],
     '/shower-tile-calculator/': ['How much tile for a shower?', ['Shower', 'Wall sq ft', 'Floor sq ft'], [[36, 36], [48, 36], [60, 32], [60, 36]].map(([w, d]) => [`${w} × ${d} in`, ((w + 2 * d) * 96 / 144).toFixed(0), (w * d / 144).toFixed(1)])],
+    '/square-footage-calculator/': ['How many square feet is my room?', ['Room', 'Sq ft', 'Sq yd'], [[10, 10], [10, 12], [12, 12], [12, 14], [14, 16]].map(([a, c]) => [`${a} × ${c} ft`, String(a * c), (a * c / 9).toFixed(1)])],
+    '/countertop-square-footage-calculator/': ['Countertop square feet (25½ in deep)', ['Run', 'Counter', '+ backsplash'], [72, 96, 120, 144].map((l) => [`${l / 12} ft`, `${(l * 25.5 / 144).toFixed(1)} sq ft`, `${(l * 29.5 / 144).toFixed(1)} sq ft`])],
+    '/cubic-yard-calculator/': ['How many cubic yards do I need?', ['Area', '3 in deep', '4 in deep'], [[10, 10], [10, 20], [20, 20], [12, 24]].map(([a, c]) => [`${a} × ${c} ft`, (a * c * 3 / 324).toFixed(2), (a * c * 4 / 324).toFixed(2)])],
+    '/cubic-yards-to-tons-calculator/': ['How many tons in a cubic yard?', ['Material', 'Tons per yd'], ['57', 'crusher', 'sand', 'topsoil', 'mulch', 'concrete'].map((k) => [MATERIALS[k].name.replace(/ \(.*$/, ''), String(MATERIALS[k].tpy)])],
+    '/board-foot-calculator/': ['How many board feet?', ['Lumber', 'Board feet'], [[1, 6, 8], [2, 4, 8], [2, 6, 8], [2, 8, 12], [2, 10, 12], [4, 4, 8]].map(([t, w, l]) => [`${t} × ${w} × ${l} ft`, (t * w * l / 12).toFixed(2)])],
+    '/log-board-foot-calculator/': ['Board feet in a 16 ft log', ['Diameter', 'Doyle', 'Int ¼'], [12, 16, 20, 24, 28].map((d) => [`${d} in`, String(Math.round(logBf('doyle', d, 16))), String(Math.round(logBf('intl', d, 16)))])],
+    '/potting-soil-calculator/': ['How much potting soil per pot?', ['Pot', 'Quarts'], [8, 10, 12, 14, 16].map((d) => [`${d} in round`, String(Math.round(potCuIn(d, Math.round(d * 0.9)) / 1728 * 25.714))]).concat([[5, 'gal grow bag'], [10, 'gal grow bag']].map(([g, n]) => [`${g} ${n}`, String(Math.round(g * 231 * 0.9 / 1728 * 25.714))]))],
+    '/raised-bed-soil-calculator/': ['How much soil for a raised bed?', ['Bed', 'Cu ft', 'Bags 1.5'], [[4, 4, 12], [3, 6, 12], [4, 8, 6], [4, 8, 12], [4, 8, 18]].map(([w, l, d]) => [`${w}×${l} ft, ${d} in`, bedCuft(l, w, d).toFixed(0), String(Math.ceil(bedCuft(l, w, d) / 1.5))])],
     '/drywall-calculator/': ['How many sheets of drywall?', ['Room', '4×8 sheets', '4×12'], [[10, 10], [12, 12], [12, 14], [14, 16]].map(([l, w]) => [`${l} × ${w} ft`, String(drywallRow(l, w).sheets), String(drywallRow(l, w, 8, 48).sheets)])],
   };
   const tools = ALL_TOOLS();
@@ -1934,7 +2210,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [...batch3Pages(), ...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -1969,7 +2245,7 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
-${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
+${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
 - [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
 - [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
