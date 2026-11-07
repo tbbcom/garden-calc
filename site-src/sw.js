@@ -1,6 +1,6 @@
 /* Offline support: pages network-first, assets and ZIP data (frost and zones) stale-while-revalidate. */
-var CACHE = 'hgt-v6';
-var SHELL = ['/', '/frost-dates/', '/hardiness-zones/', '/concrete-block-calculator/', '/retaining-wall-calculator/', '/sod-calculator/', '/grass-seed-calculator/', '/stair-calculator/', '/gravel-calculator/', '/pool-volume-calculator/', '/paver-calculator/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/zone.js', '/assets/masonry.js', '/assets/lawn.js', '/assets/stairs.js', '/assets/hardscape.js', '/assets/pool.js', '/assets/icon.svg'];
+var CACHE = 'hgt-v7';
+var SHELL = ['/', '/frost-dates/', '/hardiness-zones/', '/concrete-block-calculator/', '/retaining-wall-calculator/', '/sod-calculator/', '/grass-seed-calculator/', '/stair-calculator/', '/gravel-calculator/', '/pool-volume-calculator/', '/paver-calculator/', '/deck-calculator/', '/fence-calculator/', '/tile-calculator/', '/drywall-calculator/', '/assets/site.css', '/assets/site.js', '/assets/frost.js', '/assets/zone.js', '/assets/masonry.js', '/assets/lawn.js', '/assets/stairs.js', '/assets/hardscape.js', '/assets/pool.js', '/assets/carpentry.js', '/assets/interior.js', '/assets/icon.svg'];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(SHELL); }).then(function () { return self.skipWaiting(); }));

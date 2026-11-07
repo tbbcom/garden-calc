@@ -197,3 +197,5 @@ table{border-collapse:collapse;width:100%}
 .hgt-stairsvg .edge{stroke:#a8a29e;stroke-width:2;stroke-dasharray:6 4}
 .hgt-stairsvg text{font:12px system-ui,sans-serif;fill:#3f3f46}
 .hgt-note ul{margin:.4em 0 0;padding-left:1.2em}
+.hgt-calc__row--3{grid-template-columns:1fr 1fr 1fr auto}
+@media (max-width:480px){.hgt-calc__row--3{grid-template-columns:1fr 1fr 44px}.hgt-calc__row--3 label:first-child{grid-column:1/-1}}

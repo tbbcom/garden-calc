@@ -28,6 +28,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/gravel-calculator/`, `/pea-gravel-calculator/`, `/driveway-gravel-calculator/` | Cubic yards, tons and bags by stone type and depth; the driveway page sums base, middle and top layers |
 | `/pool-volume-calculator/`, `/pool-salt-calculator/`, `/pool-shock-calculator/` | Gallons for rectangle, round, oval and kidney pools; salt to target ppm (or % to drain); shock dose by product, including SLAM by CYA |
 | `/paver-calculator/`, `/paver-base-calculator/` | Pavers by size and pattern, compacted base, bedding sand, polymeric sand and edge restraint |
+| `/deck-calculator/` | Deck boards, joists, rim and ledger, hangers, screws or hidden clips, beam posts and footing concrete |
+| `/fence-calculator/`, `/fence-post-concrete-calculator/` | Posts (with length), rails, pickets or panels and post concrete; bags per hole or Sonotube for 50/60/80 lb mixes |
+| `/tile-calculator/`, `/shower-tile-calculator/` | Tiles and boxes by size, joint and pattern, grout, thinset by trowel; shower walls + floor and membrane |
+| `/drywall-calculator/` | Sheets for rooms (walls + ceilings minus doors/windows), screws, joint compound and tape |
 | `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
 | `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
@@ -50,6 +54,18 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 **Google Tag Manager (optional):** repo Settings → Secrets and variables → Actions → **Variables** → New variable `GTM_ID` = `GTM-XXXXXXX`, then re-run **Deploy tool site**. The build adds Consent Mode v2 defaults (denied in the EEA/UK/CH until consent), loads GTM after the page is idle so it doesn't hurt LCP/INP, and switches the privacy notice to describe analytics. Custom events pushed to the dataLayer: `frost_lookup` (with `frost_state`, never the ZIP) and `embed_code_copy`.
 
 **Share images:** `node scripts/make-og.mjs` (local, needs Playwright) renders `site-src/assets/og/<slug>.jpg` (each tool's og:image) and Pinterest pins in `site-src/assets/pins/`. Re-run it after adding a tool.
+
+**Pinterest auto-publish:** the build writes one RSS feed per board in `/feeds/` (each item = one tool's 2:3 pin from `site-src/assets/pins/`):
+
+| Feed | Board | Tools |
+|---|---|---|
+| `/feeds/pinterest-lawn-garden.xml` | Lawn & Garden Calculators | grass seed, sod, hardiness zones, frost dates |
+| `/feeds/pinterest-patio-gravel.xml` | Patio, Paver & Gravel Projects | gravel, pea gravel, driveway, pavers, paver base, retaining wall |
+| `/feeds/pinterest-pool-care.xml` | Pool Care Calculators | pool volume, salt, shock |
+| `/feeds/pinterest-diy-building.xml` | DIY Deck, Fence & Stair Building | deck, fence, fence post concrete, stairs, stringers, concrete block |
+| `/feeds/pinterest-diy-interior.xml` | DIY Tile & Drywall Projects | tile, shower tile, drywall |
+
+Set up once: claim `tools.homegardenlot.com` in Pinterest (Settings → Claimed accounts → Websites → HTML tag; put the code in the `PINTEREST_VERIFY` repository variable and re-run **Deploy tool site**), create the 5 boards, then Settings → Bulk create Pins → Auto-publish → connect each feed to its board. To send a fresh round of pins later, change `TOOLS_UPDATED` in `scripts/build-site.mjs` (the date is part of each item's guid) and re-run `scripts/make-og.mjs` if the charts changed.
 
 **IndexNow:** each build writes `/page-hashes.json` (a content hash per page). The deploy compares it with the live copy and, after the Cloudflare purge, sends only the changed URLs to IndexNow (Bing, Yandex, Seznam, Naver) using the key file `/<INDEXNOW_KEY>.txt`. Nothing to set up. Google doesn't use IndexNow; it reads the sitemap in Search Console.
 
