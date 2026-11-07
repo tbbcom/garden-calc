@@ -424,6 +424,10 @@ ${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calcu
 <div class="hgt-grid">
 ${BATCH1_TOOLS.map((t) => card(t, 'New')).join('\n')}
 </div>
+<h2>Advanced planning tools</h2>
+<div class="hgt-grid">
+${[...BATCH4_TOOLS, ...BATCH4_VARIANTS].map((t) => card(t, 'New')).join('\n')}
+</div>
 <h2>Measuring and soil calculators</h2>
 <div class="hgt-grid">
 ${[...BATCH3_TOOLS, ...BATCH3_VARIANTS].map((t) => card(t, 'New')).join('\n')}
@@ -454,7 +458,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -568,6 +572,7 @@ function privacyPage() {
 <li>When you enter a ZIP code, your browser downloads small public data files (frost dates and hardiness zones) for the first three digits (for example <code>100.json</code>) and finds your ZIP inside them on your device.</li>
 <li>Your last ZIP code is saved in your browser's local storage so the tool is ready next time. Clear it anytime in your browser settings.</li>
 <li>Pages can work offline thanks to a service worker that caches pages and data files on your device.</li>
+<li>The acreage calculator's map loads only when you open it. It then fetches map software from cdnjs (Cloudflare), map images from the USGS National Map and OpenStreetMap, and, if you search an address, sends that search to OpenStreetMap's Nominatim service. Those services receive your IP address and the map area or search text, under their own privacy policies. The corners you draw stay in your browser.</li>
 </ul>
 <h2>Information collected automatically</h2>
 <p>The site is hosted on <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub Pages</a>, which logs visitor IP addresses for security and to operate the service. We don't receive or use these logs.</p>
@@ -1080,7 +1085,7 @@ ${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 1
 const ALL_TOOLS = () => [
   ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
   ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
-  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
+  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
 ];
 // Each tool page links to its siblings so link equity and visitors flow across the cluster.
 const FAMILY = {
@@ -1090,9 +1095,10 @@ const FAMILY = {
   '/sod-calculator/': 'lawn', '/grass-seed-calculator/': 'lawn', '/concrete-block-calculator/': 'masonry', '/retaining-wall-calculator/': 'masonry',
   '/hardiness-zones/': 'climate', '/frost-dates/': 'climate',
   '/square-footage-calculator/': 'interior', '/countertop-square-footage-calculator/': 'interior', '/cubic-yard-calculator/': 'ground', '/cubic-yards-to-tons-calculator/': 'ground', '/board-foot-calculator/': 'stairs', '/log-board-foot-calculator/': 'stairs', '/potting-soil-calculator/': 'lawn', '/raised-bed-soil-calculator/': 'lawn',
+  '/acreage-calculator/': 'climate', '/square-feet-to-acres-calculator/': 'climate', '/btu-calculator/': 'hvac', '/mini-split-size-calculator/': 'hvac', '/concrete-calculator/': 'masonry', '/concrete-slab-calculator/': 'masonry', '/concrete-bag-calculator/': 'masonry', '/deck-stain-calculator/': 'fence', '/fence-stain-calculator/': 'fence', '/exterior-paint-calculator/': 'interior',
   '/deck-calculator/': 'stairs', '/fence-calculator/': 'fence', '/fence-post-concrete-calculator/': 'fence', '/tile-calculator/': 'interior', '/shower-tile-calculator/': 'interior', '/drywall-calculator/': 'interior',
 };
-const NEAR = { fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
+const NEAR = { hvac: ['interior'], fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
 const rank = (path) => (t) => { const a = FAMILY[path], b = FAMILY[t[2]]; return a === b ? 0 : (NEAR[a] || []).indexOf(b) >= 0 ? 1 + (NEAR[a] || []).indexOf(b) : 9; };
 const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).sort((x, y) => rank(path)(x) - rank(path)(y)).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
 const embedCta = (slugName) => `<p class="hgt-read hgt-sources">Run a garden club, nursery or landscaping site? <a href="/embed/#${slugName}">Embed this calculator free</a> with one line of code.</p>`;
@@ -1207,6 +1213,14 @@ const EMBEDS = [
   { id: 'log', name: 'Log board foot calculator', tool: '/log-board-foot-calculator/', height: 700, card: () => logCard(true), script: '/assets/measure.js' },
   { id: 'potting-soil', name: 'Potting soil calculator', tool: '/potting-soil-calculator/', height: 700, card: () => potCard(true), script: '/assets/measure.js' },
   { id: 'raised-bed', name: 'Raised bed soil calculator', tool: '/raised-bed-soil-calculator/', height: 820, card: () => bedCard(true), script: '/assets/measure.js' },
+  { id: 'acreage', name: 'Acreage calculator', tool: '/acreage-calculator/', height: 1000, card: () => landCard(true), script: '/assets/land.js' },
+  { id: 'sqft-acres', name: 'Square feet to acres calculator', tool: '/square-feet-to-acres-calculator/', height: 560, card: () => convertCard(true), script: '/assets/land.js' },
+  { id: 'btu', name: 'BTU calculator', tool: '/btu-calculator/', height: 900, card: () => hvacCard('btu', true, { name: 'Living room', l: 20, w: 15 }), script: '/assets/hvac.js' },
+  { id: 'mini-split', name: 'Mini split size calculator', tool: '/mini-split-size-calculator/', height: 900, card: () => hvacCard('split', true, { name: 'Living room', l: 20, w: 15 }), script: '/assets/hvac.js' },
+  { id: 'concrete', name: 'Concrete calculator', tool: '/concrete-calculator/', height: 900, card: () => concreteCard(true), script: '/assets/concrete.js' },
+  { id: 'deck-stain', name: 'Deck stain calculator', tool: '/deck-stain-calculator/', height: 860, card: () => coatCard('deck', true), script: '/assets/coating.js' },
+  { id: 'fence-stain', name: 'Fence stain calculator', tool: '/fence-stain-calculator/', height: 760, card: () => coatCard('fence', true), script: '/assets/coating.js' },
+  { id: 'exterior-paint', name: 'Exterior paint calculator', tool: '/exterior-paint-calculator/', height: 900, card: () => coatCard('house', true), script: '/assets/coating.js' },
 ];
 const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
 <p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
@@ -2082,15 +2096,317 @@ function batch3Pages() {
   return pages;
 }
 
+// ---------- batch 4 (advanced): acreage map, BTU / mini-split, concrete project, stain & paint ----------
+const ENERGY_STAR_URL = 'https://www.energystar.gov/products/room_air_conditioners';
+const USGS_MAP_URL = 'https://www.usgs.gov/programs/national-geospatial-program/national-map';
+const HVAC = {
+  chart: [[150, 5000], [250, 6000], [300, 7000], [350, 8000], [400, 9000], [450, 10000], [550, 12000], [700, 14000], [1000, 18000], [1200, 21000], [1400, 23000], [1500, 24000], [2000, 30000], [2500, 34000]],
+  overPerSqft: 14, perPerson: 600, kitchen: 4000,
+  climates: {
+    hot: { name: 'Hot (climate zones 1–2)', perSqft: 30 }, warm: { name: 'Warm (zone 3)', perSqft: 35 }, mixed: { name: 'Mixed (zone 4)', perSqft: 45 },
+    cold: { name: 'Cold (zone 5)', perSqft: 50 }, vcold: { name: 'Very cold (zones 6–7)', perSqft: 60 },
+  },
+  insulation: { poor: { name: 'Poor', factor: 1.25 }, average: { name: 'Average', factor: 1 }, good: { name: 'Good', factor: 0.85 } },
+  roomAc: [5000, 6000, 8000, 10000, 12000, 14000, 18000, 24000], central: [1.5, 2, 2.5, 3, 3.5, 4, 5],
+  heads: [6000, 9000, 12000, 15000, 18000, 24000], outdoor: [9000, 12000, 18000, 24000, 30000, 36000, 42000, 48000], maxRatio: 1.3,
+};
+const CONCRETE = {
+  types: {
+    slab: { name: 'Slab', cols: [{ k: 'a', label: 'Length (ft)', v: 10 }, { k: 'b', label: 'Width (ft)', v: 10 }, { k: 'c', label: 'Thickness (in)', v: 4 }, { k: 'q', label: 'Qty', v: 1 }] },
+    footing: { name: 'Footing (continuous)', cols: [{ k: 'a', label: 'Length (ft)', v: 40 }, { k: 'b', label: 'Width (in)', v: 16 }, { k: 'c', label: 'Depth (in)', v: 8 }, { k: 'q', label: 'Qty', v: 1 }] },
+    column: { name: 'Round column / Sonotube', cols: [{ k: 'a', label: 'Diameter (in)', v: 12 }, { k: 'c', label: 'Depth (in)', v: 48 }, { k: 'q', label: 'Qty', v: 4 }] },
+    steps: { name: 'Steps', cols: [{ k: 'a', label: 'Width (ft)', v: 4 }, { k: 'b', label: 'Run (in)', v: 11 }, { k: 'c', label: 'Rise (in)', v: 7 }, { k: 'q', label: 'Steps', v: 3 }] },
+  },
+  bags: [{ name: '80 lb', yield: 0.6 }, { name: '60 lb', yield: 0.45 }, { name: '40 lb', yield: 0.3 }],
+  truckYd: 10, lbPerYd: 4050, baseCompact: 0.2, meshSheet: 50, lapIn: 18, stickFt: 20, bagLimitYd: 1, shortLoad: 3, minOrder: 1, firstType: 'slab',
+};
+const COAT = {
+  products: {
+    semi: { name: 'Semi-transparent stain', smooth: 250, rough: 150, second: 0.5 },
+    solid: { name: 'Solid stain', smooth: 300, rough: 200, second: 1 },
+    clear: { name: 'Clear sealer or toner', smooth: 300, rough: 200, second: 0.5 },
+    paint: { name: 'Exterior paint', smooth: 350, rough: 250, second: 1 },
+  },
+  edges: 0.1, railFactor: 1, stepSqftPerFt: 2,
+  styles: { privacy: { name: 'Solid privacy', factor: 1.15 }, shadow: { name: 'Shadowbox or board-on-board', factor: 1.4 }, picket: { name: 'Spaced picket', factor: 0.75 }, ranch: { name: 'Split rail or ranch', factor: 0.35 } },
+  door: 21, window: 15, garage: 112, trimShare: 0.1,
+};
+const BATCH4_TOOLS = [
+  ['🗺️', 'Acreage Calculator', '/acreage-calculator/', 'Draw your lot on a satellite map, or enter sides, for acres and square feet.'],
+  ['❄️', 'BTU Calculator', '/btu-calculator/', 'AC and heating BTU for each room with ENERGY STAR adjustments.'],
+  ['🏗️', 'Concrete Calculator', '/concrete-calculator/', 'Slabs, footings, columns and steps: yards, bags, trucks, rebar and base.'],
+  ['🎨', 'Deck Stain Calculator', '/deck-stain-calculator/', 'Gallons of stain or sealer for deck floor, railings and stairs.'],
+];
+const BATCH4_VARIANTS = [
+  ['🔁', 'Square Feet to Acres Calculator', '/square-feet-to-acres-calculator/', 'Convert sq ft, acres, hectares, m², sq yd and sq mi.'],
+  ['🌬️', 'Mini Split Size Calculator', '/mini-split-size-calculator/', 'Indoor head sizes per room and the outdoor unit for a multi-zone system.'],
+  ['⬜', 'Concrete Slab Calculator', '/concrete-slab-calculator/', 'Yards, bags, rebar or mesh and gravel base for a slab.'],
+  ['🧱', 'Concrete Bag Calculator', '/concrete-bag-calculator/', 'How many 40, 60 or 80 lb bags of concrete for a small pour.'],
+  ['🖌️', 'Fence Stain Calculator', '/fence-stain-calculator/', 'Gallons of stain for one or both sides of any fence style.'],
+  ['🏠', 'Exterior Paint Calculator', '/exterior-paint-calculator/', 'Gallons of siding and trim paint for a house, minus doors and windows.'],
+];
+
+const landCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-land="acreage"${embed ? ' data-embed' : ''}>
+<h2 class="hgt-calc__h">Option 1: draw your lot on the map</h2>
+<p class="hgt-calc__hint">Search an address, switch to satellite view, and tap each corner of the property in order. Drag corners to fine-tune.</p>
+<button type="button" class="hgt-btn" data-map-start>Open the map</button>
+<div data-map-ui hidden>
+<form class="hgt-calc__search" data-map-search><label class="hgt-frost__label" for="hgt-q">Address or place</label><div class="hgt-calc__pair"><input id="hgt-q" name="q" type="search" placeholder="123 Main St, Springfield, IL" autocomplete="street-address"><button class="hgt-btn" type="submit">Go</button></div><p class="hgt-frost__status" data-map-msg role="status"></p></form>
+<div class="hgt-frost__actions"><button type="button" class="hgt-btn hgt-btn--ghost" data-map-locate>Use my location</button><button type="button" class="hgt-btn hgt-btn--ghost" data-map-undo>Undo corner</button><button type="button" class="hgt-btn hgt-btn--ghost" data-map-clear>Clear</button></div>
+</div>
+<div class="hgt-map" data-map hidden></div>
+<div class="hgt-frost__out" data-map-out></div>
+<h2 class="hgt-calc__h">Option 2: enter the measurements</h2>
+<form novalidate data-shapes>
+<div class="hgt-calc__grid">
+${field('Lot shape', selectIn('shape', [['rect', 'Rectangle'], ['tri', 'Triangle (3 sides)'], ['quad', '4 sides + a diagonal'], ['circle', 'Circle'], ['known', 'I know the area']], 'rect'))}
+${field('Units', selectIn('unit', [['ft', 'Feet'], ['m', 'Meters']], 'ft'))}
+<label class="hgt-calc__field" data-for="rect tri quad circle"><span>Side A (or length / diameter)</span>${numIn('a', 208.7, '0.1')}</label>
+<label class="hgt-calc__field" data-for="rect tri quad"><span>Side B (or width)</span>${numIn('b', 208.7, '0.1')}</label>
+<label class="hgt-calc__field" data-for="tri quad" hidden><span>Side C</span>${numIn('c', 150, '0.1')}</label>
+<label class="hgt-calc__field" data-for="quad" hidden><span>Side D</span>${numIn('d', 180, '0.1')}</label>
+<label class="hgt-calc__field" data-for="quad" hidden><span>Diagonal from the D–A corner to the B–C corner</span>${numIn('diag', 280, '0.1')}</label>
+<label class="hgt-calc__field" data-for="known" hidden><span>Area</span>${numIn('known', 1, '0.01')}</label>
+<label class="hgt-calc__field" data-for="known" hidden><span>Area units</span>${selectIn('kunit', [['acre', 'acres'], ['sqft', 'square feet'], ['sqm', 'square meters'], ['ha', 'hectares']], 'acre')}</label>
+</div>
+</form>
+<div class="hgt-frost__out" data-shape-out hidden></div>
+</div>`;
+const convertCard = (embed = false) => `<div class="hgt-card hgt-calc" data-hgt-land="convert"${embed ? ' data-embed' : ''}>
+<form novalidate><div class="hgt-calc__grid">
+${field('Area', numIn('value', 10000, 'any'))}
+${field('From', selectIn('from', [['sqft', 'square feet'], ['acre', 'acres'], ['sqm', 'square meters'], ['ha', 'hectares'], ['sqyd', 'square yards'], ['sqmi', 'square miles']], 'sqft'))}
+</div></form>
+<div class="hgt-frost__out" data-out hidden></div>
+</div>`;
+const hvacCard = (kind, embed = false, first = {}) => calcShell(`data-hgt-hvac="${kind}"`, { ...HVAC, firstRoom: first }, `<fieldset class="hgt-calc__set"><legend>Rooms</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add a room</button></fieldset>
+<div class="hgt-calc__grid">
+${field('Climate', selectIn('climate', Object.entries(HVAC.climates).map(([k, v]) => [k, v.name]), 'mixed'))}
+${field('Insulation and windows', selectIn('insul', Object.entries(HVAC.insulation).map(([k, v]) => [k, v.name]), 'average'))}
+${kind === 'split' ? field('Size heads for', selectIn('mode', [['cool', 'Cooling only'], ['heat', 'Cooling and heating (heat pump)']], 'heat')) : ''}
+</div>`, embed);
+const concreteCard = (embed = false, first = 'slab', over = {}) => {
+  const cfg = JSON.parse(JSON.stringify(CONCRETE));
+  cfg.firstType = first;
+  Object.entries(over).forEach(([k, v]) => { const c = cfg.types[first].cols.find((x) => x.k === k); if (c) c.v = v; });
+  return calcShell('data-hgt-concrete', cfg, `<fieldset class="hgt-calc__set"><legend>Parts of the pour</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add a slab, footing, column or steps</button></fieldset>
+<div class="hgt-calc__grid">
+${field('Extra for spillage and uneven ground', selectIn('waste', [[5, '5%'], [10, '10%'], [15, '15%']], 10))}
+${field('Slab reinforcement', selectIn('reinf', [['none', 'None / fiber mix'], ['18', 'Rebar grid, 18 in'], ['12', 'Rebar grid, 12 in'], ['mesh', 'Welded wire mesh']], 'none'))}
+${field('Rebar size', selectIn('bar', [[3, '#3 (⅜ in)'], [4, '#4 (½ in)']], 3))}
+${field('Gravel base under slabs', selectIn('base', [[0, 'None'], [4, '4 in'], [6, '6 in']], 4))}
+</div>
+${priceGrid('Prices (edit to match your area)', [['pBag', '80 lb bag', 6.5], ['pReady', 'Ready-mix per cu yd', 175], ['pShort', 'Short-load fee', 100]])}`, embed);
+};
+const coatCard = (kind, embed = false) => {
+  const prod = (sel, keys) => field('Product', selectIn('product', keys.map((k) => [k, COAT.products[k].name]), sel));
+  const common = `${field('Surface', selectIn('surface', [['rough', 'Rough, weathered or new rough-sawn'], ['smooth', 'Smooth, previously coated']], 'rough'))}
+${field('Coats', selectIn('coats', [[1, '1 coat'], [2, '2 coats']], 2))}
+${field('Price per gallon', `<span class="hgt-calc__money">${numIn('price', 45, '0.01')}</span>`)}`;
+  let inner = '';
+  if (kind === 'deck') inner = `${field('Deck length (ft)', numIn('len', 16, '0.5'))}${field('Deck width (ft)', numIn('wid', 12, '0.5'))}${field('Railing length (ft)', numIn('rail', 40, '1'))}${field('Railing height (in)', numIn('railh', 36, '1'))}${field('Stair steps', numIn('steps', 4, '1'))}${field('Stair width (ft)', numIn('stepw', 4, '0.5'))}${prod('semi', ['semi', 'solid', 'clear', 'paint'])}${common}`;
+  if (kind === 'fence') inner = `${field('Fence length (ft)', numIn('len', 150, '1'))}${field('Fence height (ft)', numIn('height', 6, '0.5'))}${field('Sides', selectIn('sides', [[1, 'One side'], [2, 'Both sides']], 2))}${field('Fence style', selectIn('style', Object.entries(COAT.styles).map(([k, v]) => [k, v.name]), 'privacy'))}${prod('semi', ['semi', 'solid', 'clear', 'paint'])}${common}`;
+  if (kind === 'house') inner = `${field('House length (ft)', numIn('len', 50, '0.5'))}${field('House width (ft)', numIn('wid', 30, '0.5'))}${field('Wall height to eaves (ft)', numIn('wallh', 18, '0.5'))}${field('Gable ends', numIn('gables', 2, '1'))}${field('Gable width (ft)', numIn('gw', 30, '0.5'))}${field('Gable height (ft)', numIn('gr', 8, '0.5'))}${field('Doors', numIn('doors', 2, '1'))}${field('Windows', numIn('windows', 12, '1'))}${field('Garage doors (double)', numIn('garage', 1, '1'))}${prod('paint', ['paint', 'solid'])}${common}<label class="hgt-calc__check"><input type="checkbox" name="trim" checked> Add trim paint</label>`;
+  return calcShell(`data-hgt-coat="${kind}"`, COAT, `<div class="hgt-calc__grid">${inner}</div>`, embed);
+};
+
+const esRow = (sq) => { const b = HVAC.chart.find((x) => sq <= x[0]) || HVAC.chart[HVAC.chart.length - 1]; return b[1]; };
+const concreteYd = (l, w, t) => l * w * t / 12 / 27;
+function batch4Pages() {
+  const pages = [];
+  pages.push(toolPage({
+    path: '/acreage-calculator/', name: 'Acreage Calculator', script: '/assets/land.js', embedId: 'acreage',
+    title: 'Acreage Calculator: Draw Your Lot on a Map or Enter Sides',
+    description: 'Free acreage calculator: outline your property on a satellite map to get acres, square feet and perimeter, or enter a rectangle, triangle or 4-sided lot.',
+    h1: 'Acreage Calculator', lede: 'Find the acreage of a lot, field or yard two ways: outline it on a satellite map, or enter its sides, including irregular triangles and four-sided lots.',
+    answer: '<strong>Acres = square feet ÷ 43,560.</strong> A rectangle 208.7 ft on each side is almost exactly <strong>1 acre</strong>. For a lot with uneven sides, split it into triangles with a diagonal and use Heron\'s formula for each, or outline it on the map above. A quarter acre is 10,890 sq ft and a half acre is 21,780 sq ft.',
+    card: landCard(),
+    sections: `<h2>Common lot sizes</h2>${table(['Acres', 'Square feet', 'Square yards', 'Example square lot'], [0.1, 0.25, 0.5, 1, 2, 5, 10].map((a) => [String(a), fmtInt(a * 43560), fmtInt(a * 4840), `${Math.sqrt(a * 43560).toFixed(1)} × ${Math.sqrt(a * 43560).toFixed(1)} ft`]))}
+<section class="hgt-read"><h2>Getting an accurate number</h2><ul><li><strong>Map outlines</strong> are only as good as the imagery and your clicks; expect a few percent of error. They are perfect for planning a garden, fence or seeding job.</li><li><strong>Four-sided lots</strong> need a diagonal: four sides alone do not fix the shape, which is why "average the opposite sides" shortcuts can be badly off.</li><li><strong>Legal acreage</strong> comes from your deed, plat or a licensed surveyor; county GIS parcel viewers often show it too.</li></ul></section>`,
+    faqs: [
+      ['How do I calculate acreage?', 'Find the area in square feet and divide by 43,560. For a rectangle, multiply length × width in feet. For an irregular lot, split it into triangles, find each triangle\'s area and add them, or outline the lot on a map tool.'],
+      ['How many square feet are in an acre?', '43,560 square feet, or 4,840 square yards. A square acre is about 208.7 ft on each side.'],
+      ['How do I find the acreage of an irregular lot?', 'Measure all the sides and one diagonal, which splits the lot into two triangles. Heron\'s formula gives each triangle\'s area from its three sides. Add them and divide by 43,560. Or outline the lot on the satellite map.'],
+      ['Can I measure acreage with Google Maps?', 'Google Maps measures distance but not area on its own. This tool lets you outline an area on satellite imagery and calculates the area of the shape using the curvature of the Earth.'],
+      ['How big is a quarter acre?', '10,890 square feet, about 104 × 104 ft, or a typical suburban lot of about 70 × 155 ft.'],
+    ],
+    sources: `Map area uses the geodesic polygon formula on the WGS84 sphere (the same method as Leaflet.draw). Satellite imagery: <a href="${USGS_MAP_URL}" rel="nofollow">USGS National Map</a> (public domain); street map © OpenStreetMap contributors; address search by OpenStreetMap Nominatim. Triangles use Heron's formula. 1 acre = 43,560 sq ft = 0.404686 ha.`,
+  }));
+  pages.push(toolPage({
+    path: '/square-feet-to-acres-calculator/', name: 'Square Feet to Acres Calculator', script: '/assets/land.js', embedId: 'sqft-acres',
+    title: 'Square Feet to Acres Calculator (and Acres to Sq Ft)',
+    description: 'Free converter between square feet, acres, hectares, square meters, square yards and square miles, with a conversion chart for common lot sizes.',
+    h1: 'Square Feet to Acres Calculator', lede: 'Convert square feet to acres and back, plus hectares, square meters, square yards and square miles, in one step.',
+    answer: '<strong>Acres = square feet ÷ 43,560; square feet = acres × 43,560.</strong> 10,000 sq ft is 0.23 acres, 20,000 sq ft is 0.46 acres and 1 hectare is 2.47 acres.',
+    card: convertCard(),
+    sections: `<h2>Square feet to acres chart</h2>${table(['Square feet', 'Acres'], [1000, 2500, 5000, 7500, 10000, 15000, 20000, 43560, 50000, 100000].map((s) => [fmtInt(s), (s / 43560).toFixed(3)]))}`,
+    faqs: [
+      ['How do I convert square feet to acres?', 'Divide square feet by 43,560. For example, 15,000 sq ft ÷ 43,560 = 0.344 acres.'],
+      ['How many acres is 10,000 square feet?', 'About 0.23 acres.'],
+      ['How do I convert acres to square feet?', 'Multiply acres by 43,560. 2.5 acres × 43,560 = 108,900 sq ft.'],
+      ['How many acres are in a hectare?', 'About 2.471 acres; one acre is about 0.405 hectares.'],
+      ['How many acres in a square mile?', '640 acres.'],
+    ],
+    sources: '1 acre = 43,560 sq ft; 1 hectare = 10,000 m² = 107,639 sq ft; 1 sq mi = 640 acres; 1 m² = 10.7639 sq ft.',
+  }));
+  pages.push(toolPage({
+    path: '/btu-calculator/', name: 'BTU Calculator', script: '/assets/hvac.js', embedId: 'btu',
+    title: 'BTU Calculator: AC & Heating BTU by Room (ENERGY STAR)',
+    description: 'Free BTU calculator: cooling and heating BTU for one room or a whole house, using the ENERGY STAR sizing chart with sun, people, kitchen and ceiling adjustments.',
+    h1: 'BTU Calculator', lede: 'How many BTUs you need to cool and heat each room, adjusted for sun, people, kitchens and high ceilings, with the right window AC size or central AC tonnage.',
+    answer: `<strong>Cooling: about 20 BTU per square foot</strong> (ENERGY STAR chart): a 300 sq ft room needs 7,000 BTU, 500 sq ft needs 12,000. Add 10% for a very sunny room, subtract 10% if heavily shaded, add 600 BTU per person beyond two and 4,000 BTU for a kitchen. <strong>Heating: about 30–60 BTU per square foot</strong> depending on climate.`,
+    card: hvacCard('btu', false, { name: 'Living room', l: 20, w: 15 }),
+    sections: `<h2>ENERGY STAR room AC sizing chart</h2>${table(['Room area', 'Cooling capacity'], HVAC.chart.map((b, i) => [`${i ? HVAC.chart[i - 1][0] : 100}–${fmtInt(b[0])} sq ft`, `${fmtInt(b[1])} BTU/h`]))}
+<h2>Heating BTU per square foot by climate</h2>${table(['Climate', 'BTU per sq ft', '1,500 sq ft home'], Object.values(HVAC.climates).map((c) => [c.name, c.perSqft, `${fmtInt(c.perSqft * 1500)} BTU/h`]))}
+<p class="hgt-read">For a whole-house system, ask your contractor for an ACCA Manual J load calculation; it accounts for insulation levels, windows, air leakage and duct losses room by room.</p>`,
+    faqs: [
+      ['How many BTU do I need per square foot?', 'About 20 BTU per square foot for cooling in a typical room, per the ENERGY STAR chart, and about 30–60 BTU per square foot for heating depending on how cold your winters are and how well insulated the house is.'],
+      ['What size AC do I need for a 12 × 12 room?', '144 sq ft falls in the 100–150 sq ft band, so 5,000 BTU. Go up 10% if the room gets strong afternoon sun.'],
+      ['How many BTU for a 500 square foot room?', '12,000 BTU (one ton) by the ENERGY STAR chart, before adjusting for sun, extra people or a kitchen.'],
+      ['How many BTU is a ton of air conditioning?', '12,000 BTU per hour. A 3-ton central AC delivers about 36,000 BTU/h.'],
+      ['Is a bigger air conditioner better?', 'No. An oversized AC cools the room quickly and shuts off before it removes humidity, leaving it clammy, and it wears out sooner. Pick the size that matches the load.'],
+    ],
+    sources: `Cooling sizes and adjustments (−10% shade, +10% sun, +600 BTU per person over two, +4,000 BTU for kitchens) follow the <a href="${ENERGY_STAR_URL}" rel="nofollow">ENERGY STAR room air conditioner sizing guide</a>; ceilings over 8 ft scale by room volume (our addition). Heating uses common BTU-per-square-foot rules by IECC climate zone with an insulation factor. These are estimates; a Manual J calculation is the standard for equipment sizing.`,
+  }));
+  pages.push(toolPage({
+    path: '/mini-split-size-calculator/', name: 'Mini Split Size Calculator', script: '/assets/hvac.js', embedId: 'mini-split',
+    title: 'Mini Split Size Calculator: Head Sizes & Multi-Zone Outdoor Unit',
+    description: 'Free mini split sizing calculator: BTU and head size for each room, and the outdoor unit size for a single- or multi-zone ductless heat pump system.',
+    h1: 'Mini Split Size Calculator', lede: 'Size a ductless mini split room by room: each indoor head\'s BTU, the total load and the multi-zone outdoor unit, for cooling or year-round heat pump heating.',
+    answer: '<strong>Size each indoor head for its room</strong> (about 20 BTU per sq ft for cooling, more where heating is the bigger load), using standard 6k, 9k, 12k, 18k and 24k BTU heads. Then pick an outdoor unit at least as big as the total load: a living room (12k) plus two bedrooms (9k each) usually needs a 24,000–30,000 BTU multi-zone unit.',
+    card: hvacCard('split', false, { name: 'Living room', l: 20, w: 15 }),
+    sections: `<h2>Mini split head size by room area (cooling, average conditions)</h2>${table(['Room', 'Load', 'Head size'], [[150, 'Small bedroom'], [250, 'Bedroom'], [350, 'Large bedroom'], [450, 'Living room'], [550, 'Open living area'], [700, 'Great room']].map(([sq, n]) => { const btu = esRow(sq); return [`${n} (${sq} sq ft)`, `${fmtInt(btu)} BTU`, `${fmtInt(HVAC.heads.find((h) => h >= btu) || 24000)} BTU`]; }))}
+<section class="hgt-read"><h2>Multi-zone tips</h2><ul><li>Each room gets its own head; open-plan spaces can share one.</li><li>Most multi-zone outdoor units let connected heads add up to about 130% of the outdoor capacity, because rooms rarely peak at once.</li><li>In cold climates, choose a cold-climate (hyper-heat) model and check its heating capacity at your winter design temperature, not just its rating.</li></ul></section>`,
+    faqs: [
+      ['What size mini split do I need?', 'Match each indoor head to its room\'s load: roughly 6,000–9,000 BTU for bedrooms, 12,000 for a living room and 18,000–24,000 for large open areas, adjusted for sun, ceilings and climate.'],
+      ['How many square feet does a 12,000 BTU mini split cool?', 'About 450–550 sq ft in average conditions, less with lots of sun or high ceilings.'],
+      ['Can I put a 12k head on a 24k outdoor unit with two 9k heads?', 'Yes. 12k + 9k + 9k is 30k connected on a 24k outdoor unit, a 125% ratio, which most multi-zone systems allow. Check the manufacturer\'s combination table.'],
+      ['Should I size a mini split for heating or cooling?', 'For a heat pump that heats the house, size for whichever load is larger. In cold climates that is usually heating.'],
+      ['Is one big mini split better than several small heads?', 'One head can only condition the space it can blow into. Closed rooms need their own heads, or they will stay hot or cold.'],
+    ],
+    sources: `Room cooling loads use the <a href="${ENERGY_STAR_URL}" rel="nofollow">ENERGY STAR sizing chart</a> and adjustments; heating uses BTU-per-square-foot rules by climate zone. Head and outdoor sizes are common nominal capacities. Combination limits vary by manufacturer; this is a planning estimate, not a Manual J or Manual S selection.`,
+  }));
+  const slabRows = [[10, 10, 4], [10, 12, 4], [12, 12, 4], [20, 20, 4], [12, 24, 5], [20, 24, 6]].map(([l, w, t]) => { const yd = concreteYd(l, w, t) * 1.1; return [`${l} × ${w} ft × ${t} in`, yd.toFixed(2), fmtInt(Math.ceil(yd * 27 / 0.6)), fmtInt(Math.ceil(yd * 27 / 0.45))]; });
+  const cSrc = 'Volumes: slabs and footings length × width × depth; columns π r² h; steps width × run × rise × n(n+1) ÷ 2. Bag yields from premixed concrete labels (80 lb 0.6 cu ft, 60 lb 0.45, 40 lb 0.30). Fresh concrete weighs about 4,050 lb per cu yd. Typical thickness: 4 in for patios and walks, 5–6 in for driveways and heavier loads. Rebar laps of about 18 in; welded wire 5 × 10 ft sheets. Structural work must follow your local code.';
+  pages.push(toolPage({
+    path: '/concrete-calculator/', name: 'Concrete Calculator', script: '/assets/concrete.js', embedId: 'concrete',
+    title: 'Concrete Calculator: Slabs, Footings, Columns & Steps (Bags/Yards)',
+    description: 'Free concrete calculator for a whole project: slabs, footings, Sonotube columns and steps in one list, with cubic yards, bags, ready-mix trucks, rebar or mesh and base gravel.',
+    h1: 'Concrete Calculator', lede: 'Add every part of the pour (slabs, footings, round columns and steps) and get the total cubic yards, bags or ready-mix trucks, rebar or wire mesh, gravel base and which option is cheaper.',
+    answer: '<strong>Cubic yards = length (ft) × width (ft) × thickness (in) ÷ 324</strong>, plus 5–10% extra. A 10 × 10 ft slab 4 in thick is 1.23 cu yd, or about 1.36 cu yd with 10% extra: <strong>62 bags of 80 lb</strong> or 1½ yards of ready-mix. Above roughly 1 cubic yard, ready-mix is usually easier and often cheaper than bags.',
+    card: concreteCard(),
+    sections: `<h2>Concrete for common slabs (+10%)</h2>${table(['Slab', 'Cubic yards', '80 lb bags', '60 lb bags'], slabRows)}
+<h2>How thick should concrete be?</h2>${table(['Use', 'Thickness'], [['Walkways, patios, shed floors', '4 in'], ['Driveways (cars)', '5–6 in'], ['Hot tub pads, RV parking', '6 in'], ['Garage floors', '4–6 in, per local code']])}`,
+    faqs: [
+      ['How do I calculate how much concrete I need?', 'Multiply length × width × thickness in feet for cubic feet and divide by 27 for cubic yards. With thickness in inches, multiply length × width in feet by the thickness in inches and divide by 324. Add 5–10% for spillage and uneven ground.'],
+      ['How many bags of concrete are in a yard?', 'About 45 bags of 80 lb (0.6 cu ft each), 60 bags of 60 lb or 90 bags of 40 lb make one cubic yard.'],
+      ['When should I order ready-mix instead of bags?', 'Above about 1 cubic yard, mixing 45+ bags by hand is hard work and ready-mix is often cheaper. Below 2–4 yards, many suppliers add a short-load fee; enter it to compare.'],
+      ['How much concrete does a truck hold?', 'Most ready-mix trucks carry up to about 9–11 cubic yards. Bigger pours need several trucks scheduled back to back.'],
+      ['Do I need rebar in a concrete slab?', 'Many 4 in patio slabs use welded wire mesh or fiber-reinforced mix; driveways and structural slabs often use #3 or #4 rebar at 12–18 in on center. Follow your local code and engineer for structural work.'],
+    ],
+    sources: cSrc,
+  }));
+  pages.push(toolPage({
+    path: '/concrete-slab-calculator/', name: 'Concrete Slab Calculator', script: '/assets/concrete.js', embedId: 'concrete',
+    title: 'Concrete Slab Calculator: Yards, Bags, Rebar & Gravel Base',
+    description: 'Free concrete slab calculator: cubic yards, 80 or 60 lb bags, ready-mix trucks, rebar grid or wire mesh and gravel base for any slab size and thickness.',
+    h1: 'Concrete Slab Calculator', lede: 'Everything to order for a concrete slab: concrete in yards or bags, rebar grid or welded wire mesh, chairs, and the compacted gravel base underneath.',
+    answer: `A <strong>12 × 12 ft slab 4 in thick</strong> needs ${concreteYd(12, 12, 4).toFixed(2)} cu yd, about <strong>${(concreteYd(12, 12, 4) * 1.1).toFixed(1)} cu yd with 10% extra</strong> (${Math.ceil(concreteYd(12, 12, 4) * 1.1 * 27 / 0.6)} bags of 80 lb). A #3 rebar grid at 18 in needs about ${Math.ceil(((Math.floor(12 / 1.5) + 1) * 12 * 2) * (1 + 1.5 / 20) / 20)} sticks of 20 ft, and a 4 in gravel base about ${(144 * 4 / 12 / 27 * 1.2).toFixed(1)} cu yd.`,
+    card: concreteCard(false, 'slab', { a: 12, b: 12 }),
+    sections: `<h2>Concrete for common slabs (+10%)</h2>${table(['Slab', 'Cubic yards', '80 lb bags', '60 lb bags'], slabRows)}`,
+    faqs: [
+      ['How much concrete do I need for a 12 × 12 slab?', `At 4 in thick, ${concreteYd(12, 12, 4).toFixed(2)} cubic yards, or about ${(concreteYd(12, 12, 4) * 1.1).toFixed(1)} with 10% extra: ${Math.ceil(concreteYd(12, 12, 4) * 1.1 * 27 / 0.6)} bags of 80 lb concrete.`],
+      ['How much concrete for a 20 × 20 slab?', `At 4 in thick, ${concreteYd(20, 20, 4).toFixed(2)} cubic yards, about ${(concreteYd(20, 20, 4) * 1.1).toFixed(1)} with 10% extra. That is a ready-mix job.`],
+      ['How thick should a concrete slab be?', '4 in for patios, walkways and shed floors; 5–6 in for driveways, hot tub pads and anywhere vehicles park.'],
+      ['How much gravel goes under a concrete slab?', 'Usually 4 in of compacted crushed stone, more on clay or wet ground. About 1.5 cu yd covers a 100 sq ft slab area at 4 in once compaction is allowed for.'],
+      ['How far apart should rebar be in a slab?', 'Commonly 12–18 in on center each way for #3 or #4 bar, set on chairs so it sits in the middle third of the slab.'],
+    ],
+    sources: cSrc,
+  }));
+  pages.push(toolPage({
+    path: '/concrete-bag-calculator/', name: 'Concrete Bag Calculator', script: '/assets/concrete.js', embedId: 'concrete',
+    title: 'Concrete Bag Calculator: How Many 80, 60 or 40 lb Bags?',
+    description: 'Free concrete bag calculator: how many 80 lb, 60 lb or 40 lb bags of concrete for a small slab, pad, footing, post holes or steps, with cost.',
+    h1: 'Concrete Bag Calculator', lede: 'How many bags of premixed concrete to buy for a small pour (pads, steps, footings or post holes) in 80, 60 and 40 lb sizes.',
+    answer: '<strong>Bags = cubic feet ÷ bag yield</strong>: 0.6 cu ft for an 80 lb bag, 0.45 for 60 lb and 0.30 for 40 lb. One cubic yard takes 45 bags of 80 lb. A 4 × 4 ft pad 4 in thick is 5.3 cu ft: <strong>9 bags of 80 lb</strong> or 12 of 60 lb, plus a bag spare.',
+    card: concreteCard(false, 'slab', { a: 4, b: 4 }),
+    sections: `<h2>Bags per cubic foot and yard</h2>${table(['Bag', 'Yield', 'Bags per cu yd', 'Bags for a 4 × 4 ft pad, 4 in'], CONCRETE.bags.map((b) => [b.name, `${b.yield} cu ft`, String(Math.ceil(27 / b.yield)), String(Math.ceil(16 * 4 / 12 / b.yield))]))}`,
+    faqs: [
+      ['How many bags of concrete do I need?', 'Work out the volume in cubic feet (length × width × thickness in feet), add 10%, and divide by the bag yield: 0.6 cu ft per 80 lb bag, 0.45 per 60 lb and 0.30 per 40 lb.'],
+      ['How many 80 lb bags of concrete make a yard?', 'About 45 bags (27 cu ft ÷ 0.6 cu ft per bag).'],
+      ['How many 60 lb bags of concrete make a yard?', 'About 60 bags.'],
+      ['How much area does an 80 lb bag of concrete cover?', 'About 1.8 sq ft at 4 in thick, or 3.6 sq ft at 2 in.'],
+      ['Should I buy 60 or 80 lb bags?', 'The concrete is the same; 80 lb bags are cheaper per cubic foot but heavier to lift. 60 lb bags are easier to carry and mix.'],
+    ],
+    sources: cSrc,
+  }));
+  const cs = COAT.products;
+  pages.push(toolPage({
+    path: '/deck-stain-calculator/', name: 'Deck Stain Calculator', script: '/assets/coating.js', embedId: 'deck-stain',
+    title: 'Deck Stain Calculator: Gallons for Floor, Railings & Stairs',
+    description: 'Free deck stain calculator: gallons of semi-transparent or solid stain, sealer or paint for the deck floor, railings and stairs, by surface condition and coats.',
+    h1: 'Deck Stain Calculator', lede: 'How much stain or sealer your deck needs, counting the floor, both sides of the railings and the stairs, for rough or smooth wood and one or two coats.',
+    answer: `<strong>Gallons = square feet ÷ coverage.</strong> Semi-transparent stain covers about <strong>${cs.semi.rough}–${cs.semi.smooth} sq ft per gallon</strong> (less on rough, weathered wood); solid stain ${cs.solid.rough}–${cs.solid.smooth}. A 16 × 12 ft deck with 40 ft of railing and four steps is about 365 sq ft: about <strong>3–4 gallons</strong> for two coats of semi-transparent stain on weathered wood.`,
+    card: coatCard('deck'),
+    sections: `<h2>Stain coverage per gallon</h2>${table(['Product', 'Rough or weathered', 'Smooth', 'Second coat'], Object.values(cs).map((p) => [p.name, `${p.rough} sq ft`, `${p.smooth} sq ft`, p.second < 1 ? `~${Math.round(p.second * 100)}% (wet-on-wet)` : 'Same as first']))}
+<section class="hgt-read"><h2>Stain like a pro</h2><ul><li>Clean and brighten, then let the wood dry for 24–48 hours.</li><li>Do a water test: if drops soak in, the wood is ready for stain.</li><li>Stain two or three boards at a time along their full length to avoid lap marks.</li></ul></section>`,
+    faqs: [
+      ['How much stain do I need for my deck?', 'Measure the floor (length × width), add both sides of the railings (length × height) and the stairs, then divide by the stain\'s coverage: about 150–250 sq ft per gallon for semi-transparent on weathered wood. Multiply for the number of coats.'],
+      ['How many gallons of stain for a 12 × 12 deck?', 'The floor alone is about 160 sq ft with board edges, so roughly 1–1.5 gallons per coat of semi-transparent stain on weathered wood, more with railings and stairs.'],
+      ['How many coats of deck stain do I need?', 'Most semi-transparent stains go on in one or two thin coats, the second applied wet-on-wet; solid stains usually need two full coats. Follow the label.'],
+      ['Why does rough wood use more stain?', 'Rough-sawn and weathered wood is porous and soaks up more stain, so a gallon covers less area than on smooth or previously stained wood.'],
+      ['Should I stain the deck railings too?', 'Yes, usually with the same stain. Railings with balusters have a lot of surface: count about their length × height for both sides.'],
+    ],
+    sources: 'Coverage ranges reflect typical manufacturer label figures for each product type; your can\'s label takes priority. Board edges add 10% to the floor; railings count length × height for both sides of rails and balusters; stairs about 2 sq ft per foot of width per step. Penetrating stains\' second coat is estimated at half the first.',
+  }));
+  pages.push(toolPage({
+    path: '/fence-stain-calculator/', name: 'Fence Stain Calculator', script: '/assets/coating.js', embedId: 'fence-stain',
+    title: 'Fence Stain Calculator: Gallons for One or Both Sides',
+    description: 'Free fence stain calculator: gallons of stain or paint for privacy, shadowbox, picket or ranch fences, one or both sides, by surface and coats, with cost.',
+    h1: 'Fence Stain Calculator', lede: 'How much stain a fence takes, for one side or both, by fence style (solid privacy, shadowbox, picket or split rail), rough or smooth wood, and coats.',
+    answer: `<strong>Fence area = length × height × sides</strong>, plus about 15% on a privacy fence for posts and rails. A 150 ft privacy fence 6 ft high, stained on both sides, is about 2,070 sq ft: roughly <strong>${Math.ceil(2070 / cs.semi.rough)} gallons</strong> for one coat of semi-transparent stain on rough wood.`,
+    card: coatCard('fence'),
+    sections: `<h2>Stain for common fences (6 ft, both sides, semi-transparent, rough wood)</h2>${table(['Fence length', 'Area', 'One coat', 'Two coats'], [50, 100, 150, 200, 300].map((L) => { const a = L * 6 * 2 * 1.15, g = a / cs.semi.rough; return [`${L} ft`, `${fmtInt(a)} sq ft`, `${Math.ceil(g)} gal`, `${Math.ceil(g * 1.5)} gal`]; }))}`,
+    faqs: [
+      ['How much stain do I need for my fence?', 'Multiply length × height × the number of sides you are staining, add about 15% for posts and rails on a privacy fence, and divide by the coverage: about 150 sq ft per gallon for semi-transparent stain on rough new wood.'],
+      ['How many gallons of stain for a 100 ft fence?', 'A 6 ft privacy fence 100 ft long, both sides, is about 1,380 sq ft, roughly 9–10 gallons for one coat on rough wood, or 5–6 gallons on smooth wood.'],
+      ['Should I spray or brush fence stain?', 'Spraying is fastest; back-brushing right after spraying works the stain into the wood and evens it out. Protect plants and neighbors from overspray.'],
+      ['How long should a new fence dry before staining?', 'Pressure-treated wood is often wet from the plant and may need weeks to dry; do a water test. Cedar can usually be stained sooner.'],
+      ['Does a picket fence use less stain?', 'Yes, the gaps mean less surface per foot. Count about 75% of the length × height for a spaced picket fence, but both faces and edges still take stain.'],
+    ],
+    sources: 'Coverage ranges reflect typical manufacturer label figures; style factors: privacy 1.15 (posts and rails), shadowbox 1.4 (overlapping boards), spaced picket 0.75, split rail 0.35. Your stain\'s label takes priority.',
+  }));
+  pages.push(toolPage({
+    path: '/exterior-paint-calculator/', name: 'Exterior Paint Calculator', script: '/assets/coating.js', embedId: 'exterior-paint',
+    title: 'Exterior Paint Calculator: Gallons to Paint a House',
+    description: 'Free exterior paint calculator: gallons of siding and trim paint for a house from its size, wall height and gables, minus doors, windows and garage doors.',
+    h1: 'Exterior Paint Calculator', lede: 'How much paint the outside of your house needs: walls and gable ends, minus doors, windows and garage doors, for smooth or rough siding, plus trim.',
+    answer: `<strong>Wall area = perimeter × wall height + gable triangles − openings.</strong> Exterior paint covers about <strong>${cs.paint.smooth} sq ft per gallon</strong> on smooth siding and ${cs.paint.rough} on rough siding or stucco. A 50 × 30 ft house with 18 ft walls and two gables has about 2,800 sq ft of siding after openings: roughly <strong>${Math.ceil(2786 / cs.paint.rough * 2)} gallons</strong> for two coats on rough siding.`,
+    card: coatCard('house'),
+    sections: `<h2>Paint for common house sizes (two coats, smooth siding)</h2>${table(['House footprint', 'Wall height', 'Siding area', 'Gallons'], [[40, 30, 9], [50, 30, 9], [50, 30, 18], [60, 40, 18]].map(([l, w, h]) => { const a = 2 * (l + w) * h + w * 8 - 2 * 21 - 12 * 15 - 112; return [`${l} × ${w} ft`, `${h} ft`, `${fmtInt(a)} sq ft`, String(Math.ceil(a / cs.paint.smooth * 2))]; }))}`,
+    faqs: [
+      ['How much paint do I need for the exterior of my house?', 'Add the house\'s perimeter, multiply by the wall height, add the gable triangles (width × height ÷ 2 each), subtract doors and windows, and divide by about 350 sq ft per gallon (250 on rough siding). Double it for two coats.'],
+      ['How many gallons to paint a 2,000 sq ft house?', 'A two-story house with about 2,000 sq ft of living space often has 2,500–3,500 sq ft of siding, so 8–10 gallons per coat on smooth siding, 10–14 on rough siding.'],
+      ['How much trim paint do I need?', 'Plan on about 10% of the body paint for trim, fascia and doors, or a gallon or two for a typical house.'],
+      ['Does stucco need more paint?', 'Yes. Rough, porous stucco can take 30–50% more paint than smooth siding, especially on the first coat.'],
+      ['Should I buy 5 gallon buckets?', '5 gallon pails cost less per gallon and keep the color consistent across walls. The calculator suggests pails plus single gallons.'],
+    ],
+    sources: 'Coverage reflects typical exterior paint label figures (about 350–400 sq ft per gallon on smooth surfaces, less on rough). Openings use typical sizes: doors 21 sq ft, windows 15 sq ft, double garage doors 112 sq ft. Trim estimated at 10% of body paint.',
+  }));
+  return pages;
+}
+
 // ---------- Pinterest: one pin per tool, one RSS feed per board ----------
 // Pinterest's "auto-publish from RSS" maps each feed to one board (up to 5 feeds per account),
 // so tools are grouped into 5 boards and each feed item carries its pin image.
 const PIN_BOARDS = [
-  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, raised bed and potting soil, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/raised-bed-soil-calculator/', '/potting-soil-calculator/', '/hardiness-zones/', '/frost-dates/'] },
+  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, raised bed and potting soil, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/raised-bed-soil-calculator/', '/potting-soil-calculator/', '/acreage-calculator/', '/square-feet-to-acres-calculator/', '/hardiness-zones/', '/frost-dates/'] },
   { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/', '/cubic-yard-calculator/', '/cubic-yards-to-tons-calculator/'] },
   { id: 'pool-care', name: 'Pool Care Calculators', desc: 'Pool volume, salt and shock doses made simple, with free calculators and charts for every pool size.', tools: ['/pool-volume-calculator/', '/pool-salt-calculator/', '/pool-shock-calculator/'] },
-  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/', '/board-foot-calculator/', '/log-board-foot-calculator/'] },
-  { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset and drywall to buy, plus square footage of rooms and countertops, with free calculators.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/', '/square-footage-calculator/', '/countertop-square-footage-calculator/'] },
+  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/', '/board-foot-calculator/', '/log-board-foot-calculator/', '/concrete-calculator/', '/concrete-slab-calculator/', '/concrete-bag-calculator/', '/deck-stain-calculator/', '/fence-stain-calculator/'] },
+  { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset, drywall and paint to buy, room square footage, and AC and mini split sizing, with free calculators.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/', '/square-footage-calculator/', '/countertop-square-footage-calculator/', '/btu-calculator/', '/mini-split-size-calculator/', '/exterior-paint-calculator/'] },
 ];
 // Each pin: a question people search on Pinterest, a small chart from the same formulas as the page, and a description.
 function pinData() {
@@ -2126,6 +2442,16 @@ function pinData() {
     '/log-board-foot-calculator/': ['Board feet in a 16 ft log', ['Diameter', 'Doyle', 'Int ¼'], [12, 16, 20, 24, 28].map((d) => [`${d} in`, String(Math.round(logBf('doyle', d, 16))), String(Math.round(logBf('intl', d, 16)))])],
     '/potting-soil-calculator/': ['How much potting soil per pot?', ['Pot', 'Quarts'], [8, 10, 12, 14, 16].map((d) => [`${d} in round`, String(Math.round(potCuIn(d, Math.round(d * 0.9)) / 1728 * 25.714))]).concat([[5, 'gal grow bag'], [10, 'gal grow bag']].map(([g, n]) => [`${g} ${n}`, String(Math.round(g * 231 * 0.9 / 1728 * 25.714))]))],
     '/raised-bed-soil-calculator/': ['How much soil for a raised bed?', ['Bed', 'Cu ft', 'Bags 1.5'], [[4, 4, 12], [3, 6, 12], [4, 8, 6], [4, 8, 12], [4, 8, 18]].map(([w, l, d]) => [`${w}×${l} ft, ${d} in`, bedCuft(l, w, d).toFixed(0), String(Math.ceil(bedCuft(l, w, d) / 1.5))])],
+    '/acreage-calculator/': ['How big is an acre?', ['Acres', 'Square feet', 'Square lot'], [0.25, 0.5, 1, 2, 5].map((a) => [String(a), fmtInt(a * 43560), `${Math.round(Math.sqrt(a * 43560))} ft sq`])],
+    '/square-feet-to-acres-calculator/': ['Square feet to acres', ['Sq ft', 'Acres'], [5000, 10000, 20000, 43560, 100000].map((x) => [fmtInt(x), (x / 43560).toFixed(3)])],
+    '/btu-calculator/': ['What size AC do I need?', ['Room', 'BTU'], [[150, '10×15'], [250, '12×20'], [400, '20×20'], [550, '22×25'], [1000, '25×40']].map(([sq, d]) => [`${sq} sq ft (${d} ft)`, fmtInt(esRow(sq))])],
+    '/mini-split-size-calculator/': ['Mini split head size by room', ['Room', 'Head'], [[150, 'Small bedroom'], [250, 'Bedroom'], [450, 'Living room'], [700, 'Great room']].map(([sq, n]) => [`${n}, ${sq} sq ft`, `${fmtInt(HVAC.heads.find((h) => h >= esRow(sq)) || 24000)} BTU`])],
+    '/concrete-calculator/': ['How many bags of concrete?', ['Slab, 4 in thick', 'Cu yd', '80 lb bags'], [[4, 4], [8, 8], [10, 10], [12, 12]].map(([l, w]) => [`${l} × ${w} ft`, (concreteYd(l, w, 4) * 1.1).toFixed(2), String(Math.ceil(concreteYd(l, w, 4) * 1.1 * 27 / 0.6))])],
+    '/concrete-slab-calculator/': ['Concrete for a slab', ['Slab', 'Thick', 'Cu yd (+10%)'], [[10, 10, 4], [12, 12, 4], [20, 20, 4], [12, 24, 6]].map(([l, w, t]) => [`${l} × ${w} ft`, `${t} in`, (concreteYd(l, w, t) * 1.1).toFixed(2)])],
+    '/concrete-bag-calculator/': ['Concrete bags per yard', ['Bag', 'Per cu yd'], CONCRETE.bags.map((x) => [x.name, String(Math.ceil(27 / x.yield))])],
+    '/deck-stain-calculator/': ['How much deck stain?', ['Product', 'Rough wood', 'Smooth'], Object.values(COAT.products).map((x) => [x.name.replace(' or toner', ''), `${x.rough} sq ft/gal`, `${x.smooth}`])],
+    '/fence-stain-calculator/': ['Fence stain (6 ft, both sides)', ['Fence', 'Gallons, 1 coat'], [50, 100, 150, 200].map((L) => [`${L} ft privacy`, String(Math.ceil(L * 6 * 2 * 1.15 / COAT.products.semi.rough))])],
+    '/exterior-paint-calculator/': ['How much exterior paint?', ['House', 'Gallons, 2 coats'], [[40, 30, 9], [50, 30, 9], [50, 30, 18], [60, 40, 18]].map(([l, w, h]) => { const a = 2 * (l + w) * h + w * 8 - 334; return [`${l}×${w} ft, ${h} ft walls`, String(Math.ceil(a / COAT.products.paint.smooth * 2))]; })],
     '/drywall-calculator/': ['How many sheets of drywall?', ['Room', '4×8 sheets', '4×12'], [[10, 10], [12, 12], [12, 14], [14, 16]].map(([l, w]) => [`${l} × ${w} ft`, String(drywallRow(l, w).sheets), String(drywallRow(l, w, 8, 48).sheets)])],
   };
   const tools = ALL_TOOLS();
@@ -2210,7 +2536,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [...batch3Pages(), ...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [...batch4Pages(), ...batch3Pages(), ...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -2245,7 +2571,7 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
-${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
+${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
 - [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
 - [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
