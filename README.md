@@ -40,6 +40,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/btu-calculator/`, `/mini-split-size-calculator/` | Multi-room cooling (ENERGY STAR chart + adjustments) and heating BTU by climate zone; mini-split head sizes and multi-zone outdoor unit |
 | `/concrete-calculator/`, `/concrete-slab-calculator/`, `/concrete-bag-calculator/` | Slabs, footings, columns and steps in one pour: yards, 40/60/80 lb bags, trucks, rebar grid or mesh, gravel base, bags vs ready-mix cost |
 | `/deck-stain-calculator/`, `/fence-stain-calculator/`, `/exterior-paint-calculator/` | Gallons by product and surface for decks (floor, railings, stairs), fences (style, sides) and house siding (gables, openings, trim) |
+| `/roof-pitch-calculator/`, `/roofing-calculator/`, `/shingle-calculator/` | Pitch from rise/run, ridge height + width or angle (degrees, slope factor, rafter length, hip factor, suitable materials, diagram); whole-roof squares, bundles or metal panels, underlayment, starter, ridge cap, ice and water, drip edge, nails and cost for gable/hip/shed; bundles from measured planes |
+| `/topsoil-calculator/`, `/sand-calculator/`, `/polymeric-sand-calculator/` | Cubic yards, tons, bags and pickup loads by project depth and material for rectangles and circles, bulk vs bagged cost; polymeric sand bags from the joint volume of the paver grid |
+| `/deck-joist-span-calculator/`, `/floor-joist-span-calculator/`, `/rafter-span-calculator/` | Max span from NDS 2018 No. 2 values (bending, L/360–L/180 deflection, shear; wet service and incising for decks, matching AWC DCA 6), span check, full span charts |
+| `/fertilizer-calculator/` | Product per 1,000 sq ft and total for any N-P-K (granular lb or liquid fl oz), by N or soil-test P/K, nutrients delivered, yearly N and timing by grass type |
 | `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
 | `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
@@ -67,13 +71,13 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 
 | Feed | Board | Tools |
 |---|---|---|
-| `/feeds/pinterest-lawn-garden.xml` | Lawn & Garden Calculators | grass seed, sod, raised bed soil, potting soil, hardiness zones, frost dates |
-| `/feeds/pinterest-patio-gravel.xml` | Patio, Paver & Gravel Projects | gravel, pea gravel, driveway, pavers, paver base, retaining wall, cubic yards, yards ↔ tons |
+| `/feeds/pinterest-lawn-garden.xml` | Lawn & Garden Calculators | topsoil, lawn fertilizer, grass seed, sod, raised bed soil, potting soil, hardiness zones, frost dates |
+| `/feeds/pinterest-patio-gravel.xml` | Patio, Paver & Gravel Projects | gravel, pea gravel, driveway, pavers, paver base, retaining wall, cubic yards, yards ↔ tons, sand, polymeric sand |
 | `/feeds/pinterest-pool-care.xml` | Pool Care Calculators | pool volume, salt, shock |
-| `/feeds/pinterest-diy-building.xml` | DIY Deck, Fence & Stair Building | deck, fence, fence post concrete, stairs, stringers, concrete block, board feet, log scale |
+| `/feeds/pinterest-diy-building.xml` | DIY Deck, Fence & Stair Building | deck/floor joist and rafter spans, roof pitch, roofing, shingles, deck, fence, fence post concrete, stairs, stringers, concrete block, board feet, log scale |
 | `/feeds/pinterest-diy-interior.xml` | DIY Tile & Drywall Projects | tile, shower tile, drywall, square footage, countertops |
 
-Set up once: claim `tools.homegardenlot.com` in Pinterest (Settings → Claimed accounts → Websites → HTML tag; put the code in the `PINTEREST_VERIFY` repository variable and re-run **Deploy tool site**), create the 5 boards, then Settings → Bulk create Pins → Auto-publish → connect each feed to its board. To send a fresh round of pins later, change `TOOLS_UPDATED` in `scripts/build-site.mjs` (the date is part of each item's guid) and re-run `scripts/make-og.mjs` if the charts changed.
+Set up once: claim `tools.homegardenlot.com` in Pinterest (Settings → Claimed accounts → Websites → HTML tag; put the code in the `PINTEREST_VERIFY` repository variable and re-run **Deploy tool site**), create the 5 boards, then Settings → Bulk create Pins → Auto-publish → connect each feed to its board. Each pin's guid carries its tool's update date (`TOOLS_UPDATED`, or `B5_UPDATED` for batch 5), so adding tools only publishes the new pins. To send a fresh round of every pin later, change those dates in `scripts/build-site.mjs` and re-run `scripts/make-og.mjs` if the charts changed.
 
 **IndexNow:** each build writes `/page-hashes.json` (a content hash per page). The deploy compares it with the live copy and, after the Cloudflare purge, sends only the changed URLs to IndexNow (Bing, Yandex, Seznam, Naver) using the key file `/<INDEXNOW_KEY>.txt`. Nothing to set up. Google doesn't use IndexNow; it reads the sitemap in Search Console.
 

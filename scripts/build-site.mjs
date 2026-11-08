@@ -424,6 +424,10 @@ ${card(['🧩', 'Embed Our Tools', '/embed/', 'Add the frost lookup or any calcu
 <div class="hgt-grid">
 ${BATCH1_TOOLS.map((t) => card(t, 'New')).join('\n')}
 </div>
+<h2>Roofing, framing, soil and lawn care</h2>
+<div class="hgt-grid">
+${[...BATCH5_TOOLS, ...BATCH5_VARIANTS].map((t) => card(t, 'New')).join('\n')}
+</div>
 <h2>Advanced planning tools</h2>
 <div class="hgt-grid">
 ${[...BATCH4_TOOLS, ...BATCH4_VARIANTS].map((t) => card(t, 'New')).join('\n')}
@@ -458,7 +462,7 @@ ${MAIN_TOOLS.map((t) => card(t)).join('\n')}
     { '@type': 'WebSite', '@id': `${SITE}/#website`, url: `${SITE}/`, name: `${BRAND} Tools`, inLanguage: 'en-US', publisher: { '@id': ORG_ID } },
     orgRef,
     { '@type': 'CollectionPage', '@id': `${SITE}/#webpage`, url: `${SITE}/`, name: title, description, isPartOf: { '@id': `${SITE}/#website` },
-      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
+      mainEntity: { '@type': 'ItemList', itemListElement: [['Frost Dates by ZIP Code', `${SITE}/frost-dates/`], ['Hardiness Zone by ZIP Code', `${SITE}${ZONE_IDX}`], ...BATCH1_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH1_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH2_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH3_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH4_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...BATCH5_TOOLS.map((t) => [t[1], SITE + t[2]]), ...BATCH5_VARIANTS.map((t) => [t[1], SITE + t[2]]), ...LAWN_TOOLS.map((t) => [t[1], SITE + t[2]]), ...CALC_TOOLS.map((t) => [t[1], SITE + t[2]]), ...MAIN_TOOLS.map((t) => [t[1], t[2]])].map(([n, u], i) => ({ '@type': 'ListItem', position: i + 1, name: n, url: u })) } },
   ];
   return page({ path, title, description, body, schema, scripts: ['/assets/frost.js'] });
 }
@@ -1085,7 +1089,7 @@ ${priceInput('pLb', 'Seed per lb', 4)}${priceInput('pStraw', 'Straw per bale', 1
 const ALL_TOOLS = () => [
   ['🌡️', 'Hardiness Zone by ZIP', ZONE_IDX, 'Your USDA 2023 zone and local frost dates.'],
   ['❄️', 'Frost Dates by ZIP', '/frost-dates/', 'Last and first frost from the nearest NOAA station.'],
-  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
+  ...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS, ...BATCH5_TOOLS, ...BATCH5_VARIANTS, ...LAWN_TOOLS, ...CALC_TOOLS,
 ];
 // Each tool page links to its siblings so link equity and visitors flow across the cluster.
 const FAMILY = {
@@ -1096,9 +1100,11 @@ const FAMILY = {
   '/hardiness-zones/': 'climate', '/frost-dates/': 'climate',
   '/square-footage-calculator/': 'interior', '/countertop-square-footage-calculator/': 'interior', '/cubic-yard-calculator/': 'ground', '/cubic-yards-to-tons-calculator/': 'ground', '/board-foot-calculator/': 'stairs', '/log-board-foot-calculator/': 'stairs', '/potting-soil-calculator/': 'lawn', '/raised-bed-soil-calculator/': 'lawn',
   '/acreage-calculator/': 'climate', '/square-feet-to-acres-calculator/': 'climate', '/btu-calculator/': 'hvac', '/mini-split-size-calculator/': 'hvac', '/concrete-calculator/': 'masonry', '/concrete-slab-calculator/': 'masonry', '/concrete-bag-calculator/': 'masonry', '/deck-stain-calculator/': 'fence', '/fence-stain-calculator/': 'fence', '/exterior-paint-calculator/': 'interior',
+  '/roof-pitch-calculator/': 'roof', '/roofing-calculator/': 'roof', '/shingle-calculator/': 'roof', '/deck-joist-span-calculator/': 'stairs', '/floor-joist-span-calculator/': 'roof', '/rafter-span-calculator/': 'roof',
+  '/topsoil-calculator/': 'lawn', '/fertilizer-calculator/': 'lawn', '/sand-calculator/': 'ground', '/polymeric-sand-calculator/': 'ground',
   '/deck-calculator/': 'stairs', '/fence-calculator/': 'fence', '/fence-post-concrete-calculator/': 'fence', '/tile-calculator/': 'interior', '/shower-tile-calculator/': 'interior', '/drywall-calculator/': 'interior',
 };
-const NEAR = { hvac: ['interior'], fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
+const NEAR = { roof: ['stairs', 'interior'], hvac: ['interior'], fence: ['stairs', 'ground'], interior: ['stairs', 'masonry'], stairs: ['roof', 'fence', 'masonry', 'ground'], ground: ['masonry', 'lawn'], pool: ['lawn', 'ground'], lawn: ['climate', 'ground'], masonry: ['ground', 'stairs'], climate: ['lawn'] };
 const rank = (path) => (t) => { const a = FAMILY[path], b = FAMILY[t[2]]; return a === b ? 0 : (NEAR[a] || []).indexOf(b) >= 0 ? 1 + (NEAR[a] || []).indexOf(b) : 9; };
 const relatedTools = (path) => `<section><h2>Related free tools</h2><div class="hgt-grid">${ALL_TOOLS().filter((t) => t[2] !== path).sort((x, y) => rank(path)(x) - rank(path)(y)).slice(0, 4).map(([icon, name, url, text]) => `<a class="hgt-card hgt-tool" href="${url}"><span class="hgt-tool__icon" aria-hidden="true">${icon}</span><h3 class="hgt-tool__title">${name}</h3><p class="hgt-tool__text">${text}</p><span class="hgt-tool__go">Open tool →</span></a>`).join('')}</div></section>`;
 const embedCta = (slugName) => `<p class="hgt-read hgt-sources">Run a garden club, nursery or landscaping site? <a href="/embed/#${slugName}">Embed this calculator free</a> with one line of code.</p>`;
@@ -1221,6 +1227,16 @@ const EMBEDS = [
   { id: 'deck-stain', name: 'Deck stain calculator', tool: '/deck-stain-calculator/', height: 860, card: () => coatCard('deck', true), script: '/assets/coating.js' },
   { id: 'fence-stain', name: 'Fence stain calculator', tool: '/fence-stain-calculator/', height: 760, card: () => coatCard('fence', true), script: '/assets/coating.js' },
   { id: 'exterior-paint', name: 'Exterior paint calculator', tool: '/exterior-paint-calculator/', height: 900, card: () => coatCard('house', true), script: '/assets/coating.js' },
+  { id: 'roof-pitch', name: 'Roof pitch calculator', tool: '/roof-pitch-calculator/', height: 900, card: () => pitchCard(true), script: '/assets/roof.js' },
+  { id: 'roofing', name: 'Roofing calculator', tool: '/roofing-calculator/', height: 1000, card: () => roofCard(true), script: '/assets/roof.js' },
+  { id: 'shingles', name: 'Shingle calculator', tool: '/shingle-calculator/', height: 900, card: () => shingleCard(true), script: '/assets/roof.js' },
+  { id: 'topsoil', name: 'Topsoil calculator', tool: '/topsoil-calculator/', height: 900, card: () => topsoilCard(true), script: '/assets/fill.js' },
+  { id: 'sand', name: 'Sand calculator', tool: '/sand-calculator/', height: 900, card: () => sandCard(true), script: '/assets/fill.js' },
+  { id: 'polymeric-sand', name: 'Polymeric sand calculator', tool: '/polymeric-sand-calculator/', height: 860, card: () => polyCard(true), script: '/assets/fill.js' },
+  { id: 'deck-joist-span', name: 'Deck joist span calculator', tool: '/deck-joist-span-calculator/', height: 900, card: () => spanCard('deck', true), script: '/assets/span.js' },
+  { id: 'floor-joist-span', name: 'Floor joist span calculator', tool: '/floor-joist-span-calculator/', height: 900, card: () => spanCard('floor', true), script: '/assets/span.js' },
+  { id: 'rafter-span', name: 'Rafter span calculator', tool: '/rafter-span-calculator/', height: 900, card: () => spanCard('rafter', true), script: '/assets/span.js' },
+  { id: 'fertilizer', name: 'Fertilizer calculator', tool: '/fertilizer-calculator/', height: 900, card: () => fertCard(true), script: '/assets/fert.js' },
 ];
 const embedSnippet = (e) => `<iframe src="${SITE}/embed/${e.id}/" title="${e.name}" width="100%" height="${e.height}" style="border:0;max-width:640px" loading="lazy"></iframe>
 <p style="font-size:13px">Free ${e.name.toLowerCase()} by <a href="${SITE}${e.tool}">${BRAND}</a></p>`;
@@ -1366,11 +1382,11 @@ ${field('Goal', selectIn('mode', [['raise', 'Routine shock: raise chlorine'], ['
 };
 
 // One layout for every tool page in this batch: answer → tool → unique reference content → FAQ → links → sources.
-function toolPage({ path, name, title, description, h1, lede, answer, card, sections, faqs, sources, script, embedId }) {
+function toolPage({ path, name, title, description, h1, lede, answer, card, sections, faqs, sources, script, embedId, updated = TOOLS_UPDATED }) {
   const body = `
 <h1>${h1}</h1>
 <p class="hgt-lede">${lede}</p>
-<p class="hgt-meta">Free · No sign-up · Shows the math · Updated ${TOOLS_UPDATED}</p>
+<p class="hgt-meta">Free · No sign-up · Shows the math · Updated ${updated}</p>
 <div class="hgt-answer"><span class="hgt-answer__label">Quick answer</span><p>${answer}</p></div>
 ${card}
 ${sections}
@@ -1378,7 +1394,7 @@ ${faqBlock(faqs)}
 ${embedId ? embedCta(embedId) : ''}
 ${relatedTools(path)}
 <section class="hgt-sources hgt-read"><h2>Sources and assumptions</h2><p>${sources}</p></section>`;
-  const schema = [{ ...appSchema(path, name, description), dateModified: TOOLS_UPDATED }, faqSchema(faqs)];
+  const schema = [{ ...appSchema(path, name, description), dateModified: updated }, faqSchema(faqs)];
   return { path, html: page({ path, title, description, body, active: '/#calculators', crumbs: [['/#calculators', 'Calculators'], [path, name]], schema, scripts: [script] }) };
 }
 const table = (head, rows) => `<div class="hgt-table-wrap"><table class="hgt-table"><thead><tr>${head.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>
@@ -2398,14 +2414,431 @@ function batch4Pages() {
   return pages;
 }
 
+// ---------- batch 5: roofing, topsoil & sand, joist and rafter spans, lawn fertilizer ----------
+const B5_UPDATED = '2026-11-08';
+const ARMA_URL = 'https://www.asphaltroofing.org/';
+const NDS_URL = 'https://awc.org/publications/2018-nds/';
+const AWC_SPANS_URL = 'https://awc.org/publications/span-tables-for-joists-and-rafters/';
+const IRC_FLOOR_URL = 'https://codes.iccsafe.org/content/IRC2021P2/chapter-5-floors';
+const IRC_ROOF_URL = 'https://codes.iccsafe.org/content/IRC2021P2/chapter-8-roof-ceiling-construction';
+const PURDUE_TURF_URL = 'https://turf.purdue.edu/';
+const NCSU_TURF_URL = 'https://www.turffiles.ncsu.edu/';
+const ROOF = {
+  walk: [[4, 'Walkable', 'Low slope; easy to walk on'], [7, 'Walkable with care', 'Typical pitch; soft-soled shoes'], [9, 'Steep', 'Roof jacks and a harness advised'], [99, 'Very steep', 'Needs professional staging']],
+  minPitch: [[0.25, 99, 'standing-seam metal (from about ¼/12)'], [2, 4, 'asphalt shingles with double underlayment or full ice-and-water shield'], [3, 99, 'exposed-fastener metal panels (typically 3/12 and up)'], [4, 99, 'asphalt shingles with standard underlayment'], [4, 99, 'clay or concrete tile, slate and wood shakes (about 4/12 and up; check the maker)']],
+  waste: { gable: 0.1, hip: 0.15, shed: 0.05 },
+  materials: { arch: { name: 'Architectural shingles', bundles: 3 }, '3tab': { name: '3-tab shingles', bundles: 3 }, heavy: { name: 'Designer / luxury shingles', bundles: 4 }, metal: { name: 'Metal panels' } },
+  planes: [{ a: 40, b: 40, s: 17 }, { a: 40, b: 40, s: 17 }],
+  starterLf: 105, ridgeLf: 25, nailsPerSq: { 4: 320, 6: 480 }, nailsPerLb: 140, underRoll: 1000, underLap: 0.1, iceLf: 65, dripLf: 9.5, panelIn: 36, screwsPerSq: 80,
+};
+const FILL_SOIL = {
+  defaultL: 20, defaultW: 10, extra: 15, pickupLb: 1500, pYd: 35, pDel: 75, pBag: 4,
+  uses: {
+    top: { name: 'Top dressing a lawn (½ in)', depth: 0.5, tip: 'Spread no more than ¼–½ in at a time and rake it into the grass so the blades stay visible; repeat after the lawn grows through.' },
+    level: { name: 'Filling low spots (1 in)', depth: 1, tip: 'For dips deeper than about 1 in, fill in stages a few weeks apart, or lift the sod, fill underneath and lay it back.' },
+    lawn: { name: 'New lawn or sod (4 in)', depth: 4, tip: 'Sod and seed root best in 4–6 in of loose topsoil. Till it into the top few inches of native soil so water and roots move through both layers.' },
+    lawn6: { name: 'New lawn on poor soil (6 in)', depth: 6 },
+    bed: { name: 'Flower or shrub bed (8 in)', depth: 8 },
+    veg: { name: 'In-ground vegetable garden (12 in)', depth: 12, tip: 'For raised beds, use the raised bed soil calculator; it adds compost and settling for each bed.' },
+    custom: { name: 'Custom depth' },
+  },
+  materials: {
+    topsoil: { short: 'topsoil', name: 'Screened topsoil', tpy: 1.1, note: 'dry, screened' },
+    blend: { short: 'topsoil blend', name: 'Topsoil and compost blend', tpy: 0.95, note: 'typical blend' },
+    garden: { short: 'garden soil', name: 'Garden soil mix', tpy: 0.8, note: 'with organic matter' },
+    fill: { short: 'fill dirt', name: 'Fill dirt (unscreened)', tpy: 1.2, note: 'dry fill' },
+    compost: { short: 'compost', name: 'Compost', tpy: 0.5, note: 'finished compost' },
+  },
+  bags: [[0.75, '0.75 cu ft bags (about 40 lb of topsoil)'], [1, '1 cu ft bags'], [1.5, '1.5 cu ft bags'], [2, '2 cu ft bags']],
+};
+const FILL_SAND = {
+  defaultL: 8, defaultW: 8, extra: 0, pickupLb: 1500, pYd: 45, pDel: 75, pBag: 6,
+  uses: {
+    sandbox: { name: 'Sandbox (12 in)', depth: 12, tip: 'Use washed play sand sold for sandboxes. A layer of landscape fabric underneath keeps soil out and still drains.' },
+    pool: { name: 'Above-ground pool base (2 in)', depth: 2, tip: 'Make the sand pad about 1 ft wider than the pool on every side (add 2 ft to the diameter), and level the ground first; sand only smooths it.' },
+    paver: { name: 'Paver bedding layer (1 in)', depth: 1, tip: 'Screed bedding sand to 1 in over a compacted base. A thicker sand bed lets pavers settle unevenly.' },
+    lawn: { name: 'Leveling a lawn (¼ in)', depth: 0.25, tip: 'Sand levels warm-season lawns and golf greens; on clay soil, a topsoil or compost mix is usually a better top dressing.' },
+    pipe: { name: 'Pipe or trench bedding (6 in)', depth: 6 },
+    arena: { name: 'Horse arena footing (3 in)', depth: 3, tip: 'Arena footing is usually 2–4 in of washed sand over a firm, compacted base.' },
+    custom: { name: 'Custom depth' },
+  },
+  materials: {
+    play: { short: 'play sand', name: 'Play sand (washed)', tpy: 1.35, note: 'dry' },
+    mason: { short: 'mason sand', name: 'Mason / all-purpose sand', tpy: 1.35, note: 'dry' },
+    concrete: { short: 'concrete sand', name: 'Concrete sand (coarse)', tpy: 1.4, note: 'dry' },
+    fill: { short: 'fill sand', name: 'Fill sand', tpy: 1.4, note: 'dry' },
+    damp: { short: 'damp sand', name: 'Damp sand (as delivered)', tpy: 1.6, note: 'moist' },
+  },
+  bags: [[0.5, '50 lb bags (about 0.5 cu ft)']],
+};
+const POLY = {
+  defaultL: 12, defaultW: 12, density: 100, waste: 0.1, wideJoint: 0.5,
+  pavers: {
+    brick: { name: '4 × 8 in (brick / holland)', l: 8, w: 4 }, '6x6': { name: '6 × 6 in', l: 6, w: 6 }, '6x9': { name: '6 × 9 in', l: 9, w: 6 }, '6x12': { name: '6 × 12 in', l: 12, w: 6 },
+    '12x12': { name: '12 × 12 in', l: 12, w: 12 }, '16x16': { name: '16 × 16 in', l: 16, w: 16 }, '12x24': { name: '12 × 24 in', l: 24, w: 12 }, '24x24': { name: '24 × 24 in', l: 24, w: 24 },
+    flag: { name: 'Flagstone, about 18 × 18 in', l: 18, w: 18 },
+  },
+  joints: [[0.0625, '1/16 in'], [0.125, '1/8 in'], [0.1875, '3/16 in'], [0.25, '1/4 in'], [0.375, '3/8 in'], [0.5, '1/2 in'], [0.75, '3/4 in'], [1, '1 in']],
+};
+const SPAN = {
+  species: {
+    syp: { name: 'Southern pine No. 2', fb: { '2x4': 1100, '2x6': 1000, '2x8': 925, '2x10': 800, '2x12': 750 }, fv: 175, e: 1400000 },
+    dfl: { name: 'Douglas fir-larch No. 2', fb: 900, fv: 180, e: 1600000 },
+    hf: { name: 'Hem-fir No. 2', fb: 850, fv: 150, e: 1300000 },
+    spf: { name: 'Spruce-pine-fir No. 2', fb: 875, fv: 135, e: 1400000 },
+    wc: { name: 'Western cedars No. 2', fb: 700, fv: 155, e: 1000000 },
+  },
+  depth: { '2x4': 3.5, '2x6': 5.5, '2x8': 7.25, '2x10': 9.25, '2x12': 11.25 },
+  cf: { '2x4': 1.5, '2x6': 1.3, '2x8': 1.2, '2x10': 1.1, '2x12': 1.0 },
+  cr: 1.15, wetFbLimit: 1150, wet: { fb: 0.85, e: 0.9, fv: 0.97 }, incised: { fb: 0.8, e: 0.95, fv: 0.8 },
+  sizes: { deck: ['2x6', '2x8', '2x10', '2x12'], floor: ['2x6', '2x8', '2x10', '2x12'], rafter: ['2x4', '2x6', '2x8', '2x10', '2x12'] },
+  spacings: [12, 16, 24], deckDead: 10, deckCap: 18,
+  uses: { living: { name: 'Living areas (40 psf live)', live: 40, dead: 10 }, sleeping: { name: 'Bedrooms only (30 psf live)', live: 30, dead: 10 }, heavy: { name: 'Living areas with tile or stone (40 + 20 psf dead)', live: 40, dead: 20 } },
+  roofLoads: { live20: { name: '20 psf roof live load (no snow)', live: 20, cd: 1.25 }, snow30: { name: '30 psf ground snow', live: 30, cd: 1.15 }, snow50: { name: '50 psf ground snow', live: 50, cd: 1.15 }, snow70: { name: '70 psf ground snow', live: 70, cd: 1.15 } },
+};
+const FERT = {
+  grasses: {
+    kbg: { name: 'Kentucky bluegrass', lo: 2, hi: 4, season: 'cool' }, tf: { name: 'Tall fescue', lo: 2, hi: 4, season: 'cool' }, prg: { name: 'Perennial ryegrass', lo: 2, hi: 4, season: 'cool' }, ff: { name: 'Fine fescue', lo: 1, hi: 2, season: 'cool' },
+    berm: { name: 'Bermudagrass', lo: 2, hi: 5, season: 'warm' }, zoy: { name: 'Zoysiagrass', lo: 1, hi: 3, season: 'warm' }, sta: { name: 'St. Augustinegrass', lo: 2, hi: 4, season: 'warm' }, cent: { name: 'Centipedegrass', lo: 1, hi: 2, season: 'warm' }, buf: { name: 'Buffalograss', lo: 1, hi: 2, season: 'warm' },
+  },
+  timing: {
+    cool: 'put most of the year\'s nitrogen down in early fall (September) and late fall (October–November), with a light feeding in late spring if needed. Skip midsummer.',
+    warm: 'start after the lawn fully greens up in late spring, then feed every 6–8 weeks through summer. Stop about 6–8 weeks before your first fall frost.',
+  },
+  maxQuickN: 1,
+  products: [['24-0-6', '24-0-6 (typical lawn food)'], ['32-0-4', '32-0-4'], ['29-0-4', '29-0-4'], ['16-4-8', '16-4-8'], ['10-10-10', '10-10-10 (balanced)'], ['15-0-15', '15-0-15'], ['46-0-0', '46-0-0 (urea)'], ['21-0-0', '21-0-0 (ammonium sulfate)'], ['5-3-2', '5-3-2 (organic)'], ['28-0-0', '28-0-0 (liquid UAN)']],
+};
+const BATCH5_TOOLS = [
+  ['📐', 'Roof Pitch Calculator', '/roof-pitch-calculator/', 'Pitch, angle, slope factor, rafter length and ridge height from rise and run, width or degrees.'],
+  ['🏚️', 'Roofing Calculator', '/roofing-calculator/', 'Squares, shingle bundles, underlayment, starter, ridge cap and drip edge from the house size and pitch.'],
+  ['🟫', 'Topsoil Calculator', '/topsoil-calculator/', 'Cubic yards, tons, bags and truckloads of topsoil for lawns, beds and gardens.'],
+  ['🪵', 'Deck Joist Span Calculator', '/deck-joist-span-calculator/', 'Maximum joist span by species, size and spacing (DCA 6 method), with a span check.'],
+  ['🌱', 'Fertilizer Calculator', '/fertilizer-calculator/', 'Pounds or ounces of any N-P-K fertilizer per 1,000 sq ft and for your whole lawn.'],
+];
+const BATCH5_VARIANTS = [
+  ['🧮', 'Shingle Calculator', '/shingle-calculator/', 'Bundles of shingles from measured roof planes, plus starter and ridge cap.'],
+  ['⏳', 'Sand Calculator', '/sand-calculator/', 'Cubic yards, tons and 50 lb bags of play, mason, concrete or fill sand.'],
+  ['🧱', 'Polymeric Sand Calculator', '/polymeric-sand-calculator/', 'Bags of polymeric sand from paver size, joint width and depth.'],
+  ['📏', 'Floor Joist Span Calculator', '/floor-joist-span-calculator/', 'Floor joist span chart and checker for 30 and 40 psf floors.'],
+  ['🏠', 'Rafter Span Calculator', '/rafter-span-calculator/', 'Maximum rafter span for roof live load or snow, with or without a ceiling.'],
+];
+
+// The same span checks as span.js (bending, live-load deflection, shear), so the page tables match the calculator.
+function spanInches(sp, size, oc, o) {
+  const s = SPAN.species[sp], b = 1.5, d = SPAN.depth[size], S = b * d * d / 6, I = b * d ** 3 / 12, A = b * d;
+  const fb = typeof s.fb === 'object' ? s.fb[size] : s.fb * SPAN.cf[size];
+  const inc = o.incised ? SPAN.incised : { fb: 1, e: 1, fv: 1 };
+  const fbp = fb * (o.cd || 1) * SPAN.cr * (o.wet && fb > SPAN.wetFbLimit ? SPAN.wet.fb : 1) * inc.fb;
+  const ep = s.e * (o.wet ? SPAN.wet.e : 1) * inc.e, fvp = s.fv * (o.cd || 1) * (o.wet ? SPAN.wet.fv : 1) * inc.fv;
+  const w = (o.live + o.dead) * oc / 144, wl = o.live * oc / 144;
+  const L = Math.min(Math.sqrt(8 * fbp * S / w), Math.cbrt(384 * ep * I / (5 * o.defl * wl)), 4 / 3 * fvp * A / w, o.cap ? o.cap * 12 : Infinity);
+  return Math.round(L);
+}
+const ftInS = (inch) => `${Math.floor(inch / 12)}′${inch % 12}″`;
+const DECK_LOAD = (sp) => ({ live: 40, dead: SPAN.deckDead, defl: 360, wet: true, incised: sp !== 'syp' && sp !== 'wc', cap: SPAN.deckCap });
+const FLOOR_LOAD = (live = 40, dead = 10, defl = 360) => ({ live, dead, defl });
+const RAFTER_LOAD = (key, dead = 10, defl = 240) => ({ live: SPAN.roofLoads[key].live, dead, defl, cd: SPAN.roofLoads[key].cd });
+const roofSF = (p) => Math.sqrt(1 + p * p / 144);
+const gableSquares = (L, W, p, oh = 1, waste = 0.1) => (L + 2 * oh) * (W + 2 * oh) * roofSF(p) * (1 + waste) / 100;
+const polyCover = (l, w, j, d = 2.25, bag = 50) => { const cell = (l + j) * (w + j); return bag / ((cell - l * w) / cell * 144 * d / 1728 * POLY.density); };
+
+const pitchCard = (embed = false) => calcShell('data-hgt-roof="pitch"', ROOF, `<div class="hgt-calc__grid">
+${field('I know the', selectIn('mode', [['rr', 'Rise and run (inches)'], ['rs', 'Ridge height and building width'], ['ang', 'Roof angle in degrees'], ['p', 'Pitch (x in 12)']], 'rr'))}
+<label class="hgt-calc__field" data-show="rr"><span>Rise (in)</span>${numIn('rise', 6)}</label>
+<label class="hgt-calc__field" data-show="rr"><span>Run (in)</span>${numIn('run', 12)}</label>
+<label class="hgt-calc__field" data-show="rs" hidden><span>Ridge height above the walls (ft)</span>${numIn('riseft', 6)}</label>
+<label class="hgt-calc__field" data-show="ang" hidden><span>Roof angle (degrees)</span>${numIn('deg', 26.57)}</label>
+<label class="hgt-calc__field" data-show="p" hidden><span>Pitch</span>${selectIn('px', Array.from({ length: 24 }, (_, i) => [i + 1, `${i + 1}/12`]), 6)}</label>
+${field('Building width, wall to wall (ft)', numIn('width', 24))}
+${field('Eave overhang, measured level (in)', numIn('oh', 12, '1'))}
+</div>`, embed);
+const roofCard = (embed = false) => calcShell('data-hgt-roof="roof"', ROOF, `<div class="hgt-calc__grid">
+${field('House length (ft)', numIn('len', 40, '0.5'))}
+${field('House width (ft)', numIn('wid', 30, '0.5'))}
+${field('Eave overhang (in)', numIn('oh', 12, '1'))}
+${field('Roof style', selectIn('style', [['gable', 'Gable (two slopes)'], ['hip', 'Hip (four slopes)'], ['shed', 'Shed (one slope)']], 'gable'))}
+${field('Pitch', selectIn('pitch', Array.from({ length: 18 }, (_, i) => [i + 1, `${i + 1}/12`]), 6))}
+${field('Roofing', selectIn('mat', Object.entries(ROOF.materials).map(([k, v]) => [k, v.name]), 'arch'))}
+${field('Waste', selectIn('waste', [['auto', 'Auto (gable 10%, hip 15%, shed 5%)'], [5, '5%'], [10, '10%'], [15, '15%'], [20, '20%']], 'auto'))}
+${field('Ice and water shield at eaves', selectIn('ice', [[0, 'None'], [1, '1 row (3 ft)'], [2, '2 rows (6 ft, cold climates)']], 1))}
+${field('Nails per shingle', selectIn('nails', [[4, '4 (standard)'], [6, '6 (high wind)']], 4))}
+</div>
+${priceGrid('Prices (edit to match your supplier)', [['pBundle', 'Shingle bundle', 38], ['pStarter', 'Starter bundle', 55], ['pRidge', 'Ridge cap bundle', 65], ['pUnder', 'Underlayment roll', 110], ['pIce', 'Ice and water roll', 120], ['pDrip', 'Drip edge, 10 ft', 12], ['pMetal', 'Metal panel per sq ft', 4]])}`, embed);
+const shingleCard = (embed = false) => calcShell('data-hgt-roof="shingle"', ROOF, `<fieldset class="hgt-calc__set"><legend>Roof planes (measured on the roof)</legend>
+<p class="hgt-calc__hint">Rectangle: top edge = eave length. Hip end (triangle): top edge 0. Hip side (trapezoid): top edge = ridge length. Slope length runs from eave to ridge.</p><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add a roof plane</button></fieldset>
+<div class="hgt-calc__grid">
+${field('Shingles', selectIn('mat', Object.entries(ROOF.materials).filter(([k]) => k !== 'metal').map(([k, v]) => [k, `${v.name} (${v.bundles} bundles per square)`]), 'arch'))}
+${field('Waste', selectIn('waste', [[5, '5% (simple gable)'], [10, '10% (typical)'], [15, '15% (hips, valleys, dormers)'], [20, '20% (complex roof)']], 10))}
+${field('Eaves + rakes for starter (ft, optional)', numIn('starter', '', '1'))}
+${field('Ridges + hips for ridge cap (ft, optional)', numIn('ridge', '', '1'))}
+</div>
+${priceGrid('Prices (optional)', [['pBundle', 'Shingle bundle', 38], ['pStarter', 'Starter bundle', 55], ['pRidge', 'Ridge cap bundle', 65]])}`, embed);
+const fillRows = (legend) => `<fieldset class="hgt-calc__set"><legend>${legend}</legend><div data-rows></div>
+<button type="button" class="hgt-btn hgt-btn--ghost hgt-calc__add" data-add>+ Add another area</button></fieldset>`;
+const bulkCard = (kind, cfg, first, embed = false) => calcShell(`data-hgt-fill="${kind}"`, cfg, `${fillRows('Areas to cover')}
+<div class="hgt-calc__grid">
+${field('Project', selectIn('use', Object.entries(cfg.uses).map(([k, v]) => [k, v.name]), first))}
+${field('Depth (in)', numIn('depth', cfg.uses[first].depth))}
+${field('Material', selectIn('mat', Object.entries(cfg.materials).map(([k, v]) => [k, `${v.name} · ${v.tpy} t/yd`]), Object.keys(cfg.materials)[0]))}
+${field('Extra for settling', selectIn('extra', [[0, 'None'], [10, '10%'], [15, '15%'], [20, '20%'], [25, '25%']], cfg.extra))}
+${field('Bag size', selectIn('bag', [...cfg.bags, [0, 'Bulk only']], cfg.bags[0][0]))}
+</div>
+${priceGrid('Prices (edit to match your supplier)', [['pYd', 'Bulk per cu yd', cfg.pYd], ['pDel', 'Delivery fee', cfg.pDel], ['pBag', 'Per bag', cfg.pBag]])}`, embed);
+const topsoilCard = (embed = false) => bulkCard('topsoil', FILL_SOIL, 'lawn', embed);
+const sandCard = (embed = false) => bulkCard('sand', FILL_SAND, 'sandbox', embed);
+const polyCard = (embed = false) => calcShell('data-hgt-fill="poly"', POLY, `${fillRows('Patio or walkway area')}
+<div class="hgt-calc__grid">
+${field('Paver size', selectIn('pv', [...Object.entries(POLY.pavers).map(([k, v]) => [k, v.name]), ['custom', 'Custom size…']], 'brick'))}
+${field('Paver length (in)', numIn('pl', 8))}
+${field('Paver width (in)', numIn('pw', 4))}
+${field('Joint width', selectIn('joint', POLY.joints, 0.125))}
+${field('Joint depth to fill (in)', numIn('jd', 2.25))}
+${field('Bag size', selectIn('bag', [[40, '40 lb'], [50, '50 lb'], [55, '55 lb']], 50))}
+</div>
+${priceGrid('Price (optional)', [['pBag', 'Per bag', 32]])}`, embed);
+const spanCard = (kind, embed = false) => {
+  const cfg = { ...SPAN };
+  const span = `<label class="hgt-calc__field"><span>Your span to check (optional)</span><span class="hgt-calc__pair">${numIn('ft', '', '1', ' placeholder="ft" aria-label="Span, feet"')}${numIn('in', '', '1', ' placeholder="in" max="11" aria-label="Span, inches"')}</span></label>`;
+  const common = `${field('Wood species and grade', selectIn('species', Object.entries(SPAN.species).map(([k, v]) => [k, v.name]), kind === 'deck' ? 'syp' : 'dfl'))}
+${field(kind === 'rafter' ? 'Rafter size' : 'Joist size', selectIn('size', SPAN.sizes[kind].map((z) => [z, z.replace('x', '×')]), '2x8'))}
+${field('Spacing', selectIn('oc', [[12, '12 in on center'], [16, '16 in on center'], [19.2, '19.2 in on center'], [24, '24 in on center']], 16))}`;
+  let extra = '';
+  if (kind === 'deck') extra = `${field('Live load', selectIn('live', [[40, '40 psf (code minimum for decks)'], [50, '50 psf'], [60, '60 psf']], 40))}<label class="hgt-calc__check"><input type="checkbox" name="incised"> Incised lumber (small slits; usual on treated Douglas fir, hem-fir and SPF)</label>`;
+  if (kind === 'floor') extra = `${field('Floor use', selectIn('use', Object.entries(SPAN.uses).map(([k, v]) => [k, v.name]), 'living'))}${field('Stiffness', selectIn('defl', [[360, 'L/360 (code minimum)'], [480, 'L/480 (stiffer, for tile or stone)']], 360))}`;
+  if (kind === 'rafter') extra = `${field('Roof load', selectIn('roof', Object.entries(SPAN.roofLoads).map(([k, v]) => [k, v.name]), 'snow30'))}${field('Dead load', selectIn('dead', [[10, '10 psf (asphalt shingles)'], [15, '15 psf (heavier roofing)'], [20, '20 psf (tile or slate)']], 10))}${field('Ceiling', selectIn('defl', [[240, 'Ceiling attached (L/240)'], [180, 'No ceiling (L/180)']], 240))}`;
+  return calcShell(`data-hgt-span="${kind}"`, cfg, `<div class="hgt-calc__grid">${common}${extra}${span}</div>`, embed);
+};
+const fertCard = (embed = false) => calcShell('data-hgt-fert', FERT, `<div class="hgt-calc__grid">
+${field('Lawn area (sq ft)', numIn('area', 5000, '1'))}
+${field('Grass type', selectIn('grass', Object.entries(FERT.grasses).map(([k, v]) => [k, v.name]), 'tf'))}
+${field('Common products', selectIn('npk', [['', 'Pick one, or type N-P-K below'], ...FERT.products], ''))}
+<label class="hgt-calc__field"><span>N-P-K on the bag (%)</span><span class="hgt-calc__pair">${numIn('n', 24, 'any', ' aria-label="Nitrogen percent"')}${numIn('p', 0, 'any', ' aria-label="Phosphate percent"')}${numIn('k', 6, 'any', ' aria-label="Potash percent"')}</span></label>
+${field('Feed by', selectIn('by', [['n', 'Nitrogen (N)'], ['p', 'Phosphate (P₂O₅), from a soil test'], ['k', 'Potash (K₂O), from a soil test']], 'n'))}
+${field('Rate (lb of that nutrient per 1,000 sq ft)', selectIn('rate', [[0.25, '0.25'], [0.5, '0.5'], [0.75, '0.75'], [1, '1 (typical)'], [1.5, '1.5 (slow-release only)']], 1))}
+${field('Form', selectIn('form', [['gran', 'Granular'], ['liquid', 'Liquid']], 'gran'))}
+<label class="hgt-calc__field" data-show="gran"><span>Bag size (lb)</span>${numIn('bag', 50)}</label>
+<label class="hgt-calc__field" data-show="liquid" hidden><span>Liquid weight (lb per gallon)</span>${numIn('dens', 10)}</label>
+</div>
+${priceGrid('Prices (optional)', [['pBag', 'Per bag', 35], ['pGal', 'Per gallon (liquid)', 25]])}`, embed);
+
+function batch5Pages() {
+  const pages = [];
+  const u = B5_UPDATED;
+  // ---- roof pitch ----
+  const pitchRows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 16, 18].map((p) => [`${p}/12`, `${(Math.atan(p / 12) * 180 / Math.PI).toFixed(2)}°`, `${(p / 12 * 100).toFixed(1)}%`, roofSF(p).toFixed(3), fmtInt(1000 * roofSF(p))]);
+  pages.push(toolPage({
+    path: '/roof-pitch-calculator/', name: 'Roof Pitch Calculator', script: '/assets/roof.js', embedId: 'roof-pitch', updated: u,
+    title: 'Roof Pitch Calculator: Pitch, Angle, Rafter Length & Chart',
+    description: 'Free roof pitch calculator: pitch (x/12), angle, slope factor, rafter length and ridge height from rise and run, building width or degrees, plus a pitch chart.',
+    h1: 'Roof Pitch Calculator', lede: 'Enter the rise and run, the ridge height and building width, or the angle, and get the pitch, degrees, slope factor, rafter length, ridge height and which roofing materials suit it.',
+    answer: '<strong>Roof pitch = rise ÷ run × 12</strong>, written as inches of rise per 12 in of run. A roof that rises 6 in over 12 in is a <strong>6/12 pitch = 26.57°</strong>. Common pitches: 4/12 = 18.43°, 8/12 = 33.69°, 12/12 = 45°. Roof area = footprint × the slope factor √(1 + (pitch/12)²), which is 1.118 for 6/12.',
+    card: pitchCard(),
+    sections: `<h2>Roof pitch chart</h2>${table(['Pitch', 'Angle', 'Grade', 'Slope factor', 'Roof sq ft per 1,000 sq ft of footprint'], pitchRows)}
+<section class="hgt-read"><h2>How to measure roof pitch</h2><ul><li><strong>From the roof:</strong> hold a level horizontally against the roof, mark 12 in along it and measure straight down to the roof surface. That measurement is the pitch.</li><li><strong>From the attic:</strong> do the same against the underside of a rafter.</li><li><strong>From the ground:</strong> measure the ridge height above the top of the walls and the building width, then pick "Ridge height and building width" above.</li><li><strong>From a photo:</strong> measure the roof angle with a protractor app and enter the degrees.</li></ul></section>`,
+    faqs: [
+      ['How do you calculate roof pitch?', 'Measure how many inches the roof rises over 12 inches of horizontal run. Pitch = rise ÷ run × 12. A rise of 8 in over 24 in of run is 8 ÷ 24 × 12 = 4/12.'],
+      ['What is a 6/12 roof pitch in degrees?', '26.57°. The angle is arctan(6 ÷ 12). A 4/12 pitch is 18.43° and a 12/12 pitch is 45°.'],
+      ['What is the most common roof pitch?', 'Most houses fall between 4/12 and 9/12, with 6/12 one of the most common. Below 4/12 is considered low slope for shingles; above 9/12 is steep.'],
+      ['What is the minimum pitch for shingles?', 'Asphalt shingle makers allow 2/12 with special underlayment (two layers or full ice-and-water shield); standard installation starts at 4/12. Flatter roofs need a membrane.'],
+      ['How do I convert pitch to a slope factor?', 'Slope factor = √(1 + (pitch ÷ 12)²). Multiply the roof\'s footprint by it to get the roof area: 1.054 for 4/12, 1.118 for 6/12, 1.202 for 8/12 and 1.414 for 12/12.'],
+    ],
+    sources: `Pitch, angle and slope factor are standard trigonometry; hip and valley rafters run 16.97 in per foot of common run. Minimum slopes follow typical manufacturer requirements summarized by the <a href="${ARMA_URL}" rel="nofollow">Asphalt Roofing Manufacturers Association</a>; always follow the installation instructions for your product.`,
+  }));
+  // ---- roofing ----
+  const rq = (L, W, p) => gableSquares(L, W, p);
+  const ans = rq(40, 30, 6);
+  pages.push(toolPage({
+    path: '/roofing-calculator/', name: 'Roofing Calculator', script: '/assets/roof.js', embedId: 'roofing', updated: u,
+    title: 'Roofing Calculator: Squares, Shingle Bundles & Materials List',
+    description: 'Free roofing calculator: roof area and squares from house size, pitch and style, with shingle bundles, underlayment, starter, ridge cap, drip edge and cost.',
+    h1: 'Roofing Calculator', lede: 'Get the roof area and a full materials list from the house\'s length, width, overhang, pitch and roof style: squares, bundles or metal panels, underlayment, starter strip, ridge cap, ice and water shield, drip edge and nails.',
+    answer: `<strong>Roof area = footprint with overhangs × slope factor</strong>, and a roofing square is 100 sq ft. A 40 × 30 ft house with 1 ft overhangs and a 6/12 gable roof: 42 × 32 × 1.118 = ${fmtInt(42 * 32 * roofSF(6))} sq ft. With 10% waste that is <strong>${ans.toFixed(1)} squares, or ${Math.ceil(ans * 3)} bundles</strong> of architectural shingles (3 per square).`,
+    card: roofCard(),
+    sections: `<h2>Roofing squares by house size and pitch</h2><p class="hgt-read">Gable roof, 1 ft overhangs, 10% waste.</p>${table(['House', '4/12', '6/12', '8/12', '12/12'], [[30, 20], [40, 30], [50, 30], [60, 40]].map(([L, W]) => [`${L} × ${W} ft`, ...[4, 6, 8, 12].map((p) => rq(L, W, p).toFixed(1))]))}
+<section class="hgt-read"><h2>What goes on a shingle roof</h2><ul><li><strong>Underlayment</strong> over the whole deck (synthetic rolls cover about 10 squares).</li><li><strong>Ice and water shield</strong> along the eaves, in valleys and around chimneys, and at least 24 in inside the warm wall in cold climates.</li><li><strong>Drip edge</strong> on eaves and rakes, <strong>starter strip</strong> along the eaves (and rakes for most brands), then the shingles.</li><li><strong>Ridge cap</strong> over ridges and hips, plus ridge vents, pipe boots and step flashing, which this list leaves to you.</li></ul></section>`,
+    faqs: [
+      ['How do I calculate how much roofing I need?', 'Multiply the house\'s length and width including the overhangs, then multiply by the slope factor for your pitch (1.118 for 6/12). Divide by 100 for squares and add 10–15% for waste.'],
+      ['How many bundles of shingles are in a square?', 'Three for most 3-tab and architectural shingles; some heavy designer shingles take four or five. One square covers 100 sq ft of roof.'],
+      ['How many squares is a 2,000 sq ft house roof?', 'A 2,000 sq ft single-story house with a 6/12 roof and overhangs has about 24–26 squares of roof including waste. A two-story house with the same living area has a smaller footprint and about half the roof.'],
+      ['Does a hip roof need more shingles than a gable roof?', 'For the same footprint and pitch the area is the same, but a hip roof has more cutting and ridge cap, so plan on about 15% waste instead of 10%.'],
+      ['How much does a new roof cost?', 'Materials for an architectural shingle roof often run $150–$250 per square; installed prices are usually several times that, depending on tear-off, pitch and region. Enter your prices for a materials estimate.'],
+    ],
+    sources: `Roof area uses the slope factor √(1 + (pitch/12)²), exact for roofs whose planes share one pitch. Coverage: 3 bundles per square (4 for heavy shingles), starter about ${ROOF.starterLf} ft per bundle, ridge cap about ${ROOF.ridgeLf} ft per bundle (brands range 20–33 ft), synthetic underlayment ${ROOF.underRoll} sq ft per roll, ice and water shield about ${ROOF.iceLf} ft per 3 ft roll, drip edge 10 ft pieces lapped 2 in, 320 nails per square for 4 nails per shingle. Low-slope limits per the <a href="${ARMA_URL}" rel="nofollow">Asphalt Roofing Manufacturers Association</a>. Check your product's installation instructions and local code.`,
+  }));
+  // ---- shingles ----
+  pages.push(toolPage({
+    path: '/shingle-calculator/', name: 'Shingle Calculator', script: '/assets/roof.js', embedId: 'shingles', updated: u,
+    title: 'Shingle Calculator: How Many Bundles of Shingles Do I Need?',
+    description: 'Free shingle calculator: bundles and squares of shingles from measured roof planes, including hip ends, with waste, starter strip, ridge cap and nails.',
+    h1: 'Shingle Calculator', lede: 'Measure each roof plane, add the waste for your roof\'s shape and get the bundles of shingles, starter strip and ridge cap to buy.',
+    answer: '<strong>Bundles = roof area ÷ 100 × 3</strong>, plus 10–15% waste. One bundle of standard shingles covers about 33⅓ sq ft, so a 2,000 sq ft roof needs <strong>66 bundles</strong> with 10% waste. Measure each roof plane: a rectangle is eave length × slope length; a triangular hip end is half that; a hip side is (eave + ridge) ÷ 2 × slope length.',
+    card: shingleCard(),
+    sections: `<h2>Shingle bundles by roof area</h2>${table(['Roof area', 'Squares (+10%)', 'Bundles', 'Bundles (+15%)'], [1000, 1500, 2000, 2500, 3000].map((a) => [`${fmtInt(a)} sq ft`, (a * 1.1 / 100).toFixed(1), String(Math.ceil(a * 1.1 / 100 * 3 - 1e-9)), String(Math.ceil(a * 1.15 / 100 * 3 - 1e-9))]))}`,
+    faqs: [
+      ['How many square feet does a bundle of shingles cover?', 'About 33⅓ sq ft for standard 3-tab and architectural shingles (3 bundles per 100 sq ft square). Check the wrapper: heavier shingles can cover 25 sq ft or less.'],
+      ['How much waste should I add for shingles?', 'About 10% for a simple gable roof and 15% for hips, valleys and dormers. Complex roofs with many cuts can need 20%.'],
+      ['How do I measure a roof for shingles?', 'Measure each plane\'s eave length and slope length (eave to ridge). Rectangles are length × slope; triangles are half of that; trapezoids are the average of the eave and ridge lengths × slope. Or use the roofing calculator from the house\'s footprint and pitch.'],
+      ['Do I need starter shingles?', 'Yes. Starter strip goes along the eaves (and the rakes for most brands) so the first course is sealed and the joints are covered. Plan on about one bundle per 100–120 ft.'],
+      ['How many nails per bundle of shingles?', 'About 100 nails per bundle at 4 nails per shingle, or 160 at 6 nails for high-wind areas.'],
+    ],
+    sources: `Plane area: (eave + top edge) ÷ 2 × slope length, which covers rectangles, triangles and trapezoids. 3 bundles per square for standard shingles (4 for heavy designer shingles); starter about ${ROOF.starterLf} ft and ridge cap about ${ROOF.ridgeLf} ft per bundle (brands vary). See the shingle wrapper and the <a href="${ARMA_URL}" rel="nofollow">ARMA</a> installation guidance.`,
+  }));
+  // ---- topsoil ----
+  const tsRows = [0.5, 1, 2, 3, 4, 6, 8, 12].map((d) => [`${d} in`, `${fmtInt(324 / d)} sq ft`, `${(FILL_SOIL.materials.topsoil.tpy).toFixed(1)} tons`]);
+  pages.push(toolPage({
+    path: '/topsoil-calculator/', name: 'Topsoil Calculator', script: '/assets/fill.js', embedId: 'topsoil', updated: u,
+    title: 'Topsoil Calculator: Cubic Yards, Tons & Bags of Topsoil',
+    description: 'Free topsoil calculator: cubic yards, tons, bags and truckloads of topsoil for new lawns, top dressing, beds and gardens, with settling and cost.',
+    h1: 'Topsoil Calculator', lede: 'Add each area, pick the project or depth and get the cubic yards, tons, bags and truckloads of topsoil, with extra for settling and bulk versus bagged cost.',
+    answer: `<strong>Cubic yards = length × width (ft) × depth (in) ÷ 324.</strong> 1,000 sq ft at 4 in deep is ${(1000 * 4 / 324).toFixed(1)} cu yd, or about <strong>${(1000 * 4 / 324 * 1.15).toFixed(1)} cu yd with 15% for settling</strong> (roughly ${(1000 * 4 / 324 * 1.15 * 1.1).toFixed(1)} tons). One cubic yard covers 81 sq ft at 4 in, 162 sq ft at 2 in and 324 sq ft at 1 in.`,
+    card: topsoilCard(),
+    sections: `<h2>How far a cubic yard of topsoil goes</h2>${table(['Depth', 'One cu yd covers', 'Weight per cu yd'], tsRows)}
+<h2>Topsoil depth by project</h2>${table(['Project', 'Depth'], Object.values(FILL_SOIL.uses).filter((x) => x.depth).map((x) => [x.name.replace(/ \(.*\)$/, ''), `${x.depth} in`]))}`,
+    faqs: [
+      ['How do I calculate how much topsoil I need?', 'Multiply length × width in feet to get square feet, multiply by the depth in inches and divide by 324 for cubic yards. Add 10–20% because loose topsoil settles.'],
+      ['How much does a yard of topsoil weigh?', 'About 2,000–2,200 lb (1–1.1 tons) when dry, and up to 3,000 lb when wet. Compost-rich blends weigh less.'],
+      ['How much topsoil do I need for a new lawn?', '4–6 in. For 1,000 sq ft at 4 in, that is about 12.3 cu yd, or about 14 cu yd with settling.'],
+      ['How many bags of topsoil are in a yard?', 'A cubic yard is 27 cu ft, so 36 bags of 0.75 cu ft, 27 bags of 1 cu ft or 18 bags of 1.5 cu ft.'],
+      ['Is bulk topsoil cheaper than bags?', 'Usually, once you need more than 1–2 cubic yards, even with a delivery fee. Bags make sense for small beds and top dressing.'],
+    ],
+    sources: 'Volume = area × depth ÷ 12 ÷ 27 for cubic yards. Bulk densities are typical dry values (screened topsoil about 1.1 tons per cu yd, blends 0.8–0.95, fill dirt 1.2, compost 0.5); moisture can add 20–40%. A half-ton pickup is limited to roughly 1,500 lb of payload. Supplier yards sell in ½ or 1 yd steps.',
+  }));
+  // ---- sand ----
+  const poolRows = [12, 15, 18, 21, 24, 27, 30].map((d) => { const yd = Math.PI * ((d + 2) / 2) ** 2 * 2 / 12 / 27; return [`${d} ft round`, `${d + 2} ft pad`, yd.toFixed(2), (yd * 1.35).toFixed(2), String(Math.ceil(yd * 27 / 0.5 - 1e-9))]; });
+  pages.push(toolPage({
+    path: '/sand-calculator/', name: 'Sand Calculator', script: '/assets/fill.js', embedId: 'sand', updated: u,
+    title: 'Sand Calculator: Cubic Yards, Tons & Bags (Play, Paver, Pool)',
+    description: 'Free sand calculator: cubic yards, tons and 50 lb bags of play, mason, concrete or fill sand for sandboxes, paver bedding, above-ground pool bases and leveling.',
+    h1: 'Sand Calculator', lede: 'How much sand you need for a sandbox, paver bed, above-ground pool base, lawn leveling or trench, in cubic yards, tons and 50 lb bags, for rectangles and circles.',
+    answer: `<strong>Cubic yards = length × width (ft) × depth (in) ÷ 324; tons ≈ cubic yards × 1.35</strong> for dry sand. A 10 × 10 ft area 2 in deep needs ${(100 * 2 / 324).toFixed(2)} cu yd (${(100 * 2 / 324 * 1.35).toFixed(2)} tons), or <strong>${Math.ceil(100 * 2 / 12 / 0.5 - 1e-9)} bags of 50 lb</strong>. A 24 ft above-ground pool needs a 26 ft pad: about ${(Math.PI * 13 * 13 * 2 / 12 / 27).toFixed(1)} cu yd at 2 in.`,
+    card: sandCard(),
+    sections: `<h2>Sand for an above-ground pool base (2 in deep)</h2>${table(['Pool', 'Sand pad', 'Cu yd', 'Tons', '50 lb bags'], poolRows)}
+<h2>Sand depth by project</h2>${table(['Project', 'Depth', 'Per 100 sq ft'], Object.values(FILL_SAND.uses).filter((x) => x.depth).map((x) => [x.name.replace(/ \(.*\)$/, ''), `${x.depth} in`, `${(100 * x.depth / 324).toFixed(2)} cu yd`]))}`,
+    faqs: [
+      ['How do I calculate how much sand I need?', 'Multiply length × width in feet by the depth in inches and divide by 324 for cubic yards. For a circle, use 3.1416 × radius² as the area. Multiply cubic yards by about 1.35 for tons of dry sand.'],
+      ['How much does a yard of sand weigh?', 'About 2,600–2,800 lb (1.3–1.4 tons) dry and 3,000–3,300 lb damp, which is how bulk sand is usually delivered.'],
+      ['How much sand do I need for an above-ground pool?', 'A 2 in layer over a pad 2 ft wider than the pool. For a 24 ft round pool that is about 2.0 cu yd, roughly 2.8 tons or 80 bags of 50 lb.'],
+      ['How many bags of sand are in a yard?', 'About 54 bags of 50 lb (0.5 cu ft each).'],
+      ['What sand goes under pavers?', 'Coarse concrete sand (ASTM C33) screeded 1 in thick over the compacted base. Fine play sand and mason sand hold water and shift.'],
+    ],
+    sources: 'Volume = area × depth ÷ 12 ÷ 27. Dry sand weighs about 100 lb per cu ft (1.35 tons per cu yd); coarse concrete and fill sand about 1.4; damp sand about 1.6. Bagged play sand is sold as 50 lb, about 0.5 cu ft. Pool pad guidance follows common above-ground pool installation instructions; check yours.',
+  }));
+  // ---- polymeric sand ----
+  const pc = (k, j) => fmtInt(polyCover(POLY.pavers[k].l, POLY.pavers[k].w, j));
+  pages.push(toolPage({
+    path: '/polymeric-sand-calculator/', name: 'Polymeric Sand Calculator', script: '/assets/fill.js', embedId: 'polymeric-sand', updated: u,
+    title: 'Polymeric Sand Calculator: Bags by Paver Size & Joint Width',
+    description: 'Free polymeric sand calculator: bags of polymeric sand for pavers or flagstone from the area, paver size, joint width and joint depth, with coverage per bag.',
+    h1: 'Polymeric Sand Calculator', lede: 'Polymeric sand coverage depends on the joints, not just the area. Enter the paver size, joint width and depth to get the bags you need and the real coverage per bag.',
+    answer: `<strong>Coverage depends on paver size and joint width.</strong> A 50 lb bag covers about <strong>${pc('brick', 0.125)} sq ft of 4 × 8 in pavers with ⅛ in joints</strong> 2¼ in deep, but only about ${pc('brick', 0.25)} sq ft with ¼ in joints. Large 24 × 24 in slabs with ⅛ in joints go about ${pc('24x24', 0.125)} sq ft per bag. Joint volume = the joint share of each paver cell × the depth.`,
+    card: polyCard(),
+    sections: `<h2>Square feet per 50 lb bag (2¼ in deep joints)</h2>${table(['Paver', '⅛ in joints', '¼ in joints', '½ in joints'], ['brick', '6x6', '6x9', '12x12', '16x16', '24x24', 'flag'].map((k) => [POLY.pavers[k].name, pc(k, 0.125), pc(k, 0.25), pc(k, 0.5)]))}
+<section class="hgt-read"><h2>Getting polymeric sand right</h2><ul><li>Install on a dry day with no rain forecast for 24 hours, and make sure the pavers are completely dry.</li><li>Fill joints to about ⅛ in below the paver top (the chamfer), compact with a plate compactor fitted with a pad, and top up.</li><li>Blow every grain off the paver surface before misting; leftover dust leaves a haze.</li></ul></section>`,
+    faqs: [
+      ['How much polymeric sand do I need?', 'Find the joint volume: for each paver, (length + joint) × (width + joint) − length × width is the joint area, times the depth. Divide by the paver cell area for the share of surface that is joint, then multiply by the patio area, depth and about 100 lb per cu ft. Or use the calculator above.'],
+      ['How many square feet does a bag of polymeric sand cover?', 'From about 30 sq ft (small pavers, wide joints) to well over 100 sq ft (large slabs, tight joints) per 50 lb bag. The table above shows typical cases.'],
+      ['How deep should polymeric sand be?', 'At least 1½ in, and ideally the full joint depth to about ⅛ in below the top of the paver, so it can bind and resist washout.'],
+      ['Can you use polymeric sand on wide joints?', 'Standard products handle joints up to about ½ in; wider flagstone joints need a wide-joint polymeric sand or stone dust product.'],
+      ['Is polymeric sand better than regular sand?', 'It binds when wetted, which resists weeds, ants and washout far better than loose joint sand, but it must be installed dry and in the right weather.'],
+    ],
+    sources: `Joint share = ((L + j)(W + j) − L·W) ÷ ((L + j)(W + j)) for a grid of pavers; volume = share × area × depth. Settled polymeric sand weighs about ${POLY.density} lb per cu ft; ${Math.round(POLY.waste * 100)}% added for spillage and top-ups. Bag coverage tables from the manufacturers vary by product; follow the bag's joint-width and depth limits.`,
+  }));
+  // ---- spans ----
+  const deckSp = ['syp', 'dfl', 'hf', 'spf', 'wc'];
+  const sizes4 = ['2x6', '2x8', '2x10', '2x12'];
+  const deckRows = sizes4.flatMap((z) => SPAN.spacings.map((oc) => [`${z.replace('x', '×')} at ${oc} in`, ...deckSp.map((sp) => ftInS(spanInches(sp, z, oc, DECK_LOAD(sp))))]));
+  const sypD = (z) => ftInS(spanInches('syp', z, 16, DECK_LOAD('syp')));
+  pages.push(toolPage({
+    path: '/deck-joist-span-calculator/', name: 'Deck Joist Span Calculator', script: '/assets/span.js', embedId: 'deck-joist-span', updated: u,
+    title: 'Deck Joist Span Calculator & Span Chart (DCA 6 Method)',
+    description: 'Free deck joist span calculator: max span for southern pine, Douglas fir, hem-fir, SPF and cedar joists at 12, 16 or 24 in on center (DCA 6 method), with a chart.',
+    h1: 'Deck Joist Span Calculator', lede: 'Find how far your deck joists can span for their species, size and spacing, check a planned span, and see the full span chart, using the same checks as the AWC DCA 6 deck guide.',
+    answer: `<strong>Southern pine No. 2 deck joists at 16 in on center span about: 2×6 ${sypD('2x6')}, 2×8 ${sypD('2x8')}, 2×10 ${sypD('2x10')} and 2×12 ${sypD('2x12')}</strong> (40 psf live + 10 psf dead load, L/360, wet service). Treated Douglas fir, hem-fir and SPF are usually incised, which shortens their spans. Joists may cantilever about ¼ of their span past the beam.`,
+    card: spanCard('deck'),
+    sections: `<h2>Deck joist span chart</h2><p class="hgt-read">No. 2 grade, 40 psf live + 10 psf dead load, L/360, wet service; Douglas fir, hem-fir and SPF incised. Spans capped at ${SPAN.deckCap} ft as in DCA 6.</p>${table(['Joist', 'Southern pine', 'Douglas fir-larch', 'Hem-fir', 'Spruce-pine-fir', 'Western cedars'], deckRows)}
+<section class="hgt-read"><h2>Deck framing tips</h2><ul><li>Spans are measured between the ledger or beam supports, not end to end.</li><li>16 in on center is standard; composite decking often needs 12 in, and diagonal decking 12 in.</li><li>Hot tubs, heavy planters and privacy walls add point loads; those need an engineered design.</li></ul></section>`,
+    faqs: [
+      ['How far can a 2×8 deck joist span?', `About ${sypD('2x8')} for southern pine No. 2 at 16 in on center, and less for incised hem-fir or SPF. At 12 in spacing it spans further; at 24 in, less.`],
+      ['How far can a 2×10 deck joist span?', `About ${sypD('2x10')} for southern pine No. 2 at 16 in on center (40 psf live load).`],
+      ['How far can a 2×6 deck joist span?', `About ${sypD('2x6')} for southern pine No. 2 at 16 in on center. 2×6 joists suit low, small decks.`],
+      ['How far can a deck joist cantilever?', 'Up to about one-quarter of the joist\'s back span, and DCA 6 caps it further for some sizes. A 12 ft joist span allows about a 3 ft cantilever.'],
+      ['Why are treated hem-fir and SPF spans shorter?', 'These species are incised (slit) so the preservative can penetrate, and incising lowers their strength and stiffness. Southern pine takes treatment without incising.'],
+    ],
+    sources: `Allowable span is the smallest of the bending, deflection (L/360 under live load) and shear limits using <a href="${NDS_URL}" rel="nofollow">NDS 2018</a> design values for No. 2 lumber, the repetitive-member factor 1.15, wet-service factors (bending 0.85 where F<sub>b</sub>C<sub>F</sub> > 1,150 psi, E 0.9, shear 0.97) and incising factors (0.8, 0.95, 0.8), as in <a href="${DCA6_URL}" rel="nofollow">AWC DCA 6</a>; results match DCA 6 Table 2 within an inch. Your local code and inspector have the final say.`,
+  }));
+  const floorSp = ['dfl', 'syp', 'hf', 'spf'];
+  const floorRows = (live) => sizes4.flatMap((z) => SPAN.spacings.map((oc) => [`${z.replace('x', '×')} at ${oc} in`, ...floorSp.map((sp) => ftInS(spanInches(sp, z, oc, FLOOR_LOAD(live))))]));
+  const dfF = (z) => ftInS(spanInches('dfl', z, 16, FLOOR_LOAD()));
+  pages.push(toolPage({
+    path: '/floor-joist-span-calculator/', name: 'Floor Joist Span Calculator', script: '/assets/span.js', embedId: 'floor-joist-span', updated: u,
+    title: 'Floor Joist Span Calculator & Span Chart (2×6 to 2×12)',
+    description: 'Free floor joist span calculator and chart: max spans for 2×6 to 2×12 joists in Douglas fir, southern pine, hem-fir and SPF for 30 and 40 psf floors.',
+    h1: 'Floor Joist Span Calculator', lede: 'Check how far a floor joist can span for its species, size, spacing and floor use, and see span charts for 40 psf living areas and 30 psf bedrooms.',
+    answer: `<strong>Douglas fir-larch No. 2 floor joists at 16 in on center (40 psf live, 10 psf dead, L/360) span about: 2×6 ${dfF('2x6')}, 2×8 ${dfF('2x8')}, 2×10 ${dfF('2x10')} and 2×12 ${dfF('2x12')}.</strong> Bedrooms (30 psf) allow longer spans; tile floors are best designed to L/480 or stiffer.`,
+    card: spanCard('floor'),
+    sections: `<h2>Floor joist span chart: living areas (40 psf live, 10 psf dead, L/360)</h2>${table(['Joist', 'Douglas fir-larch', 'Southern pine', 'Hem-fir', 'Spruce-pine-fir'], floorRows(40))}
+<h2>Floor joist span chart: bedrooms (30 psf live, 10 psf dead, L/360)</h2>${table(['Joist', 'Douglas fir-larch', 'Southern pine', 'Hem-fir', 'Spruce-pine-fir'], floorRows(30))}`,
+    faqs: [
+      ['How far can a 2×8 floor joist span?', `About ${dfF('2x8')} for Douglas fir-larch No. 2 at 16 in on center under a 40 psf living-area load. Southern pine and SPF are similar; hem-fir is a little shorter.`],
+      ['How far can a 2×10 floor joist span?', `About ${dfF('2x10')} for Douglas fir-larch No. 2 at 16 in on center (40 psf live load).`],
+      ['How far can a 2×12 floor joist span?', `About ${dfF('2x12')} for Douglas fir-larch No. 2 at 16 in on center (40 psf live load).`],
+      ['How far can a 2×6 floor joist span?', `About ${dfF('2x6')} for Douglas fir-larch No. 2 at 16 in on center; 2×6 floors are mostly used for sheds and small additions.`],
+      ['What is L/360?', 'The floor may bend no more than its span divided by 360 under the full live load: about ½ in for a 15 ft joist. Tile and stone floors are usually designed to L/480 or stiffer to avoid cracking.'],
+    ],
+    sources: `Spans are the smallest of the bending, live-load deflection and shear limits using <a href="${NDS_URL}" rel="nofollow">NDS 2018</a> design values for No. 2 dimension lumber with the repetitive-member factor 1.15, dry service, the method behind the <a href="${AWC_SPANS_URL}" rel="nofollow">AWC span tables</a> and <a href="${IRC_FLOOR_URL}" rel="nofollow">IRC</a> Table R502.3.1. Values may differ slightly from your code book's table. Engineered I-joists and LVL use the maker's tables.`,
+  }));
+  const rafterRows = ['2x4', '2x6', '2x8', '2x10', '2x12'].flatMap((z) => SPAN.spacings.map((oc) => [`${z.replace('x', '×')} at ${oc} in`, ...['live20', 'snow30', 'snow50', 'snow70'].map((k) => ftInS(spanInches('dfl', z, oc, RAFTER_LOAD(k)))) ]));
+  const dfR = (z) => ftInS(spanInches('dfl', z, 16, RAFTER_LOAD('snow30')));
+  pages.push(toolPage({
+    path: '/rafter-span-calculator/', name: 'Rafter Span Calculator', script: '/assets/span.js', embedId: 'rafter-span', updated: u,
+    title: 'Rafter Span Calculator & Rafter Span Chart',
+    description: 'Free rafter span calculator: max horizontal span for 2×4 to 2×12 rafters by species, spacing, snow or roof load and ceiling, with a rafter span chart.',
+    h1: 'Rafter Span Calculator', lede: 'Find the maximum horizontal span of a rafter for your species, size, spacing, roof load and ceiling, and check a planned span.',
+    answer: `<strong>Douglas fir-larch No. 2 rafters at 16 in on center, 30 psf ground snow, 10 psf dead load and an attached ceiling (L/240) span about: 2×6 ${dfR('2x6')}, 2×8 ${dfR('2x8')}, 2×10 ${dfR('2x10')} and 2×12 ${dfR('2x12')}</strong>, measured horizontally. Heavier snow or roofing shortens the span.`,
+    card: spanCard('rafter'),
+    sections: `<h2>Rafter span chart: Douglas fir-larch No. 2, 10 psf dead load, ceiling attached (L/240)</h2>${table(['Rafter', '20 psf roof live', '30 psf snow', '50 psf snow', '70 psf snow'], rafterRows)}
+<p class="hgt-read">Spans are horizontal projections. To get the rafter's length along the slope, multiply by the slope factor from the <a href="/roof-pitch-calculator/">roof pitch calculator</a>.</p>`,
+    faqs: [
+      ['How far can a 2×6 rafter span?', `About ${dfR('2x6')} horizontally for Douglas fir-larch No. 2 at 16 in on center with 30 psf snow, a 10 psf roof and an attached ceiling.`],
+      ['How far can a 2×8 rafter span?', `About ${dfR('2x8')} horizontally under the same loads.`],
+      ['Is rafter span measured horizontally?', 'Yes. Code span tables use the horizontal distance between supports, not the length along the slope.'],
+      ['What snow load should I use?', 'Use your local ground snow load from the building department; it ranges from 0 in the South to 70 psf or more in mountain areas.'],
+      ['What does "ceiling attached" change?', 'A ceiling (drywall) attached to the rafters must not crack, so the rafter must be stiffer: L/240 instead of L/180.'],
+    ],
+    sources: `Bending, deflection and shear checks with <a href="${NDS_URL}" rel="nofollow">NDS 2018</a> No. 2 design values, repetitive-member factor 1.15 and load-duration factors 1.15 (snow) and 1.25 (roof live load), applying the snow or live load to the horizontal projection, as in <a href="${IRC_ROOF_URL}" rel="nofollow">IRC</a> rafter tables. Values may differ slightly from your code book's table. Rafter thrust, ceiling-joist ties and heel heights are not checked; follow your local code.`,
+  }));
+  // ---- fertilizer ----
+  const fertRows = FERT.products.map(([v, n]) => { const [N] = v.split('-').map(Number); const per = 1 / (N / 100); return [n.replace(/ \(.*\)$/, ''), `${per.toFixed(1)} lb`, N ? `${fmtInt(50 / per * 1000)} sq ft` : '–']; });
+  pages.push(toolPage({
+    path: '/fertilizer-calculator/', name: 'Fertilizer Calculator', script: '/assets/fert.js', embedId: 'fertilizer', updated: u,
+    title: 'Lawn Fertilizer Calculator: How Much Per 1,000 Sq Ft (N-P-K)',
+    description: 'Free lawn fertilizer calculator: how much of any N-P-K fertilizer per 1,000 sq ft and for your whole lawn, granular or liquid, with feeding times by grass.',
+    h1: 'Fertilizer Calculator', lede: 'Turn the N-P-K numbers on any bag into how much to spread per 1,000 sq ft and for your whole lawn, by nitrogen or by a soil test\'s phosphate or potash, with feeding times for your grass.',
+    answer: '<strong>Pounds of fertilizer per 1,000 sq ft = pounds of nutrient wanted ÷ (percent on the bag ÷ 100).</strong> For 1 lb of nitrogen with 24-0-6: 1 ÷ 0.24 = <strong>4.2 lb per 1,000 sq ft</strong>, or 20.8 lb for a 5,000 sq ft lawn. With 10-10-10 it takes 10 lb per 1,000 sq ft. Most lawns need 1–4 lb of nitrogen per 1,000 sq ft a year, split into feedings of about 1 lb.',
+    card: fertCard(),
+    sections: `<h2>Fertilizer for 1 lb of nitrogen per 1,000 sq ft</h2>${table(['Product (N-P-K)', 'Per 1,000 sq ft', '50 lb bag covers'], fertRows)}
+<h2>Yearly nitrogen by grass type</h2>${table(['Grass', 'Season', 'Lb N per 1,000 sq ft per year'], Object.values(FERT.grasses).map((g) => [g.name, g.season === 'cool' ? 'Cool-season' : 'Warm-season', `${g.lo}–${g.hi}`]))}`,
+    faqs: [
+      ['How do I calculate how much fertilizer to use?', 'Decide how much nitrogen you want per 1,000 sq ft (usually 0.5–1 lb), divide by the first number on the bag as a decimal, and multiply by your lawn area in thousands of square feet. 1 lb N with 32-0-4 is 1 ÷ 0.32 = 3.1 lb per 1,000 sq ft.'],
+      ['What do the three numbers on fertilizer mean?', 'They are the percent by weight of nitrogen (N), phosphate (P₂O₅) and potash (K₂O). A 50 lb bag of 10-10-10 contains 5 lb of each.'],
+      ['How much 10-10-10 per 1,000 square feet?', '10 lb per 1,000 sq ft for 1 lb of nitrogen, or 5 lb for a half-rate feeding.'],
+      ['How often should I fertilize my lawn?', 'Cool-season grasses mostly in fall (2–3 feedings), warm-season grasses every 6–8 weeks from green-up through summer. Your grass type sets the yearly total.'],
+      ['Can I put down too much fertilizer?', 'Yes. More than about 1 lb of quick-release nitrogen per 1,000 sq ft at once can burn the lawn, and excess nutrients wash into waterways. Split heavy rates and follow the label.'],
+    ],
+    sources: `Product rate = nutrient rate ÷ (grade % ÷ 100); N-P-K grades are percent by weight of N, P₂O₅ and K₂O. Yearly nitrogen ranges reflect university extension guidance such as <a href="${PURDUE_TURF_URL}" rel="nofollow">Purdue Turfgrass Science</a> and <a href="${NCSU_TURF_URL}" rel="nofollow">NC State TurfFiles</a>; your state's extension service and a soil test give the best numbers for your lawn. Liquid rates use the product's weight per gallon from its label.`,
+  }));
+  return pages;
+}
+
 // ---------- Pinterest: one pin per tool, one RSS feed per board ----------
 // Pinterest's "auto-publish from RSS" maps each feed to one board (up to 5 feeds per account),
 // so tools are grouped into 5 boards and each feed item carries its pin image.
 const PIN_BOARDS = [
-  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, raised bed and potting soil, frost dates and hardiness zones by ZIP code.', tools: ['/grass-seed-calculator/', '/sod-calculator/', '/raised-bed-soil-calculator/', '/potting-soil-calculator/', '/acreage-calculator/', '/square-feet-to-acres-calculator/', '/hardiness-zones/', '/frost-dates/'] },
-  { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/', '/cubic-yard-calculator/', '/cubic-yards-to-tons-calculator/'] },
+  { id: 'lawn-garden', name: 'Lawn & Garden Calculators', desc: 'Free calculators and charts for lawns and gardens: grass seed, sod, raised bed and potting soil, frost dates and hardiness zones by ZIP code.', tools: ['/topsoil-calculator/', '/fertilizer-calculator/', '/grass-seed-calculator/', '/sod-calculator/', '/raised-bed-soil-calculator/', '/potting-soil-calculator/', '/acreage-calculator/', '/square-feet-to-acres-calculator/', '/hardiness-zones/', '/frost-dates/'] },
+  { id: 'patio-gravel', name: 'Patio, Paver & Gravel Projects', desc: 'How much gravel, pavers, base and retaining wall block to buy for patios, paths and driveways, with free calculators.', tools: ['/gravel-calculator/', '/pea-gravel-calculator/', '/driveway-gravel-calculator/', '/paver-calculator/', '/paver-base-calculator/', '/retaining-wall-calculator/', '/cubic-yard-calculator/', '/cubic-yards-to-tons-calculator/', '/sand-calculator/', '/polymeric-sand-calculator/'] },
   { id: 'pool-care', name: 'Pool Care Calculators', desc: 'Pool volume, salt and shock doses made simple, with free calculators and charts for every pool size.', tools: ['/pool-volume-calculator/', '/pool-salt-calculator/', '/pool-shock-calculator/'] },
-  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists for decks, fences, stairs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/', '/board-foot-calculator/', '/log-board-foot-calculator/', '/concrete-calculator/', '/concrete-slab-calculator/', '/concrete-bag-calculator/', '/deck-stain-calculator/', '/fence-stain-calculator/'] },
+  { id: 'diy-building', name: 'DIY Deck, Fence & Stair Building', desc: 'Material lists and span charts for decks, fences, stairs, roofs and block walls: free calculators, charts and code tips for DIY builders.', tools: ['/deck-joist-span-calculator/', '/floor-joist-span-calculator/', '/rafter-span-calculator/', '/roof-pitch-calculator/', '/roofing-calculator/', '/shingle-calculator/', '/deck-calculator/', '/fence-calculator/', '/fence-post-concrete-calculator/', '/stair-calculator/', '/stair-stringer-calculator/', '/concrete-block-calculator/', '/board-foot-calculator/', '/log-board-foot-calculator/', '/concrete-calculator/', '/concrete-slab-calculator/', '/concrete-bag-calculator/', '/deck-stain-calculator/', '/fence-stain-calculator/'] },
   { id: 'diy-interior', name: 'DIY Tile & Drywall Projects', desc: 'How much tile, grout, thinset, drywall and paint to buy, room square footage, and AC and mini split sizing, with free calculators.', tools: ['/tile-calculator/', '/shower-tile-calculator/', '/drywall-calculator/', '/square-footage-calculator/', '/countertop-square-footage-calculator/', '/btu-calculator/', '/mini-split-size-calculator/', '/exterior-paint-calculator/'] },
 ];
 // Each pin: a question people search on Pinterest, a small chart from the same formulas as the page, and a description.
@@ -2452,20 +2885,32 @@ function pinData() {
     '/deck-stain-calculator/': ['How much deck stain?', ['Product', 'Rough wood', 'Smooth'], Object.values(COAT.products).map((x) => [x.name.replace(' or toner', ''), `${x.rough} sq ft/gal`, `${x.smooth}`])],
     '/fence-stain-calculator/': ['Fence stain (6 ft, both sides)', ['Fence', 'Gallons, 1 coat'], [50, 100, 150, 200].map((L) => [`${L} ft privacy`, String(Math.ceil(L * 6 * 2 * 1.15 / COAT.products.semi.rough))])],
     '/exterior-paint-calculator/': ['How much exterior paint?', ['House', 'Gallons, 2 coats'], [[40, 30, 9], [50, 30, 9], [50, 30, 18], [60, 40, 18]].map(([l, w, h]) => { const a = 2 * (l + w) * h + w * 8 - 334; return [`${l}×${w} ft, ${h} ft walls`, String(Math.ceil(a / COAT.products.paint.smooth * 2))]; })],
+    '/roof-pitch-calculator/': ['Roof pitch to degrees', ['Pitch', 'Angle', 'Slope factor'], [3, 4, 6, 8, 10, 12].map((p) => [`${p}/12`, `${(Math.atan(p / 12) * 180 / Math.PI).toFixed(1)}°`, roofSF(p).toFixed(3)])],
+    '/roofing-calculator/': ['How many squares is my roof?', ['House (6/12 gable)', 'Squares', 'Bundles'], [[30, 20], [40, 30], [50, 30], [60, 40]].map(([L, W]) => { const q = gableSquares(L, W, 6); return [`${L} × ${W} ft`, q.toFixed(1), String(Math.ceil(q * 3 - 1e-9))]; })],
+    '/shingle-calculator/': ['How many bundles of shingles?', ['Roof area', 'Bundles (+10%)'], [1000, 1500, 2000, 2500, 3000].map((a) => [`${fmtInt(a)} sq ft`, String(Math.ceil(a * 1.1 / 100 * 3 - 1e-9))])],
+    '/topsoil-calculator/': ['How far does a yard of topsoil go?', ['Depth', 'Covers', 'Weighs'], [1, 2, 3, 4, 6].map((d) => [`${d} in`, `${fmtInt(324 / d)} sq ft`, '1.1 tons'])],
+    '/sand-calculator/': ['Sand for an above-ground pool', ['Pool', 'Cu yd (2 in)', '50 lb bags'], [15, 18, 21, 24, 27].map((d) => { const yd = Math.PI * ((d + 2) / 2) ** 2 * 2 / 324; return [`${d} ft round`, yd.toFixed(1), String(Math.ceil(yd * 54 - 1e-9))]; })],
+    '/polymeric-sand-calculator/': ['Polymeric sand: sq ft per bag', ['Paver', '⅛ in joint', '¼ in joint'], ['brick', '6x9', '12x12', '24x24'].map((k) => [POLY.pavers[k].name.replace(/ \(.*$/, ''), fmtInt(polyCover(POLY.pavers[k].l, POLY.pavers[k].w, 0.125)), fmtInt(polyCover(POLY.pavers[k].l, POLY.pavers[k].w, 0.25))])],
+    '/deck-joist-span-calculator/': ['How far can a deck joist span?', ['Joist (16 in o.c.)', 'Southern pine', 'Hem-fir'], ['2x6', '2x8', '2x10', '2x12'].map((z) => [z.replace('x', '×'), ftInS(spanInches('syp', z, 16, DECK_LOAD('syp'))), ftInS(spanInches('hf', z, 16, DECK_LOAD('hf')))])],
+    '/floor-joist-span-calculator/': ['Floor joist span chart', ['Joist (16 in o.c.)', 'Doug fir', 'SPF'], ['2x6', '2x8', '2x10', '2x12'].map((z) => [z.replace('x', '×'), ftInS(spanInches('dfl', z, 16, FLOOR_LOAD())), ftInS(spanInches('spf', z, 16, FLOOR_LOAD()))])],
+    '/rafter-span-calculator/': ['How far can a rafter span?', ['Rafter (16 in)', '30 psf snow', '50 psf snow'], ['2x6', '2x8', '2x10', '2x12'].map((z) => [z.replace('x', '×'), ftInS(spanInches('dfl', z, 16, RAFTER_LOAD('snow30'))), ftInS(spanInches('dfl', z, 16, RAFTER_LOAD('snow50')))])],
+    '/fertilizer-calculator/': ['How much fertilizer per 1,000 sq ft?', ['N-P-K', 'For 1 lb N'], ['10-10-10', '16-4-8', '24-0-6', '29-0-4', '32-0-4', '46-0-0'].map((v) => [v, `${(100 / Number(v.split('-')[0])).toFixed(1)} lb`])],
     '/drywall-calculator/': ['How many sheets of drywall?', ['Room', '4×8 sheets', '4×12'], [[10, 10], [12, 12], [12, 14], [14, 16]].map(([l, w]) => [`${l} × ${w} ft`, String(drywallRow(l, w).sheets), String(drywallRow(l, w, 8, 48).sheets)])],
   };
   const tools = ALL_TOOLS();
   return PIN_BOARDS.flatMap((b) => b.tools.map((path) => {
     const t = tools.find((x) => x[2] === path);
     const [q, head, rows] = P[path];
-    return { slug: path.replace(/\//g, ''), path, board: b.id, icon: t[0], name: t[1], text: t[3], q, head, rows };
+    const updated = [...BATCH5_TOOLS, ...BATCH5_VARIANTS].some((x) => x[2] === path) ? B5_UPDATED : TOOLS_UPDATED;
+    return { slug: path.replace(/\//g, ''), path, board: b.id, icon: t[0], name: t[1], text: t[3], q, head, rows, updated };
   }));
 }
 
 function pinterestFeed(board, pins, meta) {
   const items = pins.filter((p) => p.board === board.id);
   const x = (s) => esc(s);
-  const pub = new Date(`${TOOLS_UPDATED}T12:00:00Z`).toUTCString();
+  const day = (d) => new Date(`${d}T12:00:00Z`).toUTCString();
+  const pub = day(items.reduce((m, p) => (p.updated > m ? p.updated : m), TOOLS_UPDATED));
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
@@ -2478,8 +2923,8 @@ function pinterestFeed(board, pins, meta) {
 ${items.map((p) => `<item>
 <title>${x(`${p.q} Free ${p.name}`)}</title>
 <link>${SITE}${p.path}?utm_source=pinterest&amp;utm_medium=social&amp;utm_campaign=${board.id}</link>
-<guid isPermaLink="false">${SITE}${p.path}#pin-${TOOLS_UPDATED}</guid>
-<pubDate>${pub}</pubDate>
+<guid isPermaLink="false">${SITE}${p.path}#pin-${p.updated}</guid>
+<pubDate>${day(p.updated)}</pubDate>
 <description>${x(`${p.q} ${p.text} Free ${p.name.toLowerCase()} from ${BRAND}: no sign-up, shows the math, works on your phone.`)}</description>
 <enclosure url="${SITE}/assets/pins/${p.slug}.jpg" type="image/jpeg" length="${meta.pinBytes[p.slug] || 0}"/>
 <media:content url="${SITE}/assets/pins/${p.slug}.jpg" medium="image" type="image/jpeg" width="1000" height="1500"/>
@@ -2536,7 +2981,7 @@ async function main() {
     urls.push([p.path, 0.8]);
   }
   await write(ZONE_IDX, zoneIndex(zones, usCounts, meta));
-  for (const p of [...batch4Pages(), ...batch3Pages(), ...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
+  for (const p of [...batch5Pages(), ...batch4Pages(), ...batch3Pages(), ...batch2Pages(), ...stairPages(), ...gravelPages(), ...poolPages(), ...paverPages(), sodCalcPage(), seedCalcPage(), blockCalcPage(), retainingCalcPage()]) {
     await write(p.path, p.html);
     urls.push([p.path, 0.9]);
   }
@@ -2571,7 +3016,7 @@ Cite as: ${BRAND}, ${SITE}/frost-dates/ (data: NOAA NCEI 1991–2020 U.S. Climat
 ## Tools
 - [Frost dates by ZIP code](${SITE}/frost-dates/): nearest-station frost dates for any U.S. ZIP code
 - [Hardiness zone by ZIP code](${SITE}${ZONE_IDX}): USDA 2023 plant hardiness zone for ${fmtInt(zoneMeta.zips)} ZIP codes, with frost dates
-${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
+${[...BATCH1_TOOLS, ...BATCH1_VARIANTS, ...BATCH2_TOOLS, ...BATCH2_VARIANTS, ...BATCH3_TOOLS, ...BATCH3_VARIANTS, ...BATCH4_TOOLS, ...BATCH4_VARIANTS, ...BATCH5_TOOLS, ...BATCH5_VARIANTS].map((t) => `- [${t[1]}](${SITE}${t[2]}): ${t[3]}`).join('\n')}
 - [Sod calculator](${SITE}/sod-calculator/): square feet, pallets (about 450 sq ft each), 16x24 in slabs or 2x5 ft rolls, topsoil and cost
 - [Grass seed calculator](${SITE}/grass-seed-calculator/): pounds of seed and bag sizes by grass type for new lawns or overseeding, from University of Tennessee Extension rates
 - [Concrete block calculator](${SITE}/concrete-block-calculator/): CMU blocks (1.125 per sq ft for 8x8x16), mortar bags, core grout, rebar and footing concrete
