@@ -81,7 +81,7 @@
 
     location.hash.replace(/^#/, '').split('&').forEach(function (kv) {
       var p = kv.split('='), e = p[0] && form.elements[decodeURIComponent(p[0])];
-      if (!e || e.length) return;
+      if (!e || (!e.options && e.length)) return; // skip radio groups, keep selects
       if (e.type === 'checkbox') e.checked = p[1] === '1'; else e.value = decodeURIComponent(p[1] || '');
     });
     var timer;

@@ -210,3 +210,10 @@ table{border-collapse:collapse;width:100%}
 .hgt-map__pt{background:#facc15;border:2px solid #1c1917;border-radius:50%;box-shadow:0 0 0 2px #fff}
 @media (max-width:480px){.hgt-map{height:360px}}
 .hgt-btn[hidden]{display:none}
+.hgt-stat--warn{background:#fee2e2}
+.hgt-stat--warn .hgt-stat__value{color:#991b1b}
+.hgt-calc__row--m label[hidden]{display:none}
+.hgt-roofsvg .roof{fill:#a8a29e;stroke:#57534e;stroke-width:2}
+.hgt-roofsvg .wall{fill:#e7e5e4;stroke:#a8a29e}
+.hgt-roofsvg .run{stroke:#247b49;stroke-width:2;stroke-dasharray:6 4}
+.hgt-roofsvg text{font:12px system-ui,sans-serif;fill:#3f3f46}
