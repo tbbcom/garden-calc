@@ -36,6 +36,10 @@ A static companion site for data-driven tools, built by `scripts/build-site.mjs`
 | `/cubic-yard-calculator/`, `/cubic-yards-to-tons-calculator/` | Cubic yards, tons and bags by material for any shape and depth; tons ↔ yards converter |
 | `/board-foot-calculator/`, `/log-board-foot-calculator/` | Board feet for a lumber list; log scale by Doyle, Scribner and International ¼ in |
 | `/potting-soil-calculator/`, `/raised-bed-soil-calculator/` | Potting mix for pots, planters and grow bags; raised bed soil split by mix with filler and settling |
+| `/acreage-calculator/`, `/square-feet-to-acres-calculator/` | Draw a lot on USGS satellite imagery (Leaflet, loaded on demand; geodesic area) or enter rectangle / triangle / 4 sides + diagonal; area converter |
+| `/btu-calculator/`, `/mini-split-size-calculator/` | Multi-room cooling (ENERGY STAR chart + adjustments) and heating BTU by climate zone; mini-split head sizes and multi-zone outdoor unit |
+| `/concrete-calculator/`, `/concrete-slab-calculator/`, `/concrete-bag-calculator/` | Slabs, footings, columns and steps in one pour: yards, 40/60/80 lb bags, trucks, rebar grid or mesh, gravel base, bags vs ready-mix cost |
+| `/deck-stain-calculator/`, `/fence-stain-calculator/`, `/exterior-paint-calculator/` | Gallons by product and surface for decks (floor, railings, stairs), fences (style, sides) and house siding (gables, openings, trim) |
 | `/sod-calculator/` | Sod in sq ft, pallets, slabs or rolls for rectangles, circles and triangles, with topsoil and cost |
 | `/grass-seed-calculator/` | Pounds of seed and the bag mix to buy by grass type, new lawn or overseeding (University of Tennessee Extension rates) |
 | `/concrete-block-calculator/` | CMU blocks course by course, mortar bags, core grout, rebar, ladder wire and footing concrete for several walls, with cost, diagram, shareable link and print list |
