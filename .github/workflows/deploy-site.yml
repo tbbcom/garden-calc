@@ -73,8 +73,12 @@ jobs:
   # Optional: clears Cloudflare's cache for the tools site after each deploy, so a long edge cache
   # never serves stale pages. Needs secrets CF_ZONE_ID and CF_API_TOKEN (Zone → Cache Purge → Purge);
   # without them this job just says so and succeeds.
+  # Since 2026-11-09 tools.homegardenlot.com 301-redirects to www.homegardenlot.com, which tbbcom/garden
+  # builds from this repo (Deploy www purges and pings IndexNow for www). Pinging tools.* URLs would only
+  # send search engines to redirects, so these two jobs stay off.
   purge-cloudflare:
     needs: deploy
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Purge Cloudflare cache for tools.homegardenlot.com
@@ -94,7 +98,7 @@ jobs:
   # Submitting only changed URLs follows the IndexNow guidance. A failure here never blocks the deploy.
   indexnow:
     needs: [build, purge-cloudflare]
-    if: needs.build.outputs.changed != '' && needs.build.outputs.changed != '[]'
+    if: false && needs.build.outputs.changed != '' && needs.build.outputs.changed != '[]'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
